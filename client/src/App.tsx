@@ -32,18 +32,8 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 function Router() {
   return (
     <Switch>
-      {/* Rutas públicas del frontend */}
-      <Route path="/directorio">
-        <Home />
-      </Route>
-      <Route path="/empresa/:id">
-        <CompanyDetails />
-      </Route>
-      
       {/* Rutas de administración */}
-      <Route path="/login">
-        <Login />
-      </Route>
+      <Route path="/login" component={Login} />
       <Route path="/admin">
         <ProtectedRoute>
           <AppLayout>
@@ -80,13 +70,13 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      {/* Ruta por defecto - debe ir al final */}
-      <Route path="/">
-        <Home />
-      </Route>
-      <Route>
-        <NotFound />
-      </Route>
+      {/* Rutas públicas del frontend */}
+      <Route path="/empresa/:id" component={CompanyDetails} />
+      <Route path="/directorio" component={Home} />
+      
+      {/* Ruta por defecto */}
+      <Route path="/" component={Home} />
+      <Route component={NotFound} />
     </Switch>
   );
 }
