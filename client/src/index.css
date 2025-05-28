@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 250 250 250; /* #FAFAFA */
+  --foreground: 15 23 42; /* #0F172A */
+  --muted: 241 245 249; /* #F1F5F9 */
+  --muted-foreground: 100 116 139; /* #64748B */
+  --popover: 255 255 255; /* #FFFFFF */
+  --popover-foreground: 15 23 42; /* #0F172A */
+  --card: 255 255 255; /* #FFFFFF */
+  --card-foreground: 15 23 42; /* #0F172A */
+  --border: 226 232 240; /* #E2E8F0 */
+  --input: 226 232 240; /* #E2E8F0 */
+  --primary: 207 90% 54%; /* #1976D2 */
+  --primary-foreground: 255 255 255; /* #FFFFFF */
+  --secondary: 120 43% 37%; /* #388E3C */
+  --secondary-foreground: 255 255 255; /* #FFFFFF */
+  --accent: 36 91% 47%; /* #F57C00 */
+  --accent-foreground: 255 255 255; /* #FFFFFF */
+  --destructive: 4 90% 58%; /* #D32F2F */
+  --destructive-foreground: 255 255 255; /* #FFFFFF */
+  --ring: 207 90% 54%; /* #1976D2 */
+  --radius: 0.5rem;
+  --chart-1: 207 90% 54%;
+  --chart-2: 120 43% 37%;
+  --chart-3: 36 91% 47%;
+  --chart-4: 4 90% 58%;
+  --chart-5: 262 83% 58%;
+  --sidebar-background: 255 255 255; /* #FFFFFF */
+  --sidebar-foreground: 15 23 42; /* #0F172A */
+  --sidebar-primary: 207 90% 54%; /* #1976D2 */
+  --sidebar-primary-foreground: 255 255 255; /* #FFFFFF */
+  --sidebar-accent: 241 245 249; /* #F1F5F9 */
+  --sidebar-accent-foreground: 15 23 42; /* #0F172A */
+  --sidebar-border: 226 232 240; /* #E2E8F0 */
+  --sidebar-ring: 207 90% 54%; /* #1976D2 */
+}
+
+.dark {
+  --background: 224 71% 4%; /* #0F172A */
+  --foreground: 210 40% 98%; /* #F8FAFC */
+  --muted: 215 28% 17%; /* #1E293B */
+  --muted-foreground: 215 20% 65%; /* #94A3B8 */
+  --popover: 224 71% 4%; /* #0F172A */
+  --popover-foreground: 210 40% 98%; /* #F8FAFC */
+  --card: 224 71% 4%; /* #0F172A */
+  --card-foreground: 210 40% 98%; /* #F8FAFC */
+  --border: 215 28% 17%; /* #1E293B */
+  --input: 215 28% 17%; /* #1E293B */
+  --primary: 207 90% 54%; /* #1976D2 */
+  --primary-foreground: 255 255 255; /* #FFFFFF */
+  --secondary: 120 43% 37%; /* #388E3C */
+  --secondary-foreground: 255 255 255; /* #FFFFFF */
+  --accent: 36 91% 47%; /* #F57C00 */
+  --accent-foreground: 255 255 255; /* #FFFFFF */
+  --destructive: 4 90% 58%; /* #D32F2F */
+  --destructive-foreground: 255 255 255; /* #FFFFFF */
+  --ring: 207 90% 54%; /* #1976D2 */
+  --sidebar-background: 224 71% 4%; /* #0F172A */
+  --sidebar-foreground: 210 40% 98%; /* #F8FAFC */
+  --sidebar-primary: 207 90% 54%; /* #1976D2 */
+  --sidebar-primary-foreground: 255 255 255; /* #FFFFFF */
+  --sidebar-accent: 215 28% 17%; /* #1E293B */
+  --sidebar-accent-foreground: 210 40% 98%; /* #F8FAFC */
+  --sidebar-border: 215 28% 17%; /* #1E293B */
+  --sidebar-ring: 207 90% 54%; /* #1976D2 */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary));
+}
+
+/* Loading animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Table hover effects */
+.table-row-hover:hover {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+/* Custom focus styles */
+.focus-visible:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Badge styles matching design */
+.badge-tecnologia {
+  background-color: rgb(219 234 254);
+  color: rgb(30 64 175);
+}
+
+.badge-manufactura {
+  background-color: rgb(220 252 231);
+  color: rgb(21 128 61);
+}
+
+.badge-servicios {
+  background-color: rgb(243 232 255);
+  color: rgb(107 33 168);
+}
+
+.badge-comercio {
+  background-color: rgb(224 231 255);
+  color: rgb(67 56 202);
+}
+
+.badge-premium {
+  background-color: rgb(254 249 195);
+  color: rgb(146 64 14);
+}
+
+.badge-basico {
+  background-color: rgb(243 244 246);
+  color: rgb(55 65 81);
+}
+
+.badge-enterprise {
+  background-color: rgb(255 237 213);
+  color: rgb(194 65 12);
+}
+
+/* Status indicators */
+.status-activo {
+  background-color: rgb(220 252 231);
+  color: rgb(21 128 61);
+}
+
+.status-inactivo {
+  background-color: rgb(254 226 226);
+  color: rgb(185 28 28);
+}
+
+.status-pendiente {
+  background-color: rgb(254 249 195);
+  color: rgb(146 64 14);
+}
