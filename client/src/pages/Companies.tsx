@@ -41,9 +41,9 @@ export default function Companies() {
       });
       
       if (searchTerm) params.append("search", searchTerm);
-      if (selectedCategory) params.append("categoryId", selectedCategory);
-      if (selectedMembership) params.append("membershipTypeId", selectedMembership);
-      if (selectedStatus) params.append("estado", selectedStatus);
+      if (selectedCategory && selectedCategory !== "all") params.append("categoryId", selectedCategory);
+      if (selectedMembership && selectedMembership !== "all") params.append("membershipTypeId", selectedMembership);
+      if (selectedStatus && selectedStatus !== "all") params.append("estado", selectedStatus);
       
       const response = await fetch(`/api/companies?${params}`, {
         credentials: "include",
@@ -107,9 +107,9 @@ export default function Companies() {
 
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedCategory("");
-    setSelectedMembership("");
-    setSelectedStatus("");
+    setSelectedCategory("all");
+    setSelectedMembership("all");
+    setSelectedStatus("all");
     setCurrentPage(1);
   };
 
@@ -157,7 +157,7 @@ export default function Companies() {
                 <SelectValue placeholder="Categoría" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas las categorías</SelectItem>
+                <SelectItem value="all">Todas las categorías</SelectItem>
                 {categories.map((category) => (
                   <SelectItem key={category.id} value={category.id.toString()}>
                     {category.nombreCategoria}
@@ -171,7 +171,7 @@ export default function Companies() {
                 <SelectValue placeholder="Membresía" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas las membresías</SelectItem>
+                <SelectItem value="all">Todas las membresías</SelectItem>
                 {membershipTypes.map((membership) => (
                   <SelectItem key={membership.id} value={membership.id.toString()}>
                     {membership.nombrePlan}
@@ -185,7 +185,7 @@ export default function Companies() {
                 <SelectValue placeholder="Estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los estados</SelectItem>
+                <SelectItem value="all">Todos los estados</SelectItem>
                 <SelectItem value="activo">Activo</SelectItem>
                 <SelectItem value="inactivo">Inactivo</SelectItem>
                 <SelectItem value="pendiente">Pendiente</SelectItem>
