@@ -94,7 +94,7 @@ export default function Users() {
         );
       }
       
-      if (selectedRole) {
+      if (selectedRole && selectedRole !== "all") {
         filteredUsers = filteredUsers.filter((user: UserType) => user.role === selectedRole);
       }
       
@@ -182,7 +182,7 @@ export default function Users() {
 
   const clearFilters = () => {
     setSearchTerm("");
-    setSelectedRole("");
+    setSelectedRole("all");
   };
 
   return (
@@ -223,7 +223,7 @@ export default function Users() {
                 <SelectValue placeholder="Filtrar por rol" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todos los roles</SelectItem>
+                <SelectItem value="all">Todos los roles</SelectItem>
                 <SelectItem value="admin">Administrador</SelectItem>
                 <SelectItem value="user">Usuario</SelectItem>
               </SelectContent>
