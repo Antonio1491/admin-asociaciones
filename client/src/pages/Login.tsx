@@ -92,16 +92,16 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <Card className="w-full max-w-md bg-white border border-gray-200 shadow-lg">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-6">
             <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
               <Building className="text-white text-xl" />
             </div>
           </div>
-          <CardTitle className="text-2xl text-center">AdminPlat</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl text-center text-primary">AdminPlat</CardTitle>
+          <CardDescription className="text-center text-gray-600">
             {isSignUp ? "Crea tu cuenta para comenzar" : "Inicia sesión en tu cuenta"}
           </CardDescription>
         </CardHeader>
@@ -113,14 +113,14 @@ export default function Login() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-gray-700">Email</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input 
                           type="email" 
                           placeholder="tu@email.com" 
-                          className="pl-10"
+                          className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
                           {...field} 
                         />
                       </div>
@@ -135,14 +135,14 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contraseña</FormLabel>
+                    <FormLabel className="text-gray-700">Contraseña</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                         <Input 
                           type="password" 
                           placeholder="••••••••" 
-                          className="pl-10"
+                          className="pl-10 bg-white border-gray-300 text-gray-900 placeholder:text-gray-500"
                           {...field} 
                         />
                       </div>
@@ -152,7 +152,7 @@ export default function Login() {
                 )}
               />
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-primary text-white hover:bg-primary/90" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isSignUp ? "Crear cuenta" : "Iniciar sesión"}
               </Button>
@@ -161,17 +161,17 @@ export default function Login() {
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <Separator className="w-full" />
+              <Separator className="w-full bg-gray-300" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">O continúa con</span>
+              <span className="bg-white px-2 text-gray-500">O continúa con</span>
             </div>
           </div>
 
           <Button 
             variant="outline" 
             type="button" 
-            className="w-full"
+            className="w-full bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
           >
