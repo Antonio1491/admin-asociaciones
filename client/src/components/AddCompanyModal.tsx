@@ -38,6 +38,7 @@ const companySchema = insertCompanySchema.extend({
   email1: z.string().email("Email inválido"),
   nombreEmpresa: z.string().min(1, "El nombre de la empresa es requerido"),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
+  videoUrl1: z.string().url("URL inválida").optional().or(z.literal("")),
   paisesPresencia: z.array(z.string()).optional(),
   estadosPresencia: z.array(z.string()).optional(),
   ciudadesPresencia: z.array(z.string()).optional(),
@@ -60,6 +61,8 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   const [selectedEstados, setSelectedEstados] = useState<string[]>([]);
   const [catalogoFile, setCatalogoFile] = useState<File | null>(null);
   const [redesSociales, setRedesSociales] = useState<Array<{plataforma: string, url: string}>>([]);
+  const [galeriaFiles, setGaleriaFiles] = useState<File[]>([]);
+  const [galeriaPreviews, setGaleriaPreviews] = useState<string[]>([]);
   const { toast } = useToast();
 
   // Plataformas de redes sociales disponibles
@@ -79,6 +82,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       email1: "",
       telefono1: "",
       sitioWeb: "",
+      videoUrl1: "",
       descripcionEmpresa: "",
       direccionFisica: "",
       paisesPresencia: [],
@@ -205,6 +209,149 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     form.setValue("redesSociales", newRedes);
   };
 
+  // Funciones para galería de fotografías
+  const validateImage = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      // Validar tamaño del archivo (máx 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "La imagen no debe pesar más de 5MB",
+          variant: "destructive",
+        });
+        resolve(false);
+        return;
+      }
+
+      // Validar tipo de archivo
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Solo se permiten archivos de imagen",
+          variant: "destructive",
+        });
+        resolve(false);
+        return;
+      }
+
+      // Validar resolución mínima
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        if (img.width < 800 || img.height < 800) {
+          toast({
+            title: "Error",
+            description: "Las imágenes deben tener una resolución mínima de 800x800px",
+            variant: "destructive",
+          });
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        toast({
+          title: "Error",
+          description: "Error al cargar la imagen",
+          variant: "destructive",
+        });
+        resolve(false);
+      };
+
+      img.src = url;
+    });
+  };
+
+  const processImageToSquare = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        const size = Math.min(img.width, img.height);
+        canvas.width = size;
+        canvas.height = size;
+        
+        const offsetX = (img.width - size) / 2;
+        const offsetY = (img.height - size) / 2;
+        
+        ctx?.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleGaleriaDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
+    
+    if (galeriaFiles.length + files.length > 10) {
+      toast({
+        title: "Error",
+        description: "Solo se permiten máximo 10 imágenes en la galería",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const validFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (const file of files) {
+      const isValid = await validateImage(file);
+      if (isValid) {
+        validFiles.push(file);
+        const preview = await processImageToSquare(file);
+        newPreviews.push(preview);
+      }
+    }
+
+    setGaleriaFiles([...galeriaFiles, ...validFiles]);
+    setGaleriaPreviews([...galeriaPreviews, ...newPreviews]);
+  }, [galeriaFiles, galeriaPreviews, toast]);
+
+  const handleGaleriaSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    
+    if (galeriaFiles.length + files.length > 10) {
+      toast({
+        title: "Error",
+        description: "Solo se permiten máximo 10 imágenes en la galería",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const validFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (const file of files) {
+      const isValid = await validateImage(file);
+      if (isValid) {
+        validFiles.push(file);
+        const preview = await processImageToSquare(file);
+        newPreviews.push(preview);
+      }
+    }
+
+    setGaleriaFiles([...galeriaFiles, ...validFiles]);
+    setGaleriaPreviews([...galeriaPreviews, ...newPreviews]);
+  };
+
+  const removeGaleriaImage = (index: number) => {
+    const newFiles = galeriaFiles.filter((_, i) => i !== index);
+    const newPreviews = galeriaPreviews.filter((_, i) => i !== index);
+    setGaleriaFiles(newFiles);
+    setGaleriaPreviews(newPreviews);
+  };
+
   // Obtener ciudades disponibles basadas en estados seleccionados
   const getAvailableCiudades = () => {
     return selectedEstados.flatMap(estado => 
@@ -307,6 +454,21 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                       <FormLabel>Sitio Web</FormLabel>
                       <FormControl>
                         <Input placeholder="https://www.ejemplo.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Video URL */}
+                <FormField
+                  control={form.control}
+                  name="videoUrl1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Video de la Empresa</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://youtube.com/watch?v=..." {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -569,6 +731,78 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                           </p>
                           <p className="text-xs text-gray-500 mt-1">
                             Solo archivos PDF (máx. 10MB)
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Galería de Fotografías */}
+                <div className="md:col-span-2">
+                  <FormLabel>Galería de Fotografías (máx. 10 imágenes)</FormLabel>
+                  <div
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors mt-2"
+                    onDrop={handleGaleriaDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                  >
+                    {galeriaFiles.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {galeriaPreviews.map((preview, index) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={preview}
+                                alt={`Galería ${index + 1}`}
+                                className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => removeGaleriaImage(index)}
+                              >
+                                <X className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          ))}
+                          {galeriaFiles.length < 10 && (
+                            <label className="w-full h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                              <Plus className="h-8 w-8 text-gray-400" />
+                              <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={handleGaleriaSelect}
+                              />
+                            </label>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-500">
+                          {galeriaFiles.length}/10 imágenes • Arrastra más imágenes o haz clic en + para agregar
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <Upload className="h-12 w-12 text-gray-400 mx-auto" />
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            Arrastra y suelta tus imágenes aquí, o{" "}
+                            <label className="text-primary cursor-pointer hover:underline">
+                              selecciona archivos
+                              <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={handleGaleriaSelect}
+                              />
+                            </label>
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Máximo 10 imágenes • Cada imagen: máx. 5MB, min. 800x800px, formato 1:1
                           </p>
                         </div>
                       </div>
