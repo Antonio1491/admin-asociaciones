@@ -220,7 +220,7 @@ export default function Memberships() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tipos de Membresía</h1>
+          <h1 className="text-3xl font-bold text-primary">Tipos de Membresía</h1>
           <p className="text-gray-600 mt-1">Administra los planes de membresía disponibles para las empresas</p>
         </div>
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>

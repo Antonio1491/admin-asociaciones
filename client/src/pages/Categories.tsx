@@ -174,7 +174,7 @@ export default function Categories() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Categorías</h1>
+          <h1 className="text-3xl font-bold text-primary">Gestión de Categorías</h1>
           <p className="text-gray-600 mt-1">Administra las categorías de empresas del directorio</p>
         </div>
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>

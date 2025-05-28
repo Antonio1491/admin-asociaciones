@@ -190,7 +190,7 @@ export default function Users() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
+          <h1 className="text-3xl font-bold text-primary">Gestión de Usuarios</h1>
           <p className="text-gray-600 mt-1">Administra los usuarios del sistema y sus permisos</p>
         </div>
         <div className="text-sm text-gray-500">
