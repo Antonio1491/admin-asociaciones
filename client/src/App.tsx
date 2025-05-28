@@ -33,6 +33,9 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 function Router() {
   return (
     <Switch>
+      {/* Ruta por defecto - DEBE ir primero para que funcione */}
+      <Route path="~/" component={TestHome} />
+      
       {/* Rutas de administración */}
       <Route path="/login" component={Login} />
       <Route path="/admin" component={() => (
@@ -75,8 +78,7 @@ function Router() {
       <Route path="/empresa/:id" component={CompanyDetails} />
       <Route path="/directorio" component={Home} />
       
-      {/* Ruta por defecto */}
-      <Route path="/" component={TestHome} />
+      {/* Ruta 404 */}
       <Route component={NotFound} />
     </Switch>
   );
