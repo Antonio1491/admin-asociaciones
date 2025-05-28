@@ -32,7 +32,8 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { insertCompanySchema, Category, MembershipType } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
-import { Upload, X, Building, Phone, Mail, Plus, FileText, Trash2, Facebook, Instagram, Linkedin, Twitter, Youtube, Globe } from "lucide-react";
+import { Upload, X, Building, Phone, Mail, Plus, FileText, Trash2, Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, MapPin } from "lucide-react";
+import MapLocationPicker from "./MapLocationPicker";
 
 const companySchema = insertCompanySchema.extend({
   email1: z.string().email("Email inválido"),
@@ -68,6 +69,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   const [telefonosAdicionales, setTelefonosAdicionales] = useState<string[]>([]);
   const [representantes, setRepresentantes] = useState<string[]>([]);
   const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<{[ciudad: string]: string}>({});
+  const [ubicacionesPorCiudad, setUbicacionesPorCiudad] = useState<{[ciudad: string]: { lat: number; lng: number; address: string }}>({});
   const { toast } = useToast();
 
   // Plataformas de redes sociales disponibles
@@ -416,6 +418,14 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     setDireccionesPorCiudad(prev => ({
       ...prev,
       [ciudad]: direccion
+    }));
+  };
+
+  // Función para ubicaciones del mapa
+  const updateUbicacionCiudad = (ciudad: string, ubicacion: { lat: number; lng: number; address: string }) => {
+    setUbicacionesPorCiudad(prev => ({
+      ...prev,
+      [ciudad]: ubicacion
     }));
   };
 
@@ -1068,19 +1078,39 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
 
                 {/* Direcciones por ciudad */}
                 {selectedCiudades.length > 0 && (
-                  <div className="md:col-span-2 space-y-4">
-                    <FormLabel>Direcciones por Ciudad</FormLabel>
+                  <div className="md:col-span-2 space-y-6">
+                    <FormLabel className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Ubicaciones por Ciudad
+                    </FormLabel>
                     {selectedCiudades.map((ciudad) => (
-                      <div key={ciudad} className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">
-                          Dirección en {ciudad}
-                        </label>
-                        <Textarea
-                          placeholder={`Dirección específica en ${ciudad}...`}
-                          value={direccionesPorCiudad[ciudad] || ""}
-                          onChange={(e) => updateDireccionCiudad(ciudad, e.target.value)}
-                          className="min-h-[80px]"
+                      <div key={ciudad} className="space-y-4 border rounded-lg p-4">
+                        <h4 className="text-sm font-medium text-gray-700">
+                          Ubicación en {ciudad}
+                        </h4>
+                        
+                        {/* Componente de mapa */}
+                        <MapLocationPicker
+                          ciudad={ciudad}
+                          onLocationSelect={(location) => updateUbicacionCiudad(ciudad, location)}
+                          initialLocation={ubicacionesPorCiudad[ciudad] || null}
                         />
+                        
+                        {/* Campo de dirección adicional */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-gray-700">
+                            Dirección adicional (opcional)
+                          </label>
+                          <Textarea
+                            placeholder={`Información adicional de la dirección en ${ciudad}...`}
+                            value={direccionesPorCiudad[ciudad] || ""}
+                            onChange={(e) => updateDireccionCiudad(ciudad, e.target.value)}
+                            className="min-h-[60px]"
+                          />
+                          <p className="text-xs text-gray-500">
+                            Ej: Edificio, piso, suite, referencias adicionales
+                          </p>
+                        </div>
                       </div>
                     ))}
                   </div>
