@@ -35,41 +35,41 @@ function Router() {
     <Switch>
       {/* Rutas de administración */}
       <Route path="/login" component={Login} />
-      <Route path="/admin">
+      <Route path="/admin" component={() => (
         <ProtectedRoute>
           <AppLayout>
             <Dashboard />
           </AppLayout>
         </ProtectedRoute>
-      </Route>
-      <Route path="/admin/companies">
+      )} />
+      <Route path="/admin/companies" component={() => (
         <ProtectedRoute>
           <AppLayout>
             <Companies />
           </AppLayout>
         </ProtectedRoute>
-      </Route>
-      <Route path="/admin/categories">
+      )} />
+      <Route path="/admin/categories" component={() => (
         <ProtectedRoute>
           <AppLayout>
             <Categories />
           </AppLayout>
         </ProtectedRoute>
-      </Route>
-      <Route path="/admin/memberships">
+      )} />
+      <Route path="/admin/memberships" component={() => (
         <ProtectedRoute>
           <AppLayout>
             <Memberships />
           </AppLayout>
         </ProtectedRoute>
-      </Route>
-      <Route path="/admin/users">
+      )} />
+      <Route path="/admin/users" component={() => (
         <ProtectedRoute requireAdmin>
           <AppLayout>
             <Users />
           </AppLayout>
         </ProtectedRoute>
-      </Route>
+      )} />
       
       {/* Rutas públicas del frontend */}
       <Route path="/empresa/:id" component={CompanyDetails} />
@@ -84,14 +84,24 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <div className="min-h-screen bg-green-100 flex items-center justify-center">
+      <div className="text-center p-8 bg-white rounded-lg shadow-lg">
+        <h1 className="text-4xl font-bold text-green-800 mb-4">
+          ✅ React Funcionando!
+        </h1>
+        <p className="text-xl text-gray-600 mb-4">
+          El frontend se está ejecutando correctamente
+        </p>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </div>
+    </div>
   );
 }
 
