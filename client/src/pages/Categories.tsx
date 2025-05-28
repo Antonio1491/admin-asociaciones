@@ -52,6 +52,8 @@ type CategoryFormData = z.infer<typeof categorySchema>;
 export default function Categories() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const { toast } = useToast();
 
@@ -164,6 +166,11 @@ export default function Categories() {
     setIsEditModalOpen(true);
   };
 
+  const handleView = (category: Category) => {
+    setSelectedCategory(category);
+    setIsViewModalOpen(true);
+  };
+
   const handleDelete = (categoryId: number) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar esta categoría?")) {
       deleteCategoryMutation.mutate(categoryId);
@@ -178,14 +185,35 @@ export default function Categories() {
           <h1 className="text-3xl font-bold text-primary">Gestión de Categorías</h1>
           <p className="text-gray-600 mt-1">Administra las categorías de empresas del directorio</p>
         </div>
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-              <Plus className="w-4 h-4" />
-              <span>Nueva Categoría</span>
+        <div className="flex items-center space-x-3">
+          {/* View Toggle */}
+          <div className="flex items-center border rounded-lg p-1">
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("table")}
+              className="h-8 px-3"
+            >
+              <TableIcon className="w-4 h-4" />
             </Button>
-          </DialogTrigger>
-          <DialogContent>
+            <Button
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className="h-8 px-3"
+            >
+              <Grid className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Nueva Categoría</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
             <DialogHeader>
               <DialogTitle>Agregar Nueva Categoría</DialogTitle>
             </DialogHeader>
@@ -235,14 +263,22 @@ export default function Categories() {
             </Form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
-      {/* Categories Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Categorías registradas ({categories.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Content Area */}
+      {viewMode === "table" ? (
+        <CategoryDataTable 
+          categories={categories} 
+          onEdit={handleEdit}
+          onView={handleView}
+        />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Categorías registradas ({categories.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-gray-500">Cargando categorías...</div>
@@ -305,7 +341,32 @@ export default function Categories() {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      )}
+
+      {/* View Modal */}
+      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Detalles de la Categoría</DialogTitle>
+          </DialogHeader>
+          {selectedCategory && (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Tags className="h-5 w-5 text-primary" />
+                <h3 className="text-xl font-semibold">{selectedCategory.nombreCategoria}</h3>
+              </div>
+              
+              {selectedCategory.descripcion && (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Descripción</label>
+                  <p className="text-sm text-gray-700">{selectedCategory.descripcion}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
