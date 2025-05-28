@@ -59,10 +59,15 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [selectedEstados, setSelectedEstados] = useState<string[]>([]);
+  const [selectedCiudades, setSelectedCiudades] = useState<string[]>([]);
   const [catalogoFile, setCatalogoFile] = useState<File | null>(null);
   const [redesSociales, setRedesSociales] = useState<Array<{plataforma: string, url: string}>>([]);
   const [galeriaFiles, setGaleriaFiles] = useState<File[]>([]);
   const [galeriaPreviews, setGaleriaPreviews] = useState<string[]>([]);
+  const [emailsAdicionales, setEmailsAdicionales] = useState<string[]>([]);
+  const [telefonosAdicionales, setTelefonosAdicionales] = useState<string[]>([]);
+  const [representantes, setRepresentantes] = useState<string[]>([]);
+  const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<{[ciudad: string]: string}>({});
   const { toast } = useToast();
 
   // Plataformas de redes sociales disponibles
@@ -352,6 +357,68 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     setGaleriaPreviews(newPreviews);
   };
 
+  // Funciones para emails adicionales
+  const addEmail = () => {
+    if (emailsAdicionales.length < 2) { // máximo 3 emails total (1 principal + 2 adicionales)
+      setEmailsAdicionales([...emailsAdicionales, ""]);
+    }
+  };
+
+  const removeEmail = (index: number) => {
+    const newEmails = emailsAdicionales.filter((_, i) => i !== index);
+    setEmailsAdicionales(newEmails);
+  };
+
+  const updateEmail = (index: number, value: string) => {
+    const newEmails = [...emailsAdicionales];
+    newEmails[index] = value;
+    setEmailsAdicionales(newEmails);
+  };
+
+  // Funciones para teléfonos adicionales
+  const addTelefono = () => {
+    if (telefonosAdicionales.length < 2) { // máximo 3 teléfonos total (1 principal + 2 adicionales)
+      setTelefonosAdicionales([...telefonosAdicionales, ""]);
+    }
+  };
+
+  const removeTelefono = (index: number) => {
+    const newTelefonos = telefonosAdicionales.filter((_, i) => i !== index);
+    setTelefonosAdicionales(newTelefonos);
+  };
+
+  const updateTelefono = (index: number, value: string) => {
+    const newTelefonos = [...telefonosAdicionales];
+    newTelefonos[index] = value;
+    setTelefonosAdicionales(newTelefonos);
+  };
+
+  // Funciones para representantes
+  const addRepresentante = () => {
+    if (representantes.length < 3) {
+      setRepresentantes([...representantes, ""]);
+    }
+  };
+
+  const removeRepresentante = (index: number) => {
+    const newRepresentantes = representantes.filter((_, i) => i !== index);
+    setRepresentantes(newRepresentantes);
+  };
+
+  const updateRepresentante = (index: number, value: string) => {
+    const newRepresentantes = [...representantes];
+    newRepresentantes[index] = value;
+    setRepresentantes(newRepresentantes);
+  };
+
+  // Función para direcciones por ciudad
+  const updateDireccionCiudad = (ciudad: string, direccion: string) => {
+    setDireccionesPorCiudad(prev => ({
+      ...prev,
+      [ciudad]: direccion
+    }));
+  };
+
   // Obtener ciudades disponibles basadas en estados seleccionados
   const getAvailableCiudades = () => {
     return selectedEstados.flatMap(estado => 
@@ -593,11 +660,21 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                                 checked={field.value?.includes(ciudad) || false}
                                 onCheckedChange={(checked) => {
                                   const currentValues = field.value || [];
+                                  let newValues;
                                   if (checked) {
-                                    field.onChange([...currentValues, ciudad]);
+                                    newValues = [...currentValues, ciudad];
+                                    setSelectedCiudades(prev => [...prev, ciudad]);
                                   } else {
-                                    field.onChange(currentValues.filter(c => c !== ciudad));
+                                    newValues = currentValues.filter(c => c !== ciudad);
+                                    setSelectedCiudades(prev => prev.filter(c => c !== ciudad));
+                                    // Remover dirección de esta ciudad
+                                    setDireccionesPorCiudad(prev => {
+                                      const newDirecciones = { ...prev };
+                                      delete newDirecciones[ciudad];
+                                      return newDirecciones;
+                                    });
                                   }
+                                  field.onChange(newValues);
                                 }}
                               />
                               <label htmlFor={`ciudad-${ciudad}`} className="text-sm cursor-pointer">
@@ -825,7 +902,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                   control={form.control}
                   name="email1"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-2">
                       <FormLabel className="flex items-center gap-2">
                         <Mail className="h-4 w-4" />
                         Email Principal *
@@ -838,12 +915,48 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                   )}
                 />
 
+                {/* Emails adicionales */}
+                <div className="md:col-span-2 space-y-3">
+                  <FormLabel>Emails Adicionales</FormLabel>
+                  {emailsAdicionales.map((email, index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <Input
+                        placeholder={`email${index + 2}@empresa.com`}
+                        value={email}
+                        onChange={(e) => updateEmail(index, e.target.value)}
+                        type="email"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeEmail(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {emailsAdicionales.length < 2 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addEmail}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Email Adicional
+                    </Button>
+                  )}
+                </div>
+
                 {/* Teléfono principal */}
                 <FormField
                   control={form.control}
                   name="telefono1"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-2">
                       <FormLabel className="flex items-center gap-2">
                         <Phone className="h-4 w-4" />
                         Teléfono Principal
@@ -856,24 +969,40 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                   )}
                 />
 
-                {/* Dirección física */}
-                <FormField
-                  control={form.control}
-                  name="direccionFisica"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Dirección Física</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Calle, número, colonia, código postal, ciudad, estado..."
-                          className="min-h-[80px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                {/* Teléfonos adicionales */}
+                <div className="md:col-span-2 space-y-3">
+                  <FormLabel>Teléfonos Adicionales</FormLabel>
+                  {telefonosAdicionales.map((telefono, index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <Input
+                        placeholder={`+52 55 1234 567${index + 8}`}
+                        value={telefono}
+                        onChange={(e) => updateTelefono(index, e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeTelefono(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {telefonosAdicionales.length < 2 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addTelefono}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Teléfono Adicional
+                    </Button>
                   )}
-                />
+                </div>
 
                 {/* Tipo de membresía */}
                 <FormField
@@ -881,7 +1010,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                   name="membershipTypeId"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Tipo de Membresía</FormLabel>
+                      <FormLabel>Tipo de Membresía *</FormLabel>
                       <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
                         <FormControl>
                           <SelectTrigger>
@@ -900,6 +1029,61 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                     </FormItem>
                   )}
                 />
+
+                {/* Representantes */}
+                <div className="md:col-span-2 space-y-3">
+                  <FormLabel>Representantes de Ventas (URLs)</FormLabel>
+                  {representantes.map((representante, index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <Input
+                        placeholder="https://perfil-representante.com/usuario"
+                        value={representante}
+                        onChange={(e) => updateRepresentante(index, e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeRepresentante(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {representantes.length < 3 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addRepresentante}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Representante
+                    </Button>
+                  )}
+                </div>
+
+                {/* Direcciones por ciudad */}
+                {selectedCiudades.length > 0 && (
+                  <div className="md:col-span-2 space-y-4">
+                    <FormLabel>Direcciones por Ciudad</FormLabel>
+                    {selectedCiudades.map((ciudad) => (
+                      <div key={ciudad} className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Dirección en {ciudad}
+                        </label>
+                        <Textarea
+                          placeholder={`Dirección específica en ${ciudad}...`}
+                          value={direccionesPorCiudad[ciudad] || ""}
+                          onChange={(e) => updateDireccionCiudad(ciudad, e.target.value)}
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
