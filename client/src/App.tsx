@@ -46,7 +46,7 @@ function Router() {
         </ProtectedRoute>
       </Route>
       <Route path="/categories">
-        <ProtectedRoute requireAdmin>
+        <ProtectedRoute>
           <AppLayout>
             <Categories />
           </AppLayout>

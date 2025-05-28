@@ -42,6 +42,11 @@ const navigationItems = [
         requireAdmin: false,
       },
       {
+        name: "Categorías",
+        href: "/categories",
+        requireAdmin: false,
+      },
+      {
         name: "Membresías",
         href: "/memberships",
         requireAdmin: false,
@@ -52,12 +57,6 @@ const navigationItems = [
     name: "Gestión de Usuarios",
     href: "/users",
     icon: Users,
-    requireAdmin: true,
-  },
-  {
-    name: "Categorías",
-    href: "/categories",
-    icon: Tags,
     requireAdmin: true,
   },
   {

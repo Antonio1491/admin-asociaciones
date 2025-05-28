@@ -36,10 +36,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, MoreHorizontal, Edit, Trash2, Tags } from "lucide-react";
+import { Plus, MoreHorizontal, Edit, Trash2, Tags, Table as TableIcon, Grid, Eye } from "lucide-react";
 import { Category } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import CategoryDataTable from "@/components/CategoryDataTable";
 
 const categorySchema = z.object({
   nombreCategoria: z.string().min(1, "El nombre de la categoría es requerido"),
