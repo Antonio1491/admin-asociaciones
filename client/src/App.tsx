@@ -33,11 +33,17 @@ function Router() {
   return (
     <Switch>
       {/* Rutas públicas del frontend */}
-      <Route path="/directorio" component={Home} />
-      <Route path="/empresa/:id" component={CompanyDetails} />
+      <Route path="/directorio">
+        <Home />
+      </Route>
+      <Route path="/empresa/:id">
+        <CompanyDetails />
+      </Route>
       
       {/* Rutas de administración */}
-      <Route path="/login" component={Login} />
+      <Route path="/login">
+        <Login />
+      </Route>
       <Route path="/admin">
         <ProtectedRoute>
           <AppLayout>
@@ -74,11 +80,13 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      {/* Ruta por defecto redirige al directorio público */}
+      {/* Ruta por defecto - debe ir al final */}
       <Route path="/">
         <Home />
       </Route>
-      <Route component={NotFound} />
+      <Route>
+        <NotFound />
+      </Route>
     </Switch>
   );
 }
