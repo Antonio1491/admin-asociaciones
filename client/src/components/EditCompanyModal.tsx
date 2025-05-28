@@ -34,6 +34,7 @@ import { Category, MembershipType, CompanyWithDetails } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
 import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube } from "lucide-react";
 import MapLocationPicker from "./MapLocationPicker";
+import RichTextEditor from "./RichTextEditor";
 
 const companySchema = z.object({
   nombreEmpresa: z.string().min(1, "El nombre de la empresa es requerido"),
@@ -492,13 +493,16 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   name="descripcionEmpresa"
                   render={({ field }) => (
                     <FormItem className="md:col-span-2">
-                      <FormLabel>Descripción de la Empresa</FormLabel>
+                      <FormLabel className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Descripción de la Empresa
+                      </FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Describe brevemente los productos o servicios que ofrece la empresa..."
-                          className="min-h-[100px]"
-                          {...field}
+                        <RichTextEditor
                           value={field.value || ""}
+                          onChange={field.onChange}
+                          placeholder="Describe detalladamente los productos o servicios que ofrece la empresa, su historia, misión, valores y cualquier información relevante para los clientes..."
+                          height={250}
                         />
                       </FormControl>
                       <FormMessage />
