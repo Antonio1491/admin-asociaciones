@@ -70,7 +70,7 @@ export default function Dashboard() {
       categoryId: selectedCategory === "all" ? undefined : selectedCategory,
       page: currentPage 
     }],
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams({
         search: searchTerm,
         page: currentPage.toString(),
@@ -81,17 +81,15 @@ export default function Dashboard() {
         params.append("categoryId", selectedCategory);
       }
       
-      return apiRequest(`/api/companies?${params.toString()}`);
+      const response = await fetch(`/api/companies?${params.toString()}`);
+      return response.json();
     },
   });
 
   // Mutations
   const deleteCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      const response = await apiRequest(`/api/companies/${companyId}`, {
-        method: "DELETE",
-      });
-      return response;
+      return await apiRequest(`/api/companies/${companyId}`, "DELETE");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
@@ -270,7 +268,13 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">
-              <Bar data={companiesBarData} options={chartOptions} />
+              {statisticsLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-gray-500">Cargando gráfico...</div>
+                </div>
+              ) : (
+                <Bar data={companiesBarData} options={chartOptions} />
+              )}
             </div>
           </CardContent>
         </Card>
@@ -283,7 +287,13 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="h-[300px] w-full">
-              <Pie data={usersPieData} options={pieOptions} />
+              {statisticsLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-gray-500">Cargando gráfico...</div>
+                </div>
+              ) : (
+                <Pie data={usersPieData} options={pieOptions} />
+              )}
             </div>
           </CardContent>
         </Card>
@@ -297,7 +307,13 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="h-[300px] w-full">
-            <Line data={revenueLineData} options={chartOptions} />
+            {statisticsLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-gray-500">Cargando gráfico...</div>
+              </div>
+            ) : (
+              <Line data={revenueLineData} options={chartOptions} />
+            )}
           </div>
         </CardContent>
       </Card>
