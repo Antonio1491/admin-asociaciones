@@ -201,7 +201,7 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setIsSignUp(!isSignUp)}
-              className="text-primary hover:underline"
+              className="text-gray-600 hover:text-gray-800 hover:underline"
               disabled={isLoading}
             >
               {isSignUp 
