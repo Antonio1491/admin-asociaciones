@@ -24,7 +24,7 @@ export default function RichTextEditor({
     <div className="border rounded-lg overflow-hidden">
       <Editor
         ref={editorRef}
-        apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
+        apiKey={import.meta.env.VITE_TINYMCE_API_KEY || "no-api-key"}
         value={value}
         onEditorChange={handleEditorChange}
         init={{
