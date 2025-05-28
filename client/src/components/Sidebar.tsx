@@ -80,12 +80,9 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const SidebarContent = () => (
     <>
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-100">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <Building className="text-white text-sm" />
-          </div>
-          <h1 className="text-xl font-semibold text-gray-900">AdminPlat</h1>
+          <h1 className="text-xl font-medium text-gray-800">AdminPlat</h1>
         </div>
       </div>
 
@@ -98,10 +95,10 @@ export default function Sidebar({ className = "" }: SidebarProps) {
           return (
             <Link key={item.name} href={item.href}>
               <div
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                className={`flex items-center space-x-3 px-3 py-2 rounded-sm transition-colors cursor-pointer ${
                   isActive
-                    ? "bg-primary text-white"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-gray-100 text-gray-900 border-r-2 border-gray-800"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                 }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -114,16 +111,10 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       </nav>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-100">
         <div className="flex items-center space-x-3">
-          <Avatar className="w-8 h-8">
-            <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || ""} />
-            <AvatarFallback>
-              <User className="w-4 h-4" />
-            </AvatarFallback>
-          </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium text-gray-700 truncate">
               {user?.displayName || "Usuario"}
             </p>
             <p className="text-xs text-gray-500 truncate">
@@ -160,14 +151,14 @@ export default function Sidebar({ className = "" }: SidebarProps) {
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40">
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileMenuOpen(false)} />
-          <aside className="fixed left-0 top-0 h-full w-64 bg-surface shadow-lg border-r border-gray-200 flex flex-col">
+          <aside className="fixed left-0 top-0 h-full w-64 bg-white shadow-sm border-r border-gray-100 flex flex-col">
             <SidebarContent />
           </aside>
         </div>
       )}
 
       {/* Desktop sidebar */}
-      <aside className={`hidden lg:flex w-64 bg-surface shadow-lg border-r border-gray-200 fixed h-full overflow-y-auto flex-col ${className}`}>
+      <aside className={`hidden lg:flex w-64 bg-white shadow-sm border-r border-gray-100 fixed h-full overflow-y-auto flex-col ${className}`}>
         <SidebarContent />
       </aside>
     </>
