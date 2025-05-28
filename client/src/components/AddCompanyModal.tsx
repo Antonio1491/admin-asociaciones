@@ -32,7 +32,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { insertCompanySchema, Category, MembershipType } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
-import { Upload, X, Building, Phone, Mail } from "lucide-react";
+import { Upload, X, Building, Phone, Mail, Plus, FileText, Trash2, Facebook, Instagram, Linkedin, Twitter, Youtube, Globe } from "lucide-react";
 
 const companySchema = insertCompanySchema.extend({
   email1: z.string().email("Email inválido"),
@@ -41,6 +41,10 @@ const companySchema = insertCompanySchema.extend({
   paisesPresencia: z.array(z.string()).optional(),
   estadosPresencia: z.array(z.string()).optional(),
   ciudadesPresencia: z.array(z.string()).optional(),
+  redesSociales: z.array(z.object({
+    plataforma: z.string(),
+    url: z.string().url("URL inválida"),
+  })).optional(),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
@@ -54,7 +58,19 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [selectedEstados, setSelectedEstados] = useState<string[]>([]);
+  const [catalogoFile, setCatalogoFile] = useState<File | null>(null);
+  const [redesSociales, setRedesSociales] = useState<Array<{plataforma: string, url: string}>>([]);
   const { toast } = useToast();
+
+  // Plataformas de redes sociales disponibles
+  const socialPlatforms = [
+    { name: "Facebook", icon: Facebook },
+    { name: "Instagram", icon: Instagram },
+    { name: "LinkedIn", icon: Linkedin },
+    { name: "Twitter", icon: Twitter },
+    { name: "YouTube", icon: Youtube },
+    { name: "Sitio Web", icon: Globe },
+  ];
 
   const form = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
@@ -68,6 +84,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       paisesPresencia: [],
       estadosPresencia: [],
       ciudadesPresencia: [],
+      redesSociales: [],
     },
   });
 
@@ -134,6 +151,58 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   const removeLogo = () => {
     setLogoFile(null);
     setLogoPreview("");
+  };
+
+  // Manejo del catálogo PDF con drag and drop
+  const handleCatalogoDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf' && file.size <= 10 * 1024 * 1024) { // 10MB
+      setCatalogoFile(file);
+    } else {
+      toast({
+        title: "Error",
+        description: "Solo se permiten archivos PDF de máximo 10MB",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  const handleCatalogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type === 'application/pdf' && file.size <= 10 * 1024 * 1024) {
+        setCatalogoFile(file);
+      } else {
+        toast({
+          title: "Error",
+          description: "Solo se permiten archivos PDF de máximo 10MB",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const removeCatalogo = () => {
+    setCatalogoFile(null);
+  };
+
+  // Funciones para redes sociales dinámicas
+  const addRedSocial = () => {
+    setRedesSociales([...redesSociales, { plataforma: "", url: "" }]);
+  };
+
+  const removeRedSocial = (index: number) => {
+    const newRedes = redesSociales.filter((_, i) => i !== index);
+    setRedesSociales(newRedes);
+    form.setValue("redesSociales", newRedes);
+  };
+
+  const updateRedSocial = (index: number, field: 'plataforma' | 'url', value: string) => {
+    const newRedes = [...redesSociales];
+    newRedes[index][field] = value;
+    setRedesSociales(newRedes);
+    form.setValue("redesSociales", newRedes);
   };
 
   // Obtener ciudades disponibles basadas en estados seleccionados
@@ -399,6 +468,113 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                     </FormItem>
                   )}
                 />
+
+                {/* Redes Sociales Dinámicas */}
+                <div className="md:col-span-2 space-y-4">
+                  <FormLabel>Redes Sociales</FormLabel>
+                  {redesSociales.map((red, index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <Select 
+                        value={red.plataforma} 
+                        onValueChange={(value) => updateRedSocial(index, 'plataforma', value)}
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Plataforma" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {socialPlatforms.map((platform) => {
+                            const Icon = platform.icon;
+                            return (
+                              <SelectItem key={platform.name} value={platform.name}>
+                                <div className="flex items-center gap-2">
+                                  <Icon className="h-4 w-4" />
+                                  {platform.name}
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        placeholder="https://..."
+                        value={red.url}
+                        onChange={(e) => updateRedSocial(index, 'url', e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeRedSocial(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addRedSocial}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Agregar Red Social
+                  </Button>
+                </div>
+
+                {/* Catálogo de Productos PDF */}
+                <div className="md:col-span-2">
+                  <FormLabel>Catálogo de Productos (PDF)</FormLabel>
+                  <div
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors mt-2"
+                    onDrop={handleCatalogoDrop}
+                    onDragOver={(e) => e.preventDefault()}
+                  >
+                    {catalogoFile ? (
+                      <div className="flex items-center justify-between bg-gray-50 rounded-lg p-4">
+                        <div className="flex items-center gap-3">
+                          <FileText className="h-8 w-8 text-red-600" />
+                          <div className="text-left">
+                            <p className="font-medium text-gray-900">{catalogoFile.name}</p>
+                            <p className="text-sm text-gray-500">
+                              {(catalogoFile.size / (1024 * 1024)).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={removeCatalogo}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <FileText className="h-12 w-12 text-gray-400 mx-auto" />
+                        <div>
+                          <p className="text-sm text-gray-600">
+                            Arrastra y suelta tu catálogo PDF aquí, o{" "}
+                            <label className="text-primary cursor-pointer hover:underline">
+                              selecciona un archivo
+                              <input
+                                type="file"
+                                accept=".pdf"
+                                className="hidden"
+                                onChange={handleCatalogoSelect}
+                              />
+                            </label>
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Solo archivos PDF (máx. 10MB)
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
