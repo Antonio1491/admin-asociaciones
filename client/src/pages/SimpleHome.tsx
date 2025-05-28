@@ -1,47 +1,26 @@
 export default function SimpleHome() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 py-24">
-          <div className="text-center">
-            <h1 className="text-5xl font-bold mb-6">
-              🎉 ¡Directorio de Empresas!
-            </h1>
-            <p className="text-xl mb-8 text-blue-100">
-              Plataforma funcionando correctamente
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Section */}
-      <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold mb-8 text-gray-800">
-            ¡Excelente! El frontend está funcionando
+    <div style={{ minHeight: "100vh", backgroundColor: "#3B82F6", color: "white", padding: "2rem" }}>
+      <div style={{ textAlign: "center", maxWidth: "800px", margin: "0 auto" }}>
+        <h1 style={{ fontSize: "3rem", fontWeight: "bold", marginBottom: "2rem" }}>
+          ✅ PÁGINA FUNCIONANDO
+        </h1>
+        
+        <p style={{ fontSize: "1.5rem", marginBottom: "2rem" }}>
+          El frontend está operativo correctamente
+        </p>
+        
+        <div style={{ backgroundColor: "white", color: "black", padding: "2rem", borderRadius: "8px", marginTop: "2rem" }}>
+          <h2 style={{ fontSize: "2rem", marginBottom: "1rem" }}>
+            Plataforma de Administración Web
           </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Ahora podemos proceder con las funcionalidades completas
+          <p style={{ fontSize: "1.2rem" }}>
+            Directorio de empresas con panel administrativo
           </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h3 className="text-xl font-semibold mb-4 text-blue-600">Directorio Público</h3>
-              <p className="text-gray-600">Vista pública de empresas registradas</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h3 className="text-xl font-semibold mb-4 text-green-600">Panel Administrativo</h3>
-              <p className="text-gray-600">Gestión completa de empresas y usuarios</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h3 className="text-xl font-semibold mb-4 text-purple-600">Búsqueda Avanzada</h3>
-              <p className="text-gray-600">Filtros por categoría, ubicación y más</p>
-            </div>
-          </div>
+        </div>
+        
+        <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: "8px" }}>
+          <p>Si ves este mensaje, React está funcionando perfectamente</p>
         </div>
       </div>
     </div>
