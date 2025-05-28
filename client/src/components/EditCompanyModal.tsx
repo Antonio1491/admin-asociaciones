@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -30,28 +31,21 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Category, MembershipType, CompanyWithDetails } from "@shared/schema";
+import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
+import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube } from "lucide-react";
 
 const companySchema = z.object({
   nombreEmpresa: z.string().min(1, "El nombre de la empresa es requerido"),
   email1: z.string().email("Email inválido"),
-  email2: z.string().email("Email inválido").optional().or(z.literal("")),
-  telefono1: z.string().min(1, "El teléfono principal es requerido"),
-  telefono2: z.string().optional(),
+  telefono1: z.string().optional(),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
-  direccionFisica: z.string().optional(),
-  descripcionEmpresa: z.string().optional(),
-  categoryId: z.string().min(1, "La categoría es requerida"),
-  membershipTypeId: z.string().min(1, "El tipo de membresía es requerido"),
-  paisesPresencia: z.string().optional(),
-  estadosPresencia: z.string().optional(),
-  ciudadesPresencia: z.string().optional(),
-  facebookUrl: z.string().url("URL inválida").optional().or(z.literal("")),
-  linkedinUrl: z.string().url("URL inválida").optional().or(z.literal("")),
-  twitterUrl: z.string().url("URL inválida").optional().or(z.literal("")),
-  instagramUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   videoUrl1: z.string().url("URL inválida").optional().or(z.literal("")),
-  videoUrl2: z.string().url("URL inválida").optional().or(z.literal("")),
-  videoUrl3: z.string().url("URL inválida").optional().or(z.literal("")),
+  paisesPresencia: z.array(z.string()).min(1, "Selecciona al menos un país"),
+  estadosPresencia: z.array(z.string()).min(1, "Selecciona al menos un estado"),
+  ciudadesPresencia: z.array(z.string()).min(1, "Selecciona al menos una ciudad"),
+  descripcionEmpresa: z.string().optional(),
+  categoryId: z.number({ required_error: "La categoría es requerida" }),
+  membershipTypeId: z.number({ required_error: "El tipo de membresía es requerido" }),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
@@ -63,432 +57,277 @@ interface EditCompanyModalProps {
 }
 
 export default function EditCompanyModal({ open, onOpenChange, company }: EditCompanyModalProps) {
+  const [selectedEstados, setSelectedEstados] = useState<string[]>([]);
+  const [selectedCiudades, setSelectedCiudades] = useState<string[]>([]);
+  const [redesSociales, setRedesSociales] = useState<Array<{plataforma: string, url: string}>>([]);
+  const [emailsAdicionales, setEmailsAdicionales] = useState<string[]>([]);
+  const [telefonosAdicionales, setTelefonosAdicionales] = useState<string[]>([]);
+  const [representantes, setRepresentantes] = useState<string[]>([]);
+  const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<{[ciudad: string]: string}>({});
   const { toast } = useToast();
+
+  // Plataformas de redes sociales disponibles
+  const socialPlatforms = [
+    { name: "Facebook", icon: Facebook },
+    { name: "LinkedIn", icon: Linkedin },
+    { name: "Twitter", icon: Twitter },
+    { name: "Instagram", icon: Instagram },
+    { name: "YouTube", icon: Youtube },
+  ];
 
   const form = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
     defaultValues: {
       nombreEmpresa: "",
       email1: "",
-      email2: "",
       telefono1: "",
-      telefono2: "",
       sitioWeb: "",
-      direccionFisica: "",
-      descripcionEmpresa: "",
-      categoryId: "",
-      membershipTypeId: "",
-      paisesPresencia: "",
-      estadosPresencia: "",
-      ciudadesPresencia: "",
-      facebookUrl: "",
-      linkedinUrl: "",
-      twitterUrl: "",
-      instagramUrl: "",
       videoUrl1: "",
-      videoUrl2: "",
-      videoUrl3: "",
+      paisesPresencia: [],
+      estadosPresencia: [],
+      ciudadesPresencia: [],
+      descripcionEmpresa: "",
+      categoryId: undefined,
+      membershipTypeId: undefined,
     },
   });
 
-  // Populate form when company changes
-  useEffect(() => {
-    if (company) {
-      const redesSociales = company.redesSociales as any;
-      form.reset({
-        nombreEmpresa: company.nombreEmpresa,
-        email1: company.email1,
-        email2: company.email2 || "",
-        telefono1: company.telefono1 || "",
-        telefono2: company.telefono2 || "",
-        sitioWeb: company.sitioWeb || "",
-        direccionFisica: company.direccionFisica || "",
-        descripcionEmpresa: company.descripcionEmpresa || "",
-        categoryId: company.categoryId?.toString() || "",
-        membershipTypeId: company.membershipTypeId?.toString() || "",
-        paisesPresencia: Array.isArray(company.paisesPresencia) && company.paisesPresencia.length > 0 
-          ? company.paisesPresencia[0] : "",
-        estadosPresencia: Array.isArray(company.estadosPresencia) && company.estadosPresencia.length > 0 
-          ? company.estadosPresencia[0] : "",
-        ciudadesPresencia: Array.isArray(company.ciudadesPresencia) && company.ciudadesPresencia.length > 0 
-          ? company.ciudadesPresencia[0] : "",
-        facebookUrl: redesSociales?.facebook || "",
-        linkedinUrl: redesSociales?.linkedin || "",
-        twitterUrl: redesSociales?.twitter || "",
-        instagramUrl: redesSociales?.instagram || "",
-        videoUrl1: company.videoUrl1 || "",
-        videoUrl2: company.videoUrl2 || "",
-        videoUrl3: company.videoUrl3 || "",
-      });
-    }
-  }, [company, form]);
-
+  // Cargar categorías
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
 
+  // Cargar tipos de membresía
   const { data: membershipTypes = [] } = useQuery<MembershipType[]>({
     queryKey: ["/api/membership-types"],
   });
 
-  const updateCompanyMutation = useMutation({
+  // Cargar datos de la empresa en el formulario
+  useEffect(() => {
+    if (company && open) {
+      // Resetear estados
+      setSelectedEstados(company.estadosPresencia || []);
+      setSelectedCiudades(company.ciudadesPresencia || []);
+      setRedesSociales(company.redesSociales || []);
+      setEmailsAdicionales([]);
+      setTelefonosAdicionales([]);
+      setRepresentantes(company.representantesVentas || []);
+      setDireccionesPorCiudad({});
+
+      // Cargar datos en el formulario
+      form.reset({
+        nombreEmpresa: company.nombreEmpresa,
+        email1: company.email1,
+        telefono1: company.telefono1 || "",
+        sitioWeb: company.sitioWeb || "",
+        videoUrl1: company.videoUrl1 || "",
+        paisesPresencia: company.paisesPresencia || [],
+        estadosPresencia: company.estadosPresencia || [],
+        ciudadesPresencia: company.ciudadesPresencia || [],
+        descripcionEmpresa: company.descripcionEmpresa || "",
+        categoryId: company.categoryId,
+        membershipTypeId: company.membershipTypeId,
+      });
+    }
+  }, [company, open, form]);
+
+  // Mutación para actualizar empresa
+  const updateMutation = useMutation({
     mutationFn: async (data: CompanyFormData) => {
       if (!company) throw new Error("No company selected");
-
-      const companyData = {
+      
+      const updateData = {
         ...data,
-        categoryId: parseInt(data.categoryId),
-        membershipTypeId: parseInt(data.membershipTypeId),
-        paisesPresencia: data.paisesPresencia ? [data.paisesPresencia] : [],
-        estadosPresencia: data.estadosPresencia ? [data.estadosPresencia] : [],
-        ciudadesPresencia: data.ciudadesPresencia ? [data.ciudadesPresencia] : [],
-        redesSociales: {
-          facebook: data.facebookUrl || null,
-          linkedin: data.linkedinUrl || null,
-          twitter: data.twitterUrl || null,
-          instagram: data.instagramUrl || null,
-        },
+        redesSociales,
+        representantesVentas: representantes.filter(r => r.trim() !== ""),
       };
 
-      const response = await apiRequest("PUT", `/api/companies/${company.id}`, companyData);
+      const response = await apiRequest(`/api/companies/${company.id}`, {
+        method: "PUT",
+        body: JSON.stringify(updateData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al actualizar la empresa");
+      }
+
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/statistics"] });
       toast({
-        title: "Empresa actualizada",
-        description: "La empresa ha sido actualizada exitosamente",
+        title: "Éxito",
+        description: "Empresa actualizada correctamente",
       });
       onOpenChange(false);
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: "No se pudo actualizar la empresa",
+        description: error.message || "Error al actualizar la empresa",
         variant: "destructive",
       });
-      console.error("Error updating company:", error);
     },
   });
 
   const onSubmit = (data: CompanyFormData) => {
-    updateCompanyMutation.mutate(data);
+    updateMutation.mutate(data);
   };
 
-  if (!company) return null;
+  // Funciones para redes sociales
+  const addSocialMedia = () => {
+    if (redesSociales.length < 5) {
+      setRedesSociales([...redesSociales, { plataforma: "", url: "" }]);
+    }
+  };
+
+  const removeSocialMedia = (index: number) => {
+    const newSocials = redesSociales.filter((_, i) => i !== index);
+    setRedesSociales(newSocials);
+  };
+
+  const updateSocialMedia = (index: number, field: string, value: string) => {
+    const newSocials = [...redesSociales];
+    newSocials[index] = { ...newSocials[index], [field]: value };
+    setRedesSociales(newSocials);
+  };
+
+  // Funciones para emails adicionales
+  const addEmail = () => {
+    if (emailsAdicionales.length < 2) {
+      setEmailsAdicionales([...emailsAdicionales, ""]);
+    }
+  };
+
+  const removeEmail = (index: number) => {
+    const newEmails = emailsAdicionales.filter((_, i) => i !== index);
+    setEmailsAdicionales(newEmails);
+  };
+
+  const updateEmail = (index: number, value: string) => {
+    const newEmails = [...emailsAdicionales];
+    newEmails[index] = value;
+    setEmailsAdicionales(newEmails);
+  };
+
+  // Funciones para teléfonos adicionales
+  const addTelefono = () => {
+    if (telefonosAdicionales.length < 2) {
+      setTelefonosAdicionales([...telefonosAdicionales, ""]);
+    }
+  };
+
+  const removeTelefono = (index: number) => {
+    const newTelefonos = telefonosAdicionales.filter((_, i) => i !== index);
+    setTelefonosAdicionales(newTelefonos);
+  };
+
+  const updateTelefono = (index: number, value: string) => {
+    const newTelefonos = [...telefonosAdicionales];
+    newTelefonos[index] = value;
+    setTelefonosAdicionales(newTelefonos);
+  };
+
+  // Funciones para representantes
+  const addRepresentante = () => {
+    if (representantes.length < 3) {
+      setRepresentantes([...representantes, ""]);
+    }
+  };
+
+  const removeRepresentante = (index: number) => {
+    const newRepresentantes = representantes.filter((_, i) => i !== index);
+    setRepresentantes(newRepresentantes);
+  };
+
+  const updateRepresentante = (index: number, value: string) => {
+    const newRepresentantes = [...representantes];
+    newRepresentantes[index] = value;
+    setRepresentantes(newRepresentantes);
+  };
+
+  // Función para direcciones por ciudad
+  const updateDireccionCiudad = (ciudad: string, direccion: string) => {
+    setDireccionesPorCiudad(prev => ({
+      ...prev,
+      [ciudad]: direccion
+    }));
+  };
+
+  // Obtener ciudades disponibles basadas en estados seleccionados
+  const getAvailableCiudades = () => {
+    return selectedEstados.flatMap(estado => 
+      ciudadesPorEstado[estado]?.map(ciudad => `${ciudad}, ${estado}`) || []
+    );
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar Empresa</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Building className="h-5 w-5" />
+            Editar Empresa
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="nombreEmpresa"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre de la Empresa *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ingrese el nombre de la empresa" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="sitioWeb"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sitio Web</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://www.empresa.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Contact Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="email1"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email Principal *</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="contacto@empresa.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="email2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email Secundario</FormLabel>
-                    <FormControl>
-                      <Input type="email" placeholder="ventas@empresa.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="telefono1"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Teléfono Principal *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+52 55 1234 5678" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="telefono2"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Teléfono Secundario</FormLabel>
-                    <FormControl>
-                      <Input placeholder="+52 55 8765 4321" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Geographic Presence */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-medium text-gray-900">Presencia Geográfica</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormField
-                  control={form.control}
-                  name="paisesPresencia"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>País Principal</FormLabel>
-                      <FormControl>
-                        <Input placeholder="México" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="estadosPresencia"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estado Principal</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ciudad de México" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="ciudadesPresencia"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Ciudad Principal</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ciudad de México" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* Sección: Información de la Empresa */}
+            <div className="space-y-6">
+              <div className="border-b pb-4">
+                <h3 className="text-lg font-semibold text-primary">Información de la Empresa</h3>
+                <p className="text-sm text-gray-600">Datos generales de la empresa</p>
               </div>
-            </div>
 
-            {/* Physical Address */}
-            <FormField
-              control={form.control}
-              name="direccionFisica"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dirección Física</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Calle, número, colonia, código postal..."
-                      rows={3}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Category and Membership */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField
-                control={form.control}
-                name="categoryId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Categoría *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar categoría" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id.toString()}>
-                            {category.nombreCategoria}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="membershipTypeId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo de Membresía *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar membresía" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {membershipTypes.map((membershipType) => (
-                          <SelectItem key={membershipType.id} value={membershipType.id.toString()}>
-                            {membershipType.nombrePlan}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Company Description */}
-            <FormField
-              control={form.control}
-              name="descripcionEmpresa"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción de la Empresa</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Describa los servicios, productos y misión de la empresa..."
-                      rows={4}
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Social Networks */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-medium text-gray-900">Redes Sociales</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Nombre de la empresa */}
                 <FormField
                   control={form.control}
-                  name="facebookUrl"
+                  name="nombreEmpresa"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Facebook</FormLabel>
+                    <FormItem className="md:col-span-2">
+                      <FormLabel className="flex items-center gap-2">
+                        <Building className="h-4 w-4" />
+                        Nombre de la Empresa *
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="https://facebook.com/empresa" {...field} />
+                        <Input placeholder="Nombre completo de la empresa" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
+                {/* Sitio web */}
                 <FormField
                   control={form.control}
-                  name="linkedinUrl"
+                  name="sitioWeb"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>LinkedIn</FormLabel>
+                      <FormLabel className="flex items-center gap-2">
+                        <Globe className="h-4 w-4" />
+                        Sitio Web
+                      </FormLabel>
                       <FormControl>
-                        <Input placeholder="https://linkedin.com/company/empresa" {...field} />
+                        <Input placeholder="https://www.empresa.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="twitterUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Twitter</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://twitter.com/empresa" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="instagramUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instagram</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://instagram.com/empresa" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Videos */}
-            <div className="space-y-4">
-              <h4 className="text-lg font-medium text-gray-900">Videos</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Video URL */}
                 <FormField
                   control={form.control}
                   name="videoUrl1"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Video URL 1</FormLabel>
+                      <FormLabel className="flex items-center gap-2">
+                        <Video className="h-4 w-4" />
+                        Video Promocional
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="https://youtube.com/watch?v=..." {...field} />
                       </FormControl>
@@ -497,43 +336,431 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   )}
                 />
 
+                {/* Categoría */}
                 <FormField
                   control={form.control}
-                  name="videoUrl2"
+                  name="categoryId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Video URL 2</FormLabel>
+                      <FormLabel>Categoría *</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona una categoría" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category.id} value={category.id.toString()}>
+                              {category.nombreCategoria}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Países de presencia */}
+                <FormField
+                  control={form.control}
+                  name="paisesPresencia"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Países de Presencia *</FormLabel>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-32 overflow-y-auto border rounded-lg p-4">
+                        {paisesAmericaLatina.map((pais) => (
+                          <div key={pais} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`pais-${pais}`}
+                              checked={field.value?.includes(pais) || false}
+                              onCheckedChange={(checked) => {
+                                const currentValues = field.value || [];
+                                if (checked) {
+                                  field.onChange([...currentValues, pais]);
+                                } else {
+                                  field.onChange(currentValues.filter(p => p !== pais));
+                                }
+                              }}
+                            />
+                            <label htmlFor={`pais-${pais}`} className="text-sm cursor-pointer">
+                              {pais}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Estados de presencia */}
+                <FormField
+                  control={form.control}
+                  name="estadosPresencia"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Estados de México *</FormLabel>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-48 overflow-y-auto border rounded-lg p-4">
+                        {estadosMexico.map((estado) => (
+                          <div key={estado} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`estado-${estado}`}
+                              checked={field.value?.includes(estado) || false}
+                              onCheckedChange={(checked) => {
+                                const currentValues = field.value || [];
+                                if (checked) {
+                                  const newValues = [...currentValues, estado];
+                                  field.onChange(newValues);
+                                  setSelectedEstados(prev => [...prev, estado]);
+                                } else {
+                                  const newValues = currentValues.filter(e => e !== estado);
+                                  field.onChange(newValues);
+                                  setSelectedEstados(prev => prev.filter(e => e !== estado));
+                                }
+                              }}
+                            />
+                            <label htmlFor={`estado-${estado}`} className="text-sm cursor-pointer">
+                              {estado}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Ciudades de presencia */}
+                {selectedEstados.length > 0 && (
+                  <FormField
+                    control={form.control}
+                    name="ciudadesPresencia"
+                    render={({ field }) => (
+                      <FormItem className="md:col-span-2">
+                        <FormLabel>Ciudades de México</FormLabel>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-48 overflow-y-auto border rounded-lg p-4">
+                          {getAvailableCiudades().map((ciudad) => (
+                            <div key={ciudad} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`ciudad-${ciudad}`}
+                                checked={field.value?.includes(ciudad) || false}
+                                onCheckedChange={(checked) => {
+                                  const currentValues = field.value || [];
+                                  let newValues;
+                                  if (checked) {
+                                    newValues = [...currentValues, ciudad];
+                                    setSelectedCiudades(prev => [...prev, ciudad]);
+                                  } else {
+                                    newValues = currentValues.filter(c => c !== ciudad);
+                                    setSelectedCiudades(prev => prev.filter(c => c !== ciudad));
+                                    setDireccionesPorCiudad(prev => {
+                                      const newDirecciones = { ...prev };
+                                      delete newDirecciones[ciudad];
+                                      return newDirecciones;
+                                    });
+                                  }
+                                  field.onChange(newValues);
+                                }}
+                              />
+                              <label htmlFor={`ciudad-${ciudad}`} className="text-sm cursor-pointer">
+                                {ciudad}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* Descripción */}
+                <FormField
+                  control={form.control}
+                  name="descripcionEmpresa"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Descripción de la Empresa</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://youtube.com/watch?v=..." {...field} />
+                        <Textarea 
+                          placeholder="Describe brevemente los productos o servicios que ofrece la empresa..."
+                          className="min-h-[100px]"
+                          {...field}
+                          value={field.value || ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="videoUrl3"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Video URL 3</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://youtube.com/watch?v=..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                {/* Redes sociales */}
+                <div className="md:col-span-2 space-y-4">
+                  <FormLabel>Redes Sociales</FormLabel>
+                  {redesSociales.map((social, index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <Select
+                        value={social.plataforma}
+                        onValueChange={(value) => updateSocialMedia(index, "plataforma", value)}
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Plataforma" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {socialPlatforms.map((platform) => (
+                            <SelectItem key={platform.name} value={platform.name}>
+                              <div className="flex items-center gap-2">
+                                <platform.icon className="h-4 w-4" />
+                                {platform.name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        placeholder="URL de la red social"
+                        value={social.url}
+                        onChange={(e) => updateSocialMedia(index, "url", e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeSocialMedia(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {redesSociales.length < 5 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addSocialMedia}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Red Social
+                    </Button>
                   )}
-                />
+                </div>
               </div>
             </div>
 
-            {/* Form Actions */}
-            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            {/* Sección: Información de Contacto */}
+            <div className="space-y-6">
+              <div className="border-b pb-4">
+                <h3 className="text-lg font-semibold text-primary">Información de Contacto</h3>
+                <p className="text-sm text-gray-600">Datos de contacto y ubicación</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Email principal */}
+                <FormField
+                  control={form.control}
+                  name="email1"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Email Principal *
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="contacto@empresa.com" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Emails adicionales */}
+                <div className="md:col-span-2 space-y-3">
+                  <FormLabel>Emails Adicionales</FormLabel>
+                  {emailsAdicionales.map((email, index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <Input
+                        placeholder={`email${index + 2}@empresa.com`}
+                        value={email}
+                        onChange={(e) => updateEmail(index, e.target.value)}
+                        type="email"
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeEmail(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {emailsAdicionales.length < 2 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addEmail}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Email Adicional
+                    </Button>
+                  )}
+                </div>
+
+                {/* Teléfono principal */}
+                <FormField
+                  control={form.control}
+                  name="telefono1"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        Teléfono Principal
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="+52 55 1234 5678" {...field} value={field.value || ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Teléfonos adicionales */}
+                <div className="md:col-span-2 space-y-3">
+                  <FormLabel>Teléfonos Adicionales</FormLabel>
+                  {telefonosAdicionales.map((telefono, index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <Input
+                        placeholder={`+52 55 1234 567${index + 8}`}
+                        value={telefono}
+                        onChange={(e) => updateTelefono(index, e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeTelefono(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {telefonosAdicionales.length < 2 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addTelefono}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Teléfono Adicional
+                    </Button>
+                  )}
+                </div>
+
+                {/* Tipo de membresía */}
+                <FormField
+                  control={form.control}
+                  name="membershipTypeId"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Tipo de Membresía *</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un tipo de membresía" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {membershipTypes.map((type) => (
+                            <SelectItem key={type.id} value={type.id.toString()}>
+                              {type.nombrePlan} - ${type.costo} ({type.periodicidad})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Representantes */}
+                <div className="md:col-span-2 space-y-3">
+                  <FormLabel>Representantes de Ventas (URLs)</FormLabel>
+                  {representantes.map((representante, index) => (
+                    <div key={index} className="flex gap-3 items-start">
+                      <Input
+                        placeholder="https://perfil-representante.com/usuario"
+                        value={representante}
+                        onChange={(e) => updateRepresentante(index, e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeRepresentante(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {representantes.length < 3 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={addRepresentante}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Representante
+                    </Button>
+                  )}
+                </div>
+
+                {/* Direcciones por ciudad */}
+                {selectedCiudades.length > 0 && (
+                  <div className="md:col-span-2 space-y-4">
+                    <FormLabel>Direcciones por Ciudad</FormLabel>
+                    {selectedCiudades.map((ciudad) => (
+                      <div key={ciudad} className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                          Dirección en {ciudad}
+                        </label>
+                        <Textarea
+                          placeholder={`Dirección específica en ${ciudad}...`}
+                          value={direccionesPorCiudad[ciudad] || ""}
+                          onChange={(e) => updateDireccionCiudad(ciudad, e.target.value)}
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Botones */}
+            <div className="flex justify-end space-x-4 pt-6 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={updateMutation.isPending}
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={updateCompanyMutation.isPending}>
-                {updateCompanyMutation.isPending ? "Actualizando..." : "Actualizar Empresa"}
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? "Actualizando..." : "Actualizar Empresa"}
               </Button>
             </div>
           </form>
