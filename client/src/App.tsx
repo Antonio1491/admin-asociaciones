@@ -14,6 +14,7 @@ import Users from "@/pages/Users";
 import Login from "@/pages/Login";
 import Home from "@/pages/Home";
 import CompanyDetails from "@/pages/CompanyDetails";
+import TestHome from "@/TestHome";
 import NotFound from "@/pages/not-found";
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -75,7 +76,7 @@ function Router() {
       <Route path="/directorio" component={Home} />
       
       {/* Ruta por defecto */}
-      <Route path="/" component={Home} />
+      <Route path="/" component={TestHome} />
       <Route component={NotFound} />
     </Switch>
   );
