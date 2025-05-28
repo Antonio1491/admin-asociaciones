@@ -12,7 +12,7 @@ import Categories from "@/pages/Categories";
 import Memberships from "@/pages/Memberships";
 import Users from "@/pages/Users";
 import Login from "@/pages/Login";
-import Home from "@/pages/Home";
+import SimpleHome from "@/pages/SimpleHome";
 import CompanyDetails from "@/pages/CompanyDetails";
 import TestHome from "@/TestHome";
 import NotFound from "@/pages/not-found";
@@ -82,11 +82,11 @@ function Router() {
       </Route>
       
       <Route path="/directorio">
-        <Home />
+        <SimpleHome />
       </Route>
       
       <Route path="/">
-        <Home />
+        <SimpleHome />
       </Route>
     </div>
   );
