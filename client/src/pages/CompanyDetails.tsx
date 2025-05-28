@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, Facebook, Instagram, Twitter, Users, Calendar, FileText, Video } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, Video, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { CompanyWithDetails } from "@/../../shared/schema";
+import type { CompanyWithDetails } from "@/../../shared/schema";
 
 export default function CompanyDetails() {
   const { id } = useParams();
@@ -15,7 +15,7 @@ export default function CompanyDetails() {
     queryFn: async () => {
       const response = await fetch(`/api/companies/${id}`);
       if (!response.ok) throw new Error("Company not found");
-      return response.json() as CompanyWithDetails;
+      return response.json();
     },
   });
 
@@ -42,6 +42,13 @@ export default function CompanyDetails() {
       </div>
     );
   }
+
+  const telefonos = [company.telefono1, company.telefono2].filter(Boolean);
+  const emails = [company.email1, company.email2].filter(Boolean);
+  const galeria = company.galeriaProductosUrls as string[] || [];
+  const videos = [company.videoUrl1, company.videoUrl2, company.videoUrl3].filter(Boolean);
+  const representantes = company.representantesVentas as string[] || [];
+  const redesSociales = company.redesSociales as Record<string, string> || {};
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -77,30 +84,30 @@ export default function CompanyDetails() {
               <h1 className="text-4xl font-bold mb-4">{company.nombreEmpresa}</h1>
               <div 
                 className="text-xl text-blue-100 mb-6"
-                dangerouslySetInnerHTML={{ __html: company.descripcion || '' }}
+                dangerouslySetInnerHTML={{ __html: company.descripcionEmpresa || '' }}
               />
               
               {/* Información de contacto principal */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {company.telefonos && company.telefonos[0] && (
+                {telefonos[0] && (
                   <div className="flex items-center">
                     <Phone className="h-5 w-5 mr-3" />
-                    <span>{company.telefonos[0]}</span>
+                    <span>{telefonos[0]}</span>
                   </div>
                 )}
-                {company.emails && company.emails[0] && (
+                {emails[0] && (
                   <div className="flex items-center">
                     <Mail className="h-5 w-5 mr-3" />
-                    <span>{company.emails[0]}</span>
+                    <span>{emails[0]}</span>
                   </div>
                 )}
               </div>
             </div>
             
             <div className="flex justify-center lg:justify-end">
-              {company.logoUrl ? (
+              {company.logotipoUrl ? (
                 <img
-                  src={company.logoUrl}
+                  src={company.logotipoUrl}
                   alt={company.nombreEmpresa}
                   className="max-w-48 max-h-48 object-contain bg-white/10 rounded-2xl p-6"
                 />
@@ -132,20 +139,20 @@ export default function CompanyDetails() {
               <CardContent>
                 <div 
                   className="prose max-w-none"
-                  dangerouslySetInnerHTML={{ __html: company.descripcion || 'No hay descripción disponible.' }}
+                  dangerouslySetInnerHTML={{ __html: company.descripcionEmpresa || 'No hay descripción disponible.' }}
                 />
               </CardContent>
             </Card>
 
             {/* Galería de Fotos */}
-            {company.galeria && company.galeria.length > 0 && (
+            {galeria.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Galería</CardTitle>
+                  <CardTitle>Galería de Productos</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {company.galeria.map((imagen, index) => (
+                    {galeria.map((imagen, index) => (
                       <img
                         key={index}
                         src={imagen}
@@ -158,40 +165,41 @@ export default function CompanyDetails() {
               </Card>
             )}
 
-            {/* Video */}
-            {company.videoUrl && (
+            {/* Videos */}
+            {videos.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Video className="h-5 w-5 mr-2" />
-                    Video Corporativo
+                    Videos Corporativos
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="aspect-video">
-                    <iframe
-                      src={company.videoUrl}
-                      className="w-full h-full rounded-lg"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
+                  <div className="space-y-4">
+                    {videos.map((videoUrl, index) => (
+                      <div key={index} className="aspect-video">
+                        <iframe
+                          src={videoUrl}
+                          className="w-full h-full rounded-lg"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Representantes de Ventas */}
-            {company.representantesVentas && company.representantesVentas.length > 0 && (
+            {representantes.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Users className="h-5 w-5 mr-2" />
-                    Equipo de Ventas
-                  </CardTitle>
+                  <CardTitle>Equipo de Ventas</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {company.representantesVentas.map((rep, index) => (
+                    {representantes.map((rep, index) => (
                       <div key={index} className="p-4 border rounded-lg">
                         <h4 className="font-semibold">{rep}</h4>
                       </div>
@@ -211,26 +219,26 @@ export default function CompanyDetails() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Teléfonos */}
-                {company.telefonos && company.telefonos.length > 0 && (
+                {telefonos.length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-2 flex items-center">
                       <Phone className="h-4 w-4 mr-2" />
                       Teléfonos
                     </h4>
-                    {company.telefonos.map((telefono, index) => (
+                    {telefonos.map((telefono, index) => (
                       <p key={index} className="text-gray-600">{telefono}</p>
                     ))}
                   </div>
                 )}
 
                 {/* Emails */}
-                {company.emails && company.emails.length > 0 && (
+                {emails.length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-2 flex items-center">
                       <Mail className="h-4 w-4 mr-2" />
                       Correos Electrónicos
                     </h4>
-                    {company.emails.map((email, index) => (
+                    {emails.map((email, index) => (
                       <p key={index} className="text-gray-600">{email}</p>
                     ))}
                   </div>
@@ -257,23 +265,20 @@ export default function CompanyDetails() {
                 <Separator />
 
                 {/* Redes Sociales */}
-                {company.redesSociales && company.redesSociales.length > 0 && (
+                {Object.keys(redesSociales).length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-3">Redes Sociales</h4>
                     <div className="space-y-2">
-                      {company.redesSociales.map((red, index) => (
+                      {Object.entries(redesSociales).map(([plataforma, url], index) => (
                         <a
                           key={index}
-                          href={red.url}
+                          href={url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center text-gray-600 hover:text-blue-600 transition-colors"
                         >
-                          {red.plataforma.toLowerCase() === 'facebook' && <Facebook className="h-4 w-4 mr-2" />}
-                          {red.plataforma.toLowerCase() === 'instagram' && <Instagram className="h-4 w-4 mr-2" />}
-                          {red.plataforma.toLowerCase() === 'twitter' && <Twitter className="h-4 w-4 mr-2" />}
-                          {!['facebook', 'instagram', 'twitter'].includes(red.plataforma.toLowerCase()) && <Globe className="h-4 w-4 mr-2" />}
-                          {red.plataforma}
+                          <Globe className="h-4 w-4 mr-2" />
+                          {plataforma}
                         </a>
                       ))}
                     </div>
@@ -282,70 +287,70 @@ export default function CompanyDetails() {
               </CardContent>
             </Card>
 
-            {/* Direcciones */}
-            {company.direcciones && company.direcciones.length > 0 && (
+            {/* Dirección */}
+            {company.direccionFisica && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <MapPin className="h-5 w-5 mr-2" />
-                    Ubicaciones
+                    Ubicación
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {company.direcciones.map((direccion, index) => (
-                      <div key={index} className="p-3 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-700">{direccion}</p>
-                      </div>
-                    ))}
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-700">{company.direccionFisica}</p>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Catálogo PDF */}
-            {company.catalogoPdf && (
+            {/* Catálogo Digital */}
+            {company.catalogoDigitalUrl && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Catálogo de Productos</CardTitle>
+                  <CardTitle>Catálogo Digital</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <a
-                    href={company.catalogoPdf}
+                    href={company.catalogoDigitalUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block"
                   >
                     <Button className="w-full">
                       <FileText className="h-4 w-4 mr-2" />
-                      Descargar Catálogo
+                      Ver Catálogo
                     </Button>
                   </a>
                 </CardContent>
               </Card>
             )}
 
-            {/* Información Adicional */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Información de la Membresía</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {company.membershipType && (
+            {/* Información de Membresía */}
+            {company.membershipType && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Información de la Membresía</CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div className="space-y-2">
                     <Badge variant="outline" className="mb-2">
                       {company.membershipType.nombrePlan}
                     </Badge>
-                    <p className="text-sm text-gray-600">
-                      {company.membershipType.descripcion}
-                    </p>
-                    <p className="text-lg font-semibold text-green-600">
-                      ${company.membershipType.precio}/mes
-                    </p>
+                    {company.membershipType.descripcionPlan && (
+                      <p className="text-sm text-gray-600">
+                        {company.membershipType.descripcionPlan}
+                      </p>
+                    )}
+                    {company.membershipType.costo && (
+                      <p className="text-lg font-semibold text-green-600">
+                        {company.membershipType.costo}
+                      </p>
+                    )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

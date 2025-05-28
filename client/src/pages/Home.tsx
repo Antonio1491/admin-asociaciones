@@ -84,59 +84,57 @@ export default function Home() {
       )}
 
       {/* Slider de Empresas Destacadas */}
-      {searchTerm.length === 0 && (
+      {searchTerm.length === 0 && featuredCompanies.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
             Empresas Destacadas
           </h2>
           
-          {featuredCompanies.length > 0 && (
-            <div className="relative">
-              <div className="overflow-hidden rounded-2xl">
-                <div 
-                  className="flex transition-transform duration-500 ease-in-out"
-                  style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                >
-                  {featuredCompanies.map((company) => (
-                    <div key={company.id} className="w-full flex-shrink-0">
-                      <FeaturedCompanySlide company={company} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Controles del Slider */}
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white"
-                onClick={prevSlide}
+          <div className="relative">
+            <div className="overflow-hidden rounded-2xl">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out"
+                style={{ transform: `translateX(-${currentSlide * 100}%)` }}
               >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white"
-                onClick={nextSlide}
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-              
-              {/* Indicadores */}
-              <div className="flex justify-center mt-6 space-x-2">
-                {featuredCompanies.map((_, index) => (
-                  <button
-                    key={index}
-                    className={`w-3 h-3 rounded-full transition-colors ${
-                      currentSlide === index ? 'bg-blue-600' : 'bg-gray-300'
-                    }`}
-                    onClick={() => setCurrentSlide(index)}
-                  />
+                {featuredCompanies.map((company) => (
+                  <div key={company.id} className="w-full flex-shrink-0">
+                    <FeaturedCompanySlide company={company} />
+                  </div>
                 ))}
               </div>
             </div>
-          )}
+            
+            {/* Controles del Slider */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white"
+              onClick={prevSlide}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white"
+              onClick={nextSlide}
+            >
+              <ChevronRight className="h-6 w-6" />
+            </Button>
+            
+            {/* Indicadores */}
+            <div className="flex justify-center mt-6 space-x-2">
+              {featuredCompanies.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    currentSlide === index ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
+                  onClick={() => setCurrentSlide(index)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
@@ -147,7 +145,7 @@ export default function Home() {
             Todas las Empresas
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(allCompaniesData?.companies || []).map((company: CompanyWithDetails) => (
+            {allCompanies.map((company: CompanyWithDetails) => (
               <CompanyCard key={company.id} company={company} />
             ))}
           </div>
@@ -206,9 +204,9 @@ function FeaturedCompanySlide({ company }: { company: CompanyWithDetails }) {
         </div>
         
         <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-8 flex items-center justify-center">
-          {company.logoUrl ? (
+          {company.logotipoUrl ? (
             <img
-              src={company.logoUrl}
+              src={company.logotipoUrl}
               alt={company.nombreEmpresa}
               className="max-w-full max-h-48 object-contain"
             />
@@ -229,9 +227,9 @@ function CompanyCard({ company }: { company: CompanyWithDetails }) {
   return (
     <Card className="hover:shadow-lg transition-shadow overflow-hidden">
       <div className="aspect-video bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-        {company.logoUrl ? (
+        {company.logotipoUrl ? (
           <img
-            src={company.logoUrl}
+            src={company.logotipoUrl}
             alt={company.nombreEmpresa}
             className="max-w-full max-h-full object-contain p-4"
           />
@@ -254,21 +252,21 @@ function CompanyCard({ company }: { company: CompanyWithDetails }) {
           <h3 className="text-xl font-semibold mb-2">{company.nombreEmpresa}</h3>
           <div 
             className="text-gray-600 text-sm line-clamp-2"
-            dangerouslySetInnerHTML={{ __html: company.descripcion || '' }}
+            dangerouslySetInnerHTML={{ __html: company.descripcionEmpresa || '' }}
           />
         </div>
         
         <div className="space-y-1 mb-4 text-sm text-gray-500">
-          {company.direcciones && company.direcciones[0] && (
+          {company.direccionFisica && (
             <div className="flex items-center">
               <MapPin className="h-3 w-3 mr-1" />
-              <span className="truncate">{company.direcciones[0]}</span>
+              <span className="truncate">{company.direccionFisica}</span>
             </div>
           )}
-          {company.telefonos && company.telefonos[0] && (
+          {company.telefono1 && (
             <div className="flex items-center">
               <Phone className="h-3 w-3 mr-1" />
-              <span>{company.telefonos[0]}</span>
+              <span>{company.telefono1}</span>
             </div>
           )}
         </div>

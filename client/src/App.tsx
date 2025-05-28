@@ -12,6 +12,8 @@ import Categories from "@/pages/Categories";
 import Memberships from "@/pages/Memberships";
 import Users from "@/pages/Users";
 import Login from "@/pages/Login";
+import Home from "@/pages/Home";
+import CompanyDetails from "@/pages/CompanyDetails";
 import NotFound from "@/pages/not-found";
 
 function AppLayout({ children }: { children: React.ReactNode }) {
@@ -30,42 +32,50 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 function Router() {
   return (
     <Switch>
+      {/* Rutas públicas del frontend */}
+      <Route path="/directorio" component={Home} />
+      <Route path="/empresa/:id" component={CompanyDetails} />
+      
+      {/* Rutas de administración */}
       <Route path="/login" component={Login} />
-      <Route path="/">
+      <Route path="/admin">
         <ProtectedRoute>
           <AppLayout>
             <Dashboard />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/companies">
+      <Route path="/admin/companies">
         <ProtectedRoute>
           <AppLayout>
             <Companies />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/categories">
+      <Route path="/admin/categories">
         <ProtectedRoute>
           <AppLayout>
             <Categories />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/memberships">
+      <Route path="/admin/memberships">
         <ProtectedRoute>
           <AppLayout>
             <Memberships />
           </AppLayout>
         </ProtectedRoute>
       </Route>
-      <Route path="/users">
+      <Route path="/admin/users">
         <ProtectedRoute requireAdmin>
           <AppLayout>
             <Users />
           </AppLayout>
         </ProtectedRoute>
       </Route>
+      
+      {/* Ruta por defecto redirige al directorio público */}
+      <Route path="/" component={Home} />
       <Route component={NotFound} />
     </Switch>
   );
