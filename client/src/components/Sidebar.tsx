@@ -10,7 +10,9 @@ import {
   Menu,
   X,
   LogOut,
-  User
+  User,
+  ChevronDown,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,6 +35,18 @@ const navigationItems = [
     href: "/companies",
     icon: Building,
     requireAdmin: false,
+    subItems: [
+      {
+        name: "Empresas",
+        href: "/companies",
+        requireAdmin: false,
+      },
+      {
+        name: "Membresías",
+        href: "/memberships",
+        requireAdmin: false,
+      },
+    ],
   },
   {
     name: "Gestión de Usuarios",
@@ -47,12 +61,6 @@ const navigationItems = [
     requireAdmin: true,
   },
   {
-    name: "Tipos de Membresía",
-    href: "/memberships",
-    icon: Crown,
-    requireAdmin: true,
-  },
-  {
     name: "Reportes",
     href: "/reports",
     icon: FileText,
@@ -63,6 +71,7 @@ const navigationItems = [
 export default function Sidebar({ className = "" }: SidebarProps) {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const { user, isAdmin } = useAuth();
 
   const handleSignOut = async () => {
@@ -76,6 +85,14 @@ export default function Sidebar({ className = "" }: SidebarProps) {
   const filteredNavItems = navigationItems.filter(item => 
     !item.requireAdmin || isAdmin
   );
+
+  const toggleExpanded = (itemName: string) => {
+    setExpandedItems(prev => 
+      prev.includes(itemName) 
+        ? prev.filter(name => name !== itemName)
+        : [...prev, itemName]
+    );
+  };
 
   const SidebarContent = () => (
     <>
@@ -91,21 +108,70 @@ export default function Sidebar({ className = "" }: SidebarProps) {
         {filteredNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location === item.href;
+          const hasSubItems = item.subItems && item.subItems.length > 0;
+          const isExpanded = expandedItems.includes(item.name);
+          const isSubItemActive = hasSubItems && item.subItems.some(subItem => location === subItem.href);
           
           return (
-            <Link key={item.name} href={item.href}>
-              <div
-                className={`flex items-center space-x-3 px-3 py-2 rounded-sm transition-colors cursor-pointer ${
-                  isActive
-                    ? "bg-gray-100 text-gray-900 border-r-2 border-gray-800"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{item.name}</span>
-              </div>
-            </Link>
+            <div key={item.name}>
+              {/* Main Item */}
+              {hasSubItems ? (
+                <div
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-sm transition-colors cursor-pointer ${
+                    isActive || isSubItemActive
+                      ? "bg-gray-100 text-gray-900 border-r-2 border-gray-800"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                  }`}
+                  onClick={() => toggleExpanded(item.name)}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span className="flex-1">{item.name}</span>
+                  {isExpanded ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </div>
+              ) : (
+                <Link href={item.href}>
+                  <div
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-sm transition-colors cursor-pointer ${
+                      isActive
+                        ? "bg-gray-100 text-gray-900 border-r-2 border-gray-800"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span>{item.name}</span>
+                  </div>
+                </Link>
+              )}
+              
+              {/* Sub Items */}
+              {hasSubItems && isExpanded && (
+                <div className="ml-8 mt-1 space-y-1">
+                  {item.subItems.filter(subItem => !subItem.requireAdmin || isAdmin).map((subItem) => {
+                    const isSubActive = location === subItem.href;
+                    
+                    return (
+                      <Link key={subItem.name} href={subItem.href}>
+                        <div
+                          className={`flex items-center space-x-3 px-3 py-2 rounded-sm transition-colors cursor-pointer ${
+                            isSubActive
+                              ? "bg-gray-100 text-gray-900 border-r-2 border-gray-800"
+                              : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                          }`}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <span>{subItem.name}</span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>

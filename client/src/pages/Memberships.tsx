@@ -44,10 +44,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, MoreHorizontal, Edit, Trash2, Crown, Check } from "lucide-react";
+import { Plus, MoreHorizontal, Edit, Trash2, Crown, Check, Grid, Table as TableIcon } from "lucide-react";
 import { MembershipType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import MembershipDataTable from "@/components/MembershipDataTable";
 
 const membershipSchema = z.object({
   nombrePlan: z.string().min(1, "El nombre del plan es requerido"),
