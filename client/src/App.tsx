@@ -53,7 +53,7 @@ function Router() {
         </ProtectedRoute>
       </Route>
       <Route path="/memberships">
-        <ProtectedRoute requireAdmin>
+        <ProtectedRoute>
           <AppLayout>
             <Memberships />
           </AppLayout>
