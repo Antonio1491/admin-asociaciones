@@ -11,9 +11,35 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const { data: companiesResponse } = useQuery({
+  const { data: companiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/companies"],
   });
+
+  // Debug para ver qué está pasando
+  console.log("Companies response:", companiesResponse);
+  console.log("Loading:", isLoading);
+  console.log("Error:", error);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando empresas...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-red-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600">Error al cargar las empresas: {String(error)}</p>
+        </div>
+      </div>
+    );
+  }
 
   const companies = (companiesResponse as any)?.companies || [];
   const featuredCompanies = companies.slice(0, 5);
