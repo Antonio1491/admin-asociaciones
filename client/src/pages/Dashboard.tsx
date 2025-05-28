@@ -49,7 +49,7 @@ export default function Dashboard() {
       });
       
       if (searchTerm) params.append("search", searchTerm);
-      if (selectedCategory) params.append("categoryId", selectedCategory);
+      if (selectedCategory && selectedCategory !== "all") params.append("categoryId", selectedCategory);
       
       const response = await fetch(`/api/companies?${params}`, {
         credentials: "include",
@@ -221,7 +221,7 @@ export default function Dashboard() {
                   <SelectValue placeholder="Todas las categorías" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas las categorías</SelectItem>
+                  <SelectItem value="all">Todas las categorías</SelectItem>
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.nombreCategoria}
