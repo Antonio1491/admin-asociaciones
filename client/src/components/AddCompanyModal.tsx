@@ -700,7 +700,8 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                         <Textarea 
                           placeholder="Describe brevemente los productos o servicios que ofrece la empresa..."
                           className="min-h-[100px]"
-                          {...field} 
+                          {...field}
+                          value={field.value || ""}
                         />
                       </FormControl>
                       <FormMessage />
@@ -962,7 +963,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                         Teléfono Principal
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="+52 55 1234 5678" {...field} />
+                        <Input placeholder="+52 55 1234 5678" {...field} value={field.value || ""} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
