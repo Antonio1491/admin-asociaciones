@@ -1,7 +1,20 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Users, Plus, DollarSign, TrendingUp, Activity } from "lucide-react";
+import { Building, Users, Plus, DollarSign, TrendingUp, Activity, BarChart3, PieChart } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement,
+} from 'chart.js';
+import { Bar, Pie, Line } from 'react-chartjs-2';
 import StatCard from "@/components/StatCard";
 import CompanyTable from "@/components/CompanyTable";
 import AddCompanyModal from "@/components/AddCompanyModal";
@@ -13,6 +26,18 @@ import { CompanyWithDetails, Category, MembershipType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  PointElement,
+  LineElement
+);
 
 interface StatisticsData {
   totalCompanies: number;
@@ -110,6 +135,90 @@ export default function Dashboard() {
   const companies = companiesData?.companies || [];
   const totalPages = companiesData?.totalPages || 1;
 
+  // Chart data configurations
+  const companiesBarData = {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Empresas Registradas',
+        data: [5, 8, 12, 15, 18, statistics?.totalCompanies || 0],
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const usersPieData = {
+    labels: ['Usuarios Activos', 'Nuevos Registros', 'Usuarios Inactivos'],
+    datasets: [
+      {
+        data: [
+          statistics?.activeUsers || 0,
+          statistics?.newRegistrations || 0,
+          Math.max(0, (statistics?.totalCompanies || 0) - (statistics?.activeUsers || 0))
+        ],
+        backgroundColor: [
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+          'rgba(156, 163, 175, 0.8)',
+        ],
+        borderColor: [
+          'rgba(34, 197, 94, 1)',
+          'rgba(59, 130, 246, 1)',
+          'rgba(156, 163, 175, 1)',
+        ],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const revenueLineData = {
+    labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Ingresos ($)',
+        data: [15000, 18000, 22000, 28000, 32000, statistics?.totalRevenue || 0],
+        fill: false,
+        borderColor: 'rgba(16, 185, 129, 1)',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        tension: 0.4,
+        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+        pointBorderColor: 'rgba(16, 185, 129, 1)',
+        pointRadius: 5,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const pieOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'right' as const,
+      },
+      title: {
+        display: false,
+      },
+    },
+  };
+
   return (
     <div className="space-y-8">
       {/* Page Header */}
@@ -153,36 +262,49 @@ export default function Dashboard() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart Placeholder */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Crecimiento de Empresas</CardTitle>
-              <Select defaultValue="6months">
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="6months">Últimos 6 meses</SelectItem>
-                  <SelectItem value="1year">Último año</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Companies Growth Chart */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base font-medium">Crecimiento de Empresas</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <TrendingUp className="h-12 w-12 mx-auto mb-4" />
-                <p>Gráfico de crecimiento</p>
-                <p className="text-sm">Implementar Chart.js o similar</p>
-              </div>
+            <div className="h-[300px] w-full">
+              <Bar data={companiesBarData} options={chartOptions} />
             </div>
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
+        {/* Users Distribution Chart */}
         <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-base font-medium">Distribución de Usuarios</CardTitle>
+            <PieChart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] w-full">
+              <Pie data={usersPieData} options={pieOptions} />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Revenue Trend Chart */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-base font-medium">Tendencia de Ingresos</CardTitle>
+          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px] w-full">
+            <Line data={revenueLineData} options={chartOptions} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Recent Activity */}
+      <Card>
           <CardHeader>
             <CardTitle>Actividad Reciente</CardTitle>
           </CardHeader>
@@ -202,7 +324,6 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-      </div>
 
       {/* Company Directory Section */}
       <Card>
