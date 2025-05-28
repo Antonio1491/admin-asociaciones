@@ -51,59 +51,57 @@ export default function Dashboard() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<CompanyWithDetails | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const { toast } = useToast();
 
-  // Fetch statistics
-  const { data: statistics } = useQuery<StatisticsData>({
+  // Queries
+  const { data: statistics, isLoading: statisticsLoading } = useQuery<StatisticsData>({
     queryKey: ["/api/statistics"],
   });
 
-  // Fetch companies
-  const { data: companiesData, isLoading: companiesLoading } = useQuery({
-    queryKey: ["/api/companies", { 
-      search: searchTerm, 
-      categoryId: selectedCategory, 
-      page: currentPage 
-    }],
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: "5"
-      });
-      
-      if (searchTerm) params.append("search", searchTerm);
-      if (selectedCategory && selectedCategory !== "all") params.append("categoryId", selectedCategory);
-      
-      const response = await fetch(`/api/companies?${params}`, {
-        credentials: "include",
-      });
-      
-      if (!response.ok) throw new Error("Failed to fetch companies");
-      return response.json();
-    },
-  });
-
-  // Fetch categories for filter
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
 
-  // Delete company mutation
+  const { data: companiesData, isLoading: companiesLoading } = useQuery({
+    queryKey: ["/api/companies", { 
+      search: searchTerm, 
+      categoryId: selectedCategory === "all" ? undefined : selectedCategory,
+      page: currentPage 
+    }],
+    queryFn: () => {
+      const params = new URLSearchParams({
+        search: searchTerm,
+        page: currentPage.toString(),
+        limit: "10"
+      });
+      
+      if (selectedCategory !== "all") {
+        params.append("categoryId", selectedCategory);
+      }
+      
+      return apiRequest(`/api/companies?${params.toString()}`);
+    },
+  });
+
+  // Mutations
   const deleteCompanyMutation = useMutation({
     mutationFn: async (companyId: number) => {
-      await apiRequest("DELETE", `/api/companies/${companyId}`);
+      const response = await apiRequest(`/api/companies/${companyId}`, {
+        method: "DELETE",
+      });
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
       queryClient.invalidateQueries({ queryKey: ["/api/statistics"] });
       toast({
-        title: "Empresa eliminada",
-        description: "La empresa ha sido eliminada exitosamente",
+        title: "Éxito",
+        description: "Empresa eliminada correctamente",
       });
     },
-    onError: () => {
+    onError: (error) => {
       toast({
         title: "Error",
         description: "No se pudo eliminar la empresa",
@@ -124,7 +122,6 @@ export default function Dashboard() {
   };
 
   const handleView = (company: CompanyWithDetails) => {
-    // For now, just log the company details
     console.log("Viewing company:", company);
     toast({
       title: "Ver empresa",
@@ -192,6 +189,7 @@ export default function Dashboard() {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top' as const,
@@ -209,6 +207,7 @@ export default function Dashboard() {
 
   const pieOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'right' as const,
@@ -237,25 +236,25 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="Total Empresas"
-          value={statistics?.totalCompanies || 0}
+          value={statisticsLoading ? "..." : statistics?.totalCompanies || 0}
           icon={Building}
           trend={{ value: 12, isPositive: true }}
         />
         <StatCard
           title="Usuarios Activos"
-          value={statistics?.activeUsers || 0}
+          value={statisticsLoading ? "..." : statistics?.activeUsers || 0}
           icon={Users}
           trend={{ value: 8, isPositive: true }}
         />
         <StatCard
           title="Nuevos Registros"
-          value={statistics?.newRegistrations || 0}
+          value={statisticsLoading ? "..." : statistics?.newRegistrations || 0}
           icon={Activity}
-          trend={{ value: 3, isPositive: false }}
+          trend={{ value: 23, isPositive: true }}
         />
         <StatCard
           title="Ingresos Totales"
-          value={`$${statistics?.totalRevenue?.toLocaleString() || 0}`}
+          value={statisticsLoading ? "..." : `$${statistics?.totalRevenue?.toLocaleString() || 0}`}
           icon={DollarSign}
           trend={{ value: 15, isPositive: true }}
         />
@@ -302,28 +301,6 @@ export default function Dashboard() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Recent Activity */}
-      <Card>
-          <CardHeader>
-            <CardTitle>Actividad Reciente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-primary bg-opacity-10 rounded-full flex items-center justify-center">
-                  <Plus className="text-primary text-xs" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-900">Nueva empresa registrada</p>
-                  <p className="text-xs text-gray-500">Empresa de ejemplo</p>
-                  <p className="text-xs text-gray-400">Hace 2 horas</p>
-                </div>
-              </div>
-              {/* Add more activity items as needed */}
-            </div>
-          </CardContent>
-        </Card>
 
       {/* Company Directory Section */}
       <Card>
