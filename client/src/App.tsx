@@ -34,7 +34,7 @@ function Router() {
   return (
     <Switch>
       {/* Ruta por defecto - DEBE ir primero para que funcione */}
-      <Route path="~/" component={TestHome} />
+      <Route path="/" component={Home} />
       
       {/* Rutas de administración */}
       <Route path="/login" component={Login} />
@@ -86,24 +86,14 @@ function Router() {
 
 function App() {
   return (
-    <div className="min-h-screen bg-green-100 flex items-center justify-center">
-      <div className="text-center p-8 bg-white rounded-lg shadow-lg">
-        <h1 className="text-4xl font-bold text-green-800 mb-4">
-          ✅ React Funcionando!
-        </h1>
-        <p className="text-xl text-gray-600 mb-4">
-          El frontend se está ejecutando correctamente
-        </p>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Router />
-            </TooltipProvider>
-          </AuthProvider>
-        </QueryClientProvider>
-      </div>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
