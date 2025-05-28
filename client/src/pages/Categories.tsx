@@ -179,7 +179,7 @@ export default function Categories() {
         </div>
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center space-x-2">
+            <Button className="flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
               <Plus className="w-4 h-4" />
               <span>Nueva Categoría</span>
             </Button>

@@ -115,10 +115,10 @@ export default function Dashboard() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-primary">Dashboard</h1>
           <p className="text-gray-600 mt-1">Resumen general de la plataforma</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="flex items-center space-x-2">
+        <Button onClick={() => setIsAddModalOpen(true)} className="flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
           <Plus className="w-4 h-4" />
           <span>Nueva Empresa</span>
         </Button>
