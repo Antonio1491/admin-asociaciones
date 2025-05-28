@@ -32,55 +32,63 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 
 function Router() {
   return (
-    <Switch>
-      {/* Ruta por defecto - DEBE ir primero para que funcione */}
-      <Route path="/" component={Home} />
+    <div>
+      <Route path="/login">
+        <Login />
+      </Route>
       
-      {/* Rutas de administración */}
-      <Route path="/login" component={Login} />
-      <Route path="/admin" component={() => (
+      <Route path="/admin">
         <ProtectedRoute>
           <AppLayout>
             <Dashboard />
           </AppLayout>
         </ProtectedRoute>
-      )} />
-      <Route path="/admin/companies" component={() => (
+      </Route>
+      
+      <Route path="/admin/companies">
         <ProtectedRoute>
           <AppLayout>
             <Companies />
           </AppLayout>
         </ProtectedRoute>
-      )} />
-      <Route path="/admin/categories" component={() => (
+      </Route>
+      
+      <Route path="/admin/categories">
         <ProtectedRoute>
           <AppLayout>
             <Categories />
           </AppLayout>
         </ProtectedRoute>
-      )} />
-      <Route path="/admin/memberships" component={() => (
+      </Route>
+      
+      <Route path="/admin/memberships">
         <ProtectedRoute>
           <AppLayout>
             <Memberships />
           </AppLayout>
         </ProtectedRoute>
-      )} />
-      <Route path="/admin/users" component={() => (
+      </Route>
+      
+      <Route path="/admin/users">
         <ProtectedRoute requireAdmin>
           <AppLayout>
             <Users />
           </AppLayout>
         </ProtectedRoute>
-      )} />
+      </Route>
       
-      {/* Rutas públicas del frontend */}
-      <Route path="/empresa/:id" component={CompanyDetails} />
-      <Route path="/directorio" component={Home} />
+      <Route path="/empresa/:id">
+        <CompanyDetails />
+      </Route>
       
-      {/* Ruta 404 */}
-      <Route component={NotFound} />
-    </Switch>
+      <Route path="/directorio">
+        <Home />
+      </Route>
+      
+      <Route path="/">
+        <Home />
+      </Route>
+    </div>
   );
 }
 
