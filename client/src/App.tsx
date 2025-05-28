@@ -75,7 +75,9 @@ function Router() {
       </Route>
       
       {/* Ruta por defecto redirige al directorio público */}
-      <Route path="/" component={Home} />
+      <Route path="/">
+        <Home />
+      </Route>
       <Route component={NotFound} />
     </Switch>
   );
