@@ -140,6 +140,216 @@ export class MemStorage implements IStorage {
       };
       this.membershipTypes.set(membershipType.id, membershipType);
     });
+
+    // Sample Companies Data
+    const sampleCompanies = [
+      {
+        nombreEmpresa: "TechnoSoft México",
+        email1: "contacto@technosoft.mx",
+        telefono1: "+52 55 1234 5678",
+        sitioWeb: "https://www.technosoft.mx",
+        paisesPresencia: ["México", "Colombia", "Brasil"],
+        estadosPresencia: ["Ciudad de México", "Nuevo León", "Jalisco"],
+        ciudadesPresencia: ["Ciudad de México, Ciudad de México", "Monterrey, Nuevo León", "Guadalajara, Jalisco"],
+        descripcionEmpresa: "Empresa líder en desarrollo de software empresarial con más de 15 años de experiencia en soluciones tecnológicas.",
+        categoryId: 1,
+        membershipTypeId: 3,
+        redesSociales: [
+          { plataforma: "Facebook", url: "https://facebook.com/technosoft" },
+          { plataforma: "LinkedIn", url: "https://linkedin.com/company/technosoft" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Salud Integral SA",
+        email1: "info@saludintegral.com.mx",
+        telefono1: "+52 33 2345 6789",
+        sitioWeb: "https://www.saludintegral.com.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Jalisco", "Michoacán"],
+        ciudadesPresencia: ["Guadalajara, Jalisco", "Morelia, Michoacán"],
+        descripcionEmpresa: "Clínica especializada en medicina preventiva y tratamientos integrales de salud con tecnología de vanguardia.",
+        categoryId: 2,
+        membershipTypeId: 2,
+        redesSociales: [
+          { plataforma: "Facebook", url: "https://facebook.com/saludintegral" },
+          { plataforma: "Instagram", url: "https://instagram.com/saludintegral" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Instituto Educativo Innovación",
+        email1: "admisiones@innovaedu.mx",
+        telefono1: "+52 81 3456 7890",
+        sitioWeb: "https://www.innovaedu.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Nuevo León"],
+        ciudadesPresencia: ["Monterrey, Nuevo León"],
+        descripcionEmpresa: "Instituto educativo enfocado en tecnologías emergentes y metodologías innovadoras de enseñanza.",
+        categoryId: 3,
+        membershipTypeId: 2,
+        redesSociales: [
+          { plataforma: "Facebook", url: "https://facebook.com/innovaedu" },
+          { plataforma: "YouTube", url: "https://youtube.com/innovaedu" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Comercio Digital Plus",
+        email1: "ventas@comerciodigital.mx",
+        telefono1: "+52 55 4567 8901",
+        sitioWeb: "https://www.comerciodigital.mx",
+        videoUrl1: "https://youtube.com/watch?v=example",
+        paisesPresencia: ["México", "Guatemala"],
+        estadosPresencia: ["Ciudad de México", "Estado de México"],
+        ciudadesPresencia: ["Ciudad de México, Ciudad de México", "Toluca, Estado de México"],
+        descripcionEmpresa: "Plataforma de comercio electrónico B2B para pequeñas y medianas empresas con presencia internacional.",
+        categoryId: 4,
+        membershipTypeId: 1,
+        redesSociales: [
+          { plataforma: "LinkedIn", url: "https://linkedin.com/company/comerciodigital" },
+          { plataforma: "Twitter", url: "https://twitter.com/comerciodigital" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "FinTech Soluciones",
+        email1: "contacto@fintechsol.mx",
+        telefono1: "+52 55 5678 9012",
+        sitioWeb: "https://www.fintechsol.mx",
+        paisesPresencia: ["México", "Colombia"],
+        estadosPresencia: ["Ciudad de México"],
+        ciudadesPresencia: ["Ciudad de México, Ciudad de México"],
+        descripcionEmpresa: "Soluciones financieras tecnológicas para empresas y particulares con servicios de pago digital.",
+        categoryId: 1,
+        membershipTypeId: 3,
+        redesSociales: [
+          { plataforma: "LinkedIn", url: "https://linkedin.com/company/fintechsol" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Manufactura Avanzada",
+        email1: "produccion@manufavanzada.mx",
+        telefono1: "+52 442 678 9013",
+        sitioWeb: "https://www.manufavanzada.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Querétaro", "Guanajuato"],
+        ciudadesPresencia: ["Querétaro, Querétaro", "León, Guanajuato"],
+        descripcionEmpresa: "Empresa manufacturera especializada en componentes automotrices de alta precisión y calidad internacional.",
+        categoryId: 4,
+        membershipTypeId: 2,
+        redesSociales: [
+          { plataforma: "LinkedIn", url: "https://linkedin.com/company/manufavanzada" },
+          { plataforma: "Facebook", url: "https://facebook.com/manufavanzada" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "EcoTech Verde",
+        email1: "info@ecotechverde.mx",
+        telefono1: "+52 998 789 0123",
+        sitioWeb: "https://www.ecotechverde.mx",
+        videoUrl1: "https://youtube.com/watch?v=eco-example",
+        paisesPresencia: ["México", "Costa Rica"],
+        estadosPresencia: ["Quintana Roo", "Yucatán"],
+        ciudadesPresencia: ["Cancún, Quintana Roo", "Mérida, Yucatán"],
+        descripcionEmpresa: "Tecnologías sostenibles para el cuidado del medio ambiente y energías renovables con impacto social.",
+        categoryId: 1,
+        membershipTypeId: 2,
+        redesSociales: [
+          { plataforma: "Instagram", url: "https://instagram.com/ecotechverde" },
+          { plataforma: "Facebook", url: "https://facebook.com/ecotechverde" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Clínica Dental Moderna",
+        email1: "citas@dentalmoderna.mx",
+        telefono1: "+52 662 890 1234",
+        sitioWeb: "https://www.dentalmoderna.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Sonora"],
+        ciudadesPresencia: ["Hermosillo, Sonora"],
+        descripcionEmpresa: "Clínica dental con tecnología de vanguardia y tratamientos especializados en odontología estética.",
+        categoryId: 2,
+        membershipTypeId: 1,
+        redesSociales: [
+          { plataforma: "Facebook", url: "https://facebook.com/dentalmoderna" },
+          { plataforma: "Instagram", url: "https://instagram.com/dentalmoderna" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Academia de Idiomas Global",
+        email1: "inscripciones@idiomasglobal.mx",
+        telefono1: "+52 222 901 2345",
+        sitioWeb: "https://www.idiomasglobal.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Puebla"],
+        ciudadesPresencia: ["Puebla, Puebla"],
+        descripcionEmpresa: "Academia especializada en enseñanza de idiomas con metodología internacional y certificaciones oficiales.",
+        categoryId: 3,
+        membershipTypeId: 1,
+        redesSociales: [
+          { plataforma: "Facebook", url: "https://facebook.com/idiomasglobal" },
+          { plataforma: "YouTube", url: "https://youtube.com/idiomasglobal" }
+        ],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Marketplace Nacional",
+        email1: "soporte@marketplacenacional.mx",
+        telefono1: "+52 777 012 3456",
+        sitioWeb: "https://www.marketplacenacional.mx",
+        videoUrl1: "https://youtube.com/watch?v=marketplace-demo",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Morelos", "Guerrero"],
+        ciudadesPresencia: ["Cuernavaca, Morelos", "Acapulco, Guerrero"],
+        descripcionEmpresa: "Plataforma nacional de comercio electrónico conectando compradores y vendedores en todo México.",
+        categoryId: 4,
+        membershipTypeId: 2,
+        redesSociales: [
+          { plataforma: "Facebook", url: "https://facebook.com/marketplacenacional" },
+          { plataforma: "Twitter", url: "https://twitter.com/marketplacenacional" }
+        ],
+        estado: "activo"
+      }
+    ];
+
+    // Create sample companies
+    sampleCompanies.forEach(companyData => {
+      const company: Company = {
+        id: this.currentCompanyId++,
+        nombreEmpresa: companyData.nombreEmpresa,
+        logotipoUrl: null,
+        telefono1: companyData.telefono1,
+        telefono2: null,
+        email1: companyData.email1,
+        email2: null,
+        paisesPresencia: companyData.paisesPresencia,
+        estadosPresencia: companyData.estadosPresencia,
+        ciudadesPresencia: companyData.ciudadesPresencia,
+        direccionFisica: null,
+        ubicacionGeografica: null,
+        representantesVentas: [],
+        descripcionEmpresa: companyData.descripcionEmpresa,
+        galeriaProductosUrls: [],
+        categoryId: companyData.categoryId,
+        redesSociales: companyData.redesSociales,
+        catalogoDigitalUrl: null,
+        videoUrl1: companyData.videoUrl1 || null,
+        videoUrl2: null,
+        videoUrl3: null,
+        membershipTypeId: companyData.membershipTypeId,
+        sitioWeb: companyData.sitioWeb,
+        userId: 1,
+        estado: companyData.estado,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.companies.set(company.id, company);
+    });
   }
 
   // Users
