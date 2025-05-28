@@ -134,7 +134,7 @@ export default function MembershipDataTable({ memberships, onEdit, onView }: Mem
                     </TableCell>
                     <TableCell>
                       <span className="text-sm text-gray-600">
-                        {formatPeriodicity(membership.periodicidad)}
+                        {formatPeriodicity(membership.periodicidad || "")}
                       </span>
                     </TableCell>
                     <TableCell>

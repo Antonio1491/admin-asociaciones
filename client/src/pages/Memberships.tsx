@@ -63,6 +63,8 @@ type MembershipFormData = z.infer<typeof membershipSchema>;
 export default function Memberships() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   const [selectedMembership, setSelectedMembership] = useState<MembershipType | null>(null);
   const { toast } = useToast();
 
@@ -196,6 +198,11 @@ export default function Memberships() {
     setIsEditModalOpen(true);
   };
 
+  const handleView = (membership: MembershipType) => {
+    setSelectedMembership(membership);
+    setIsViewModalOpen(true);
+  };
+
   const handleDelete = (membershipId: number) => {
     if (window.confirm("¿Estás seguro de que quieres eliminar este tipo de membresía?")) {
       deleteMembershipMutation.mutate(membershipId);
@@ -224,14 +231,35 @@ export default function Memberships() {
           <h1 className="text-3xl font-bold text-primary">Tipos de Membresía</h1>
           <p className="text-gray-600 mt-1">Administra los planes de membresía disponibles para las empresas</p>
         </div>
-        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-              <Plus className="w-4 h-4" />
-              <span>Nueva Membresía</span>
+        <div className="flex items-center space-x-3">
+          {/* View Toggle */}
+          <div className="flex items-center border rounded-lg p-1">
+            <Button
+              variant={viewMode === "table" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("table")}
+              className="h-8 px-3"
+            >
+              <TableIcon className="w-4 h-4" />
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+            <Button
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className="h-8 px-3"
+            >
+              <Grid className="w-4 h-4" />
+            </Button>
+          </div>
+          
+          <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Nueva Membresía</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Agregar Nuevo Tipo de Membresía</DialogTitle>
             </DialogHeader>
@@ -338,11 +366,19 @@ export default function Memberships() {
               </form>
             </Form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
-      {/* Memberships Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Content Area */}
+      {viewMode === "table" ? (
+        <MembershipDataTable 
+          memberships={memberships} 
+          onEdit={handleEdit}
+          onView={handleView}
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
           <div className="col-span-full flex items-center justify-center py-12">
             <div className="text-gray-500">Cargando tipos de membresía...</div>
@@ -420,7 +456,58 @@ export default function Memberships() {
             </Card>
           ))
         )}
-      </div>
+        </div>
+      )}
+
+      {/* View Modal */}
+      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Detalles de la Membresía</DialogTitle>
+          </DialogHeader>
+          {selectedMembership && (
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Crown className="h-5 w-5 text-primary" />
+                <h3 className="text-xl font-semibold">{selectedMembership.nombrePlan}</h3>
+                <Badge>{selectedMembership.nombrePlan}</Badge>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Costo</label>
+                  <p className="text-lg font-semibold text-primary">${selectedMembership.costo}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Periodicidad</label>
+                  <p className="text-sm">{selectedMembership.periodicidad}</p>
+                </div>
+              </div>
+
+              {selectedMembership.descripcionPlan && (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Descripción</label>
+                  <p className="text-sm text-gray-700">{selectedMembership.descripcionPlan}</p>
+                </div>
+              )}
+
+              {Array.isArray(selectedMembership.beneficios) && selectedMembership.beneficios.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Beneficios incluidos</label>
+                  <ul className="mt-2 space-y-1">
+                    {selectedMembership.beneficios.map((benefit, index) => (
+                      <li key={index} className="flex items-start space-x-2 text-sm">
+                        <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span>{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
