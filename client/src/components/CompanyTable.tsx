@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { 
   Table, 
   TableBody, 
@@ -59,6 +60,7 @@ const getCategoryBadgeColor = (category?: string) => {
 
 export default function CompanyTable({ companies, onEdit, onDelete, onView }: CompanyTableProps) {
   const { isAdmin, user } = useAuth();
+  const [, setLocation] = useLocation();
 
   if (companies.length === 0) {
     return (
@@ -146,7 +148,7 @@ export default function CompanyTable({ companies, onEdit, onDelete, onView }: Co
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onView(company)}>
+                      <DropdownMenuItem onClick={() => setLocation(`/empresa/${company.id}`)}>
                         <Eye className="mr-2 h-4 w-4" />
                         Ver
                       </DropdownMenuItem>
