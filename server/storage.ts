@@ -152,7 +152,7 @@ export class MemStorage implements IStorage {
         estadosPresencia: ["Ciudad de México", "Nuevo León", "Jalisco"],
         ciudadesPresencia: ["Ciudad de México, Ciudad de México", "Monterrey, Nuevo León", "Guadalajara, Jalisco"],
         descripcionEmpresa: "Empresa líder en desarrollo de software empresarial con más de 15 años de experiencia en soluciones tecnológicas.",
-        categoryId: 1,
+        categoriesIds: [1],
         membershipTypeId: 3,
         redesSociales: [
           { plataforma: "Facebook", url: "https://facebook.com/technosoft" },
@@ -221,7 +221,7 @@ export class MemStorage implements IStorage {
         estadosPresencia: ["Ciudad de México"],
         ciudadesPresencia: ["Ciudad de México, Ciudad de México"],
         descripcionEmpresa: "Soluciones financieras tecnológicas para empresas y particulares con servicios de pago digital.",
-        categoryId: 1,
+        categoriesIds: [1, 4],
         membershipTypeId: 3,
         redesSociales: [
           { plataforma: "LinkedIn", url: "https://linkedin.com/company/fintechsol" }
@@ -237,7 +237,7 @@ export class MemStorage implements IStorage {
         estadosPresencia: ["Querétaro", "Guanajuato"],
         ciudadesPresencia: ["Querétaro, Querétaro", "León, Guanajuato"],
         descripcionEmpresa: "Empresa manufacturera especializada en componentes automotrices de alta precisión y calidad internacional.",
-        categoryId: 4,
+        categoriesIds: [4],
         membershipTypeId: 2,
         redesSociales: [
           { plataforma: "LinkedIn", url: "https://linkedin.com/company/manufavanzada" },
