@@ -13,7 +13,6 @@ import Memberships from "@/pages/Memberships";
 import Users from "@/pages/Users";
 import Login from "@/pages/Login";
 import HomeClean from "@/pages/HomeClean";
-import SimpleHome from "@/pages/SimpleHome";
 import CompanyDetails from "@/pages/CompanyDetails";
 import TestHome from "@/TestHome";
 import NotFound from "@/pages/not-found";
@@ -84,10 +83,6 @@ function Router() {
       
       <Route path="/directorio">
         <HomeClean />
-      </Route>
-      
-      <Route path="/simple">
-        <SimpleHome />
       </Route>
       
       <Route path="/">
