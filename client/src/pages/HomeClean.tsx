@@ -418,7 +418,7 @@ export default function HomeClean() {
                     padding: "1.2rem 1.5rem",
                     fontSize: "1.1rem",
                     border: "none",
-                    borderRadius: "50px 0 0 50px",
+                    borderRadius: "50px",
                     outline: "none",
                     boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     backgroundColor: "rgba(255,255,255,0.95)",
@@ -431,7 +431,7 @@ export default function HomeClean() {
                   backgroundColor: "#bcce16",
                   color: "#0f2161",
                   border: "none",
-                  borderRadius: "0 50px 50px 0",
+                  borderRadius: "50px",
                   padding: "1.2rem 2rem",
                   fontSize: "1rem",
                   fontFamily: "'Montserrat', sans-serif",
@@ -925,7 +925,7 @@ export default function HomeClean() {
                             backgroundColor: "#bcce16",
                             color: "#0f2161",
                             border: "none",
-                            borderRadius: "8px",
+                            borderRadius: "50px",
                             padding: "0.8rem 1.5rem",
                             fontSize: "0.9rem",
                             fontFamily: "'Montserrat', sans-serif",
@@ -1174,7 +1174,7 @@ export default function HomeClean() {
               backgroundColor: "#bcce16",
               color: "#0f2161",
               border: "none",
-              borderRadius: "8px",
+              borderRadius: "50px",
               padding: "1rem 2rem",
               fontSize: "1.1rem",
               fontFamily: "'Montserrat', sans-serif",
@@ -1218,7 +1218,7 @@ export default function HomeClean() {
             marginBottom: "2.5rem",
             color: "#e5e7eb"
           }}>
-            Regístrese y conecte con miles de proyectos y clientes potenciales en todo México. 
+            Regístrese y conecte con miles de proyectos y clientes potenciales en todo América Latina. 
             Muestre sus soluciones a la audiencia correcta.
           </p>
 
@@ -1227,7 +1227,7 @@ export default function HomeClean() {
               backgroundColor: "#bcce16",
               color: "#0f2161",
               border: "none",
-              borderRadius: "8px",
+              borderRadius: "50px",
               padding: "1.2rem 2.5rem",
               fontSize: "1.1rem",
               fontFamily: "'Montserrat', sans-serif",
