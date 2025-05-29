@@ -30,7 +30,7 @@ function CategoriesSection() {
 
   return (
     <div style={{ 
-      backgroundColor: "#f8fafc", 
+      backgroundColor: "transparent", 
       padding: "0 2rem 4rem 2rem",
       marginTop: "-60px",
       position: "relative",
