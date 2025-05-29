@@ -1194,6 +1194,59 @@ export default function HomeClean() {
           </div>
         </div>
       </div>
+
+      {/* Sección de registro para proveedores */}
+      <div style={{ 
+        padding: "4rem 2rem", 
+        backgroundColor: "#0f2161",
+        color: "white" 
+      }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
+          <h2 style={{
+            fontSize: "2rem",
+            fontWeight: "bold",
+            marginBottom: "1rem",
+            fontFamily: "'Montserrat', sans-serif",
+            color: "white"
+          }}>
+            ¿Es Usted un Proveedor de Equipamiento Urbano o Parques?
+          </h2>
+          
+          <p style={{
+            fontSize: "1.2rem",
+            lineHeight: "1.6",
+            marginBottom: "2.5rem",
+            color: "#e5e7eb"
+          }}>
+            Regístrese y conecte con miles de proyectos y clientes potenciales en todo México. 
+            Muestre sus soluciones a la audiencia correcta.
+          </p>
+
+          <Link href="/login">
+            <button style={{
+              backgroundColor: "#bcce16",
+              color: "#0f2161",
+              border: "none",
+              borderRadius: "8px",
+              padding: "1.2rem 2.5rem",
+              fontSize: "1.1rem",
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: "700",
+              cursor: "pointer",
+              transition: "background-color 0.2s ease",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.2)"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#a8b914";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#bcce16";
+            }}>
+              Regístrate como empresa
+            </button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
