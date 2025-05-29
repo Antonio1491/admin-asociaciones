@@ -9,19 +9,19 @@
 
 :root {
   --background: 210 11% 98%; /* #F5F7FA */
-  --foreground: 0 0% 29%; /* #4a4a49 - Admin text color */
+  --foreground: 0 0% 45%; /* #737373 - Softer gray text color */
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 29%; /* #4a4a49 - Admin text color */
+  --card-foreground: 0 0% 45%; /* #737373 - Softer gray text color */
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 29%; /* #4a4a49 - Admin text color */
+  --popover-foreground: 0 0% 45%; /* #737373 - Softer gray text color */
   --primary: 220 100% 20%; /* #0f2161 - Navy Blue */
   --primary-foreground: 210 40% 98%;
   --secondary: 82 85% 45%; /* #bcce16 - Lime Green */
   --secondary-foreground: 220 100% 20%;
   --muted: 210 40% 96%;
-  --muted-foreground: 0 0% 29%; /* #4a4a49 - Admin text color */
+  --muted-foreground: 0 0% 55%; /* #8c8c8c - Lighter gray for muted text */
   --accent: 210 40% 96%;
-  --accent-foreground: 0 0% 29%; /* #4a4a49 - Admin text color */
+  --accent-foreground: 0 0% 45%; /* #737373 - Softer gray text color */
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
   --border: 214.3 31.8% 91.4%;

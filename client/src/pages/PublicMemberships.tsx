@@ -63,7 +63,7 @@ export default function PublicMemberships() {
       {/* ¿Qué es el Directorio? */}
       <div className="bg-white py-16">
         <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center">
             ¿Qué es el Directorio?
           </h2>
           <div className="prose prose-lg mx-auto text-gray-600 leading-relaxed">
@@ -101,7 +101,7 @@ export default function PublicMemberships() {
       {/* ¿Quién puede formar parte? */}
       <div className="bg-gray-50 py-16">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+          <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center">
             ¿Quién puede formar parte?
           </h2>
           <div className="mb-8 text-center">
@@ -128,7 +128,7 @@ export default function PublicMemberships() {
             ].map((item, index) => (
               <div key={index} className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className="text-3xl mb-3 text-center">{item.icon}</div>
-                <h3 className="text-center font-medium text-gray-800">{item.title}</h3>
+                <h3 className="text-center font-medium text-gray-600">{item.title}</h3>
               </div>
             ))}
           </div>
@@ -294,24 +294,24 @@ export default function PublicMemberships() {
         {/* Beneficios adicionales */}
         <div className="mt-16 mb-16">
           <div className="bg-gray-50 rounded-2xl p-8 max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center">
               Beneficios adicionales
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
                 <div className="text-4xl mb-4">🔍</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">SEO Optimizado</h3>
-                <p className="text-gray-600">Aparecer en buscadores gracias al SEO del micrositio</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-600">SEO Optimizado</h3>
+                <p className="text-gray-500">Aparecer en buscadores gracias al SEO del micrositio</p>
               </div>
               <div className="text-center">
                 <div className="text-4xl mb-4">📢</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Promoción cruzada</h3>
-                <p className="text-gray-600">En eventos, webinars y medios aliados</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-600">Promoción cruzada</h3>
+                <p className="text-gray-500">En eventos, webinars y medios aliados</p>
               </div>
               <div className="text-center">
                 <div className="text-4xl mb-4">🤝</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Atención personalizada</h3>
-                <p className="text-gray-600">Acompañamiento y atención personalizada</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-600">Atención personalizada</h3>
+                <p className="text-gray-500">Acompañamiento y atención personalizada</p>
               </div>
             </div>
           </div>
@@ -320,24 +320,24 @@ export default function PublicMemberships() {
         {/* Cómo funciona */}
         <div className="mt-16 mb-16">
           <div className="bg-blue-50 rounded-2xl p-8 max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
+            <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center">
               ¿Cómo funciona?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
                 <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">1</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Elige y paga</h3>
-                <p className="text-gray-600">Elige tu plan y registra tu pago en línea</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-600">Elige y paga</h3>
+                <p className="text-gray-500">Elige tu plan y registra tu pago en línea</p>
               </div>
               <div className="text-center">
                 <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">2</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">Envía información</h3>
-                <p className="text-gray-600">Envía tu información y materiales</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-600">Envía información</h3>
+                <p className="text-gray-500">Envía tu información y materiales</p>
               </div>
               <div className="text-center">
                 <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">3</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-800">¡Activo en 5 días!</h3>
-                <p className="text-gray-600">Tu micrositio estará activo dentro de 5 días hábiles</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-600">¡Activo en 5 días!</h3>
+                <p className="text-gray-500">Tu micrositio estará activo dentro de 5 días hábiles</p>
               </div>
             </div>
           </div>
