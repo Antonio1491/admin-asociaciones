@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, date } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -64,6 +64,19 @@ export const companies = pgTable("companies", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const certificates = pgTable("certificates", {
+  id: serial("id").primaryKey(),
+  nombreCertificado: text("nombre_certificado").notNull(),
+  imagenUrl: text("imagen_url").notNull(),
+  descripcion: text("descripcion"),
+  fechaEmision: text("fecha_emision"),
+  fechaVencimiento: text("fecha_vencimiento"),
+  entidadEmisora: text("entidad_emisora"),
+  estado: text("estado").notNull().default("activo"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -84,6 +97,12 @@ export const insertMembershipTypeSchema = createInsertSchema(membershipTypes).om
 });
 
 export const insertCompanySchema = createInsertSchema(companies).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCertificateSchema = createInsertSchema(certificates).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
