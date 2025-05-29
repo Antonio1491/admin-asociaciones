@@ -3,14 +3,17 @@ import {
   companies, 
   categories, 
   membershipTypes,
+  certificates,
   type User, 
   type Company, 
   type Category, 
   type MembershipType,
+  type Certificate,
   type InsertUser, 
   type InsertCompany, 
   type InsertCategory, 
   type InsertMembershipType,
+  type InsertCertificate,
   type CompanyWithDetails 
 } from "@shared/schema";
 import { eq, ilike, desc, asc, and, or } from "drizzle-orm";
@@ -54,6 +57,13 @@ export interface IStorage {
   updateMembershipType(id: number, membershipType: Partial<InsertMembershipType>): Promise<MembershipType | undefined>;
   deleteMembershipType(id: number): Promise<boolean>;
 
+  // Certificates
+  getCertificate(id: number): Promise<Certificate | undefined>;
+  getAllCertificates(): Promise<Certificate[]>;
+  createCertificate(certificate: InsertCertificate): Promise<Certificate>;
+  updateCertificate(id: number, certificate: Partial<InsertCertificate>): Promise<Certificate | undefined>;
+  deleteCertificate(id: number): Promise<boolean>;
+
   // Statistics
   getStatistics(): Promise<{
     totalCompanies: number;
@@ -68,20 +78,24 @@ export class MemStorage implements IStorage {
   private companies: Map<number, Company>;
   private categories: Map<number, Category>;
   private membershipTypes: Map<number, MembershipType>;
+  private certificates: Map<number, Certificate>;
   private currentUserId: number;
   private currentCompanyId: number;
   private currentCategoryId: number;
   private currentMembershipTypeId: number;
+  private currentCertificateId: number;
 
   constructor() {
     this.users = new Map();
     this.companies = new Map();
     this.categories = new Map();
     this.membershipTypes = new Map();
+    this.certificates = new Map();
     this.currentUserId = 1;
     this.currentCompanyId = 1;
     this.currentCategoryId = 1;
     this.currentMembershipTypeId = 1;
+    this.currentCertificateId = 1;
 
     // Initialize default data
     this.initializeDefaultData();
@@ -614,6 +628,47 @@ export class MemStorage implements IStorage {
       newRegistrations,
       totalRevenue
     };
+  }
+
+  // Certificates methods
+  async getCertificate(id: number): Promise<Certificate | undefined> {
+    return this.certificates.get(id);
+  }
+
+  async getAllCertificates(): Promise<Certificate[]> {
+    return Array.from(this.certificates.values());
+  }
+
+  async createCertificate(insertCertificate: InsertCertificate): Promise<Certificate> {
+    const certificate: Certificate = {
+      ...insertCertificate,
+      id: this.currentCertificateId++,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    this.certificates.set(certificate.id, certificate);
+    return certificate;
+  }
+
+  async updateCertificate(id: number, certificateData: Partial<InsertCertificate>): Promise<Certificate | undefined> {
+    const existingCertificate = this.certificates.get(id);
+    if (!existingCertificate) {
+      return undefined;
+    }
+
+    const updatedCertificate: Certificate = {
+      ...existingCertificate,
+      ...certificateData,
+      updatedAt: new Date(),
+    };
+
+    this.certificates.set(id, updatedCertificate);
+    return updatedCertificate;
+  }
+
+  async deleteCertificate(id: number): Promise<boolean> {
+    return this.certificates.delete(id);
   }
 }
 

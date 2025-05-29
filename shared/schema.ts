@@ -121,6 +121,9 @@ export type InsertMembershipType = z.infer<typeof insertMembershipTypeSchema>;
 export type Company = typeof companies.$inferSelect;
 export type InsertCompany = z.infer<typeof insertCompanySchema>;
 
+export type Certificate = typeof certificates.$inferSelect;
+export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
+
 // Extended types for API responses
 export type CompanyWithDetails = Company & {
   categories?: Category[];
