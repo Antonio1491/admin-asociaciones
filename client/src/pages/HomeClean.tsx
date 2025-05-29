@@ -712,7 +712,7 @@ export default function HomeClean() {
           <div style={{ position: "relative" }}>
             <div style={{
               display: "flex",
-              gap: "1.5rem",
+              gap: "2rem",
               overflowX: "auto",
               scrollBehavior: "smooth",
               paddingBottom: "1rem",
@@ -730,8 +730,8 @@ export default function HomeClean() {
                 
                 return (
                   <div key={category.id} style={{ 
-                    minWidth: "220px", 
-                    maxWidth: "220px",
+                    minWidth: "600px", 
+                    maxWidth: "600px",
                     flexShrink: 0 
                   }}>
                     <div style={{
@@ -739,22 +739,146 @@ export default function HomeClean() {
                       borderRadius: "12px",
                       boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
                       overflow: "hidden",
-                      marginBottom: "1rem"
+                      display: "flex",
+                      height: "300px"
                     }}>
-                      {/* Badge de categoría */}
+                      {/* Imagen del producto */}
                       <div style={{
-                        backgroundColor: "#0f2161",
-                        color: "white",
-                        padding: "0.5rem 1rem",
-                        fontSize: "0.9rem",
-                        fontWeight: "600",
-                        textAlign: "center"
+                        width: "50%",
+                        background: categoryCompany.imagenPortada
+                          ? `url(${categoryCompany.imagenPortada}) center/cover`
+                          : categoryCompany.logotipoUrl
+                          ? `url(${categoryCompany.logotipoUrl}) center/contain no-repeat #f8fafc`
+                          : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        position: "relative"
                       }}>
-                        {getCategoryIcon(category.nombreCategoria)} {category.nombreCategoria}
+                        {/* Badge de categoría en la imagen */}
+                        <div style={{
+                          position: "absolute",
+                          top: "1rem",
+                          left: "1rem",
+                          backgroundColor: "#0f2161",
+                          color: "white",
+                          padding: "0.5rem 1rem",
+                          borderRadius: "20px",
+                          fontSize: "0.8rem",
+                          fontWeight: "600",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem"
+                        }}>
+                          {getCategoryIcon(category.nombreCategoria)} {category.nombreCategoria}
+                        </div>
+                        
+                        {!categoryCompany.imagenPortada && !categoryCompany.logotipoUrl && (
+                          <div style={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: "80px",
+                            height: "80px",
+                            backgroundColor: "rgba(255,255,255,0.2)",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "2rem",
+                            fontWeight: "bold",
+                            color: "white"
+                          }}>
+                            {categoryCompany.nombreEmpresa?.charAt(0) || "?"}
+                          </div>
+                        )}
                       </div>
                       
-                      {/* Tarjeta de empresa */}
-                      <CompanyCard company={categoryCompany} />
+                      {/* Ficha técnica de la empresa */}
+                      <div style={{
+                        width: "50%",
+                        padding: "2rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between"
+                      }}>
+                        <div>
+                          <h3 style={{
+                            fontSize: "1.4rem",
+                            fontWeight: "700",
+                            color: "#0f2161",
+                            marginBottom: "0.5rem",
+                            fontFamily: "'Montserrat', sans-serif"
+                          }}>
+                            {categoryCompany.nombreEmpresa}
+                          </h3>
+                          
+                          <div style={{
+                            color: "#6b7280",
+                            fontSize: "0.9rem",
+                            lineHeight: "1.5",
+                            marginBottom: "1rem",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden"
+                          }}
+                          dangerouslySetInnerHTML={{ 
+                            __html: categoryCompany.descripcionEmpresa || "Empresa especializada en soluciones innovadoras"
+                          }} />
+                          
+                          {/* Información de contacto */}
+                          <div style={{ marginBottom: "1rem" }}>
+                            {categoryCompany.ciudad && (
+                              <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginBottom: "0.5rem",
+                                fontSize: "0.8rem",
+                                color: "#6b7280"
+                              }}>
+                                <span style={{ marginRight: "0.5rem" }}>📍</span>
+                                <span>{categoryCompany.ciudad}</span>
+                              </div>
+                            )}
+                            
+                            {categoryCompany.telefono1 && (
+                              <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "0.8rem",
+                                color: "#6b7280"
+                              }}>
+                                <span style={{ marginRight: "0.5rem" }}>📞</span>
+                                <span>{categoryCompany.telefono1}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Botón ver detalles */}
+                        <Link href={`/empresa/${categoryCompany.id}`}>
+                          <button style={{
+                            backgroundColor: "#bcce16",
+                            color: "#0f2161",
+                            border: "none",
+                            borderRadius: "8px",
+                            padding: "0.8rem 1.5rem",
+                            fontSize: "0.9rem",
+                            fontFamily: "'Montserrat', sans-serif",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                            width: "100%",
+                            transition: "background-color 0.2s ease"
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "#a8b914";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "#bcce16";
+                          }}>
+                            Ver Detalles
+                          </button>
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 );
