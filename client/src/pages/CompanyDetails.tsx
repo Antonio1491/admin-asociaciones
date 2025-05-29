@@ -184,40 +184,7 @@ export default function CompanyDetails() {
                 )}
               </div>
 
-              {/* Redes sociales */}
-              {company.redesSociales && company.redesSociales.length > 0 && (
-                <div className="flex justify-center items-center gap-4 mt-8">
-                  <span className="text-blue-200 text-sm">Síguenos:</span>
-                  <div className="flex gap-4">
-                    {company.redesSociales.map((red: any, index: number) => (
-                      <a
-                        key={index}
-                        href={red.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-white/70 hover:text-white transition-colors p-2 bg-white/10 rounded-full hover:bg-white/20"
-                      >
-                        {red.plataforma === 'Facebook' && <Facebook className="h-5 w-5" />}
-                        {red.plataforma === 'LinkedIn' && <Linkedin className="h-5 w-5" />}
-                        {red.plataforma === 'Twitter' && <Twitter className="h-5 w-5" />}
-                        {red.plataforma === 'Instagram' && <Instagram className="h-5 w-5" />}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              {/* Botones de acción */}
-              <div className="flex justify-center gap-4 mt-8">
-                <Button className="bg-green-600 hover:bg-green-700 text-white">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Contactar
-                </Button>
-                <Button variant="outline" className="border-white/30 text-white hover:bg-white/10">
-                  <Heart className="h-4 w-4 mr-2" />
-                  Guardar
-                </Button>
-              </div>
             </div>
           </div>
         </div>
@@ -483,20 +450,28 @@ export default function CompanyDetails() {
                 <Separator />
 
                 {/* Redes Sociales */}
-                {Object.keys(redesSociales).length > 0 && (
+                {company.redesSociales && company.redesSociales.length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-3">Redes Sociales</h4>
-                    <div className="space-y-2">
-                      {Object.entries(redesSociales).map(([plataforma, url], index) => (
+                    <div className="space-y-3">
+                      {company.redesSociales.map((red: any, index: number) => (
                         <a
                           key={index}
-                          href={url}
+                          href={red.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center text-gray-600 hover:text-blue-600 transition-colors"
+                          className="flex items-center text-gray-600 hover:text-blue-600 transition-colors group"
                         >
-                          <Globe className="h-4 w-4 mr-2" />
-                          {plataforma}
+                          <div className="w-8 h-8 rounded-full bg-gray-100 group-hover:bg-blue-100 flex items-center justify-center mr-3 transition-colors">
+                            {red.plataforma === 'Facebook' && <Facebook className="h-4 w-4" />}
+                            {red.plataforma === 'LinkedIn' && <Linkedin className="h-4 w-4" />}
+                            {red.plataforma === 'Twitter' && <Twitter className="h-4 w-4" />}
+                            {red.plataforma === 'Instagram' && <Instagram className="h-4 w-4" />}
+                            {!['Facebook', 'LinkedIn', 'Twitter', 'Instagram'].includes(red.plataforma) && 
+                              <Globe className="h-4 w-4" />
+                            }
+                          </div>
+                          <span className="font-medium">{red.plataforma}</span>
                         </a>
                       ))}
                     </div>
