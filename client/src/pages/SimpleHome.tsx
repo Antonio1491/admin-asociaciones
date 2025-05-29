@@ -150,16 +150,21 @@ export default function SimpleHome() {
                   ref={sliderRef}
                   style={{
                     display: "flex",
-                    gap: "2rem",
+                    gap: "1.5rem",
                     overflowX: "auto",
                     scrollBehavior: "smooth",
                     paddingBottom: "1rem",
                     scrollbarWidth: "none",
-                    msOverflowStyle: "none"
+                    msOverflowStyle: "none",
+                    padding: "0 20px"
                   }}
                 >
-                  {searchResults.map((company: any) => (
-                    <div key={company.id} style={{ minWidth: "350px", flexShrink: 0 }}>
+                  {searchResults.slice(0, 5).map((company: any) => (
+                    <div key={company.id} style={{ 
+                      minWidth: "280px", 
+                      maxWidth: "280px",
+                      flexShrink: 0 
+                    }}>
                       <CompanyCard company={company} />
                     </div>
                   ))}
@@ -217,7 +222,10 @@ function CompanyCard({ company }: { company: any }) {
       boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
       overflow: "hidden",
       transition: "transform 0.2s ease, box-shadow 0.2s ease",
-      cursor: "pointer"
+      cursor: "pointer",
+      height: "400px",
+      display: "flex",
+      flexDirection: "column"
     }}
     onMouseEnter={(e) => {
       e.currentTarget.style.transform = "translateY(-4px)";
@@ -230,12 +238,12 @@ function CompanyCard({ company }: { company: any }) {
       
       {/* Logo/Header */}
       <div style={{
-        height: "150px",
+        height: "120px",
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "1rem"
+        padding: "0.8rem"
       }}>
         {company.logotipoUrl ? (
           <img
@@ -249,14 +257,14 @@ function CompanyCard({ company }: { company: any }) {
           />
         ) : (
           <div style={{
-            width: "80px",
-            height: "80px",
+            width: "60px",
+            height: "60px",
             backgroundColor: "rgba(255,255,255,0.2)",
             borderRadius: "50%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "2rem",
+            fontSize: "1.5rem",
             fontWeight: "bold",
             color: "white"
           }}>
@@ -266,7 +274,7 @@ function CompanyCard({ company }: { company: any }) {
       </div>
 
       {/* Contenido */}
-      <div style={{ padding: "1.5rem" }}>
+      <div style={{ padding: "1rem", flex: 1, display: "flex", flexDirection: "column" }}>
         {/* Categoría */}
         {company.category && (
           <span style={{
@@ -296,28 +304,29 @@ function CompanyCard({ company }: { company: any }) {
         {/* Descripción */}
         <div style={{
           color: "#6b7280",
-          fontSize: "0.9rem",
-          lineHeight: "1.4",
-          marginBottom: "1rem",
-          height: "2.8rem",
-          overflow: "hidden"
+          fontSize: "0.8rem",
+          lineHeight: "1.3",
+          marginBottom: "0.8rem",
+          height: "2.4rem",
+          overflow: "hidden",
+          flex: 1
         }}
         dangerouslySetInnerHTML={{ 
-          __html: company.descripcionEmpresa?.substring(0, 120) + "..." || "Sin descripción" 
+          __html: company.descripcionEmpresa?.substring(0, 80) + "..." || "Sin descripción" 
         }} />
 
         {/* Información de contacto */}
-        <div style={{ marginBottom: "1rem" }}>
+        <div style={{ marginBottom: "0.8rem" }}>
           {company.direccionFisica && (
             <div style={{
               display: "flex",
               alignItems: "center",
-              marginBottom: "0.5rem",
-              fontSize: "0.85rem",
+              marginBottom: "0.3rem",
+              fontSize: "0.75rem",
               color: "#6b7280"
             }}>
-              <span style={{ marginRight: "0.5rem" }}>📍</span>
-              <span>{company.direccionFisica.substring(0, 40)}{company.direccionFisica.length > 40 ? "..." : ""}</span>
+              <span style={{ marginRight: "0.4rem" }}>📍</span>
+              <span>{company.direccionFisica.substring(0, 25)}{company.direccionFisica.length > 25 ? "..." : ""}</span>
             </div>
           )}
           
@@ -325,11 +334,10 @@ function CompanyCard({ company }: { company: any }) {
             <div style={{
               display: "flex",
               alignItems: "center",
-              marginBottom: "0.5rem",
-              fontSize: "0.85rem",
+              fontSize: "0.75rem",
               color: "#6b7280"
             }}>
-              <span style={{ marginRight: "0.5rem" }}>📞</span>
+              <span style={{ marginRight: "0.4rem" }}>📞</span>
               <span>{company.telefono1}</span>
             </div>
           )}
@@ -339,15 +347,16 @@ function CompanyCard({ company }: { company: any }) {
         <Link href={`/empresa/${company.id}`}>
           <button style={{
             width: "100%",
-            padding: "0.75rem",
+            padding: "0.6rem",
             backgroundColor: "#667eea",
             color: "white",
             border: "none",
-            borderRadius: "8px",
-            fontSize: "1rem",
+            borderRadius: "6px",
+            fontSize: "0.9rem",
             fontWeight: "500",
             cursor: "pointer",
-            transition: "background-color 0.2s ease"
+            transition: "background-color 0.2s ease",
+            marginTop: "auto"
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.backgroundColor = "#5a67d8";
