@@ -32,7 +32,7 @@ function CategoriesSection() {
     <div style={{ 
       backgroundColor: "transparent", 
       padding: "0 2rem 4rem 2rem",
-      marginTop: "-60px",
+      marginTop: "-120px",
       position: "relative",
       zIndex: 10
     }}>
@@ -331,7 +331,7 @@ export default function HomeClean() {
         backgroundPosition: "center",
         backgroundAttachment: "fixed",
         color: "white",
-        padding: "5rem 2rem",
+        padding: "5rem 2rem 8rem 2rem",
         textAlign: "center",
         position: "relative"
       }}>
