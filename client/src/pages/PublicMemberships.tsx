@@ -171,10 +171,10 @@ export default function PublicMemberships() {
       {/* Planes de Membresía */}
       <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-700 mb-4">
             Planes de Membresía
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-gray-500 max-w-3xl mx-auto">
             Elige el plan que mejor se adapte a las necesidades de tu empresa. 
             Todos nuestros planes incluyen beneficios exclusivos para hacer crecer tu negocio.
           </p>
