@@ -550,49 +550,94 @@ export default function CompanyDetails() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  {relatedCompanies.slice(0, 4).map((relatedCompany: any) => (
-                    <div key={relatedCompany.id} className="group cursor-pointer">
-                      <Card className="hover:shadow-lg transition-shadow">
-                        <CardContent className="p-4">
-                          <div className="text-center">
+                <div className="relative">
+                  {/* Botones de navegación */}
+                  {relatedCompanies.length > 3 && (
+                    <>
+                      <button
+                        onClick={() => {
+                          const slider = document.getElementById('related-companies-slider');
+                          if (slider) slider.scrollBy({ left: -300, behavior: 'smooth' });
+                        }}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                        style={{ marginLeft: '-20px' }}
+                      >
+                        ‹
+                      </button>
+                      <button
+                        onClick={() => {
+                          const slider = document.getElementById('related-companies-slider');
+                          if (slider) slider.scrollBy({ left: 300, behavior: 'smooth' });
+                        }}
+                        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                        style={{ marginRight: '-20px' }}
+                      >
+                        ›
+                      </button>
+                    </>
+                  )}
+
+                  {/* Slider de empresas */}
+                  <div
+                    id="related-companies-slider"
+                    className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+                    style={{
+                      scrollbarWidth: 'none',
+                      msOverflowStyle: 'none',
+                    }}
+                  >
+                    {relatedCompanies.map((relatedCompany: any) => (
+                      <div
+                        key={relatedCompany.id}
+                        className="group cursor-pointer flex-shrink-0"
+                        onClick={() => window.location.href = `/empresa/${relatedCompany.id}`}
+                      >
+                        <div
+                          className="w-64 h-64 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100"
+                        >
+                          <div className="h-3/4 relative overflow-hidden rounded-t-xl">
                             {relatedCompany.logotipoUrl ? (
                               <img
                                 src={relatedCompany.logotipoUrl}
                                 alt={relatedCompany.nombreEmpresa}
-                                className="w-16 h-16 mx-auto mb-3 object-contain rounded-lg"
+                                className="w-full h-full object-contain bg-gradient-to-br from-gray-50 to-gray-100 p-4"
                               />
                             ) : (
-                              <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
-                                <span className="text-xl font-bold text-blue-600">
+                              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                                <span className="text-4xl font-bold text-white">
                                   {relatedCompany.nombreEmpresa.charAt(0)}
                                 </span>
                               </div>
                             )}
-                            <h4 className="font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                            
+                            {/* Overlay con información adicional */}
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <Button 
+                                  size="sm" 
+                                  className="bg-white text-blue-600 hover:bg-blue-50"
+                                >
+                                  Ver Empresa
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="h-1/4 p-4 flex flex-col justify-center">
+                            <h4 className="font-bold text-gray-800 text-center group-hover:text-blue-600 transition-colors truncate">
                               {relatedCompany.nombreEmpresa}
                             </h4>
                             {relatedCompany.ciudad && (
-                              <p className="text-sm text-gray-500 mb-2">
-                                <MapPin className="h-3 w-3 inline mr-1" />
+                              <p className="text-sm text-gray-500 text-center mt-1 flex items-center justify-center">
+                                <MapPin className="h-3 w-3 mr-1" />
                                 {relatedCompany.ciudad}
                               </p>
                             )}
-                            <div className="pt-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full"
-                                onClick={() => window.location.href = `/empresa/${relatedCompany.id}`}
-                              >
-                                Ver Empresa
-                              </Button>
-                            </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
