@@ -46,15 +46,15 @@ export default function PublicMemberships() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+      <div style={{ background: 'linear-gradient(135deg, #0f2161 0%, #1a2f7a 100%)' }} className="text-white">
         <div className="max-w-7xl mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
             El Directorio de la Industria
           </h1>
-          <h2 className="text-2xl md:text-3xl font-semibold mb-4 text-blue-100">
+          <h2 className="text-2xl md:text-3xl font-semibold mb-4" style={{ color: '#bcce16' }}>
             del Equipamiento Urbano en América Latina
           </h2>
-          <p className="text-xl text-blue-100 max-w-4xl mx-auto leading-relaxed">
+          <p className="text-xl max-w-4xl mx-auto leading-relaxed" style={{ color: '#e5e7eb' }}>
             El espacio donde proveedores y líderes del espacio público se encuentran
           </p>
         </div>
@@ -83,7 +83,10 @@ export default function PublicMemberships() {
                 href="https://anpr.org.mx/nosotros/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center px-6 py-3 text-white font-semibold rounded-lg transition-colors"
+                style={{ backgroundColor: '#0f2161' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1a2f7a'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0f2161'}
               >
                 Conoce más sobre la ANPR México
                 <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,26 +143,26 @@ export default function PublicMemberships() {
       </div>
 
       {/* ¿Por qué unirte al Directorio? */}
-      <div className="bg-blue-600 text-white py-16">
+      <div style={{ backgroundColor: '#0f2161' }} className="text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-12">
             ¿Por qué unirte al Directorio?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-blue-700 rounded-lg p-6">
+            <div style={{ backgroundColor: '#1a2f7a' }} className="rounded-lg p-6">
               <div className="text-4xl mb-4">🎯</div>
               <h3 className="text-xl font-semibold mb-3">Tu marca donde importa</h3>
-              <p className="text-blue-100">Llega a quienes toman decisiones reales</p>
+              <p style={{ color: '#e5e7eb' }}>Llega a quienes toman decisiones reales</p>
             </div>
-            <div className="bg-blue-700 rounded-lg p-6">
+            <div style={{ backgroundColor: '#1a2f7a' }} className="rounded-lg p-6">
               <div className="text-4xl mb-4">💼</div>
               <h3 className="text-xl font-semibold mb-3">Contratos reales</h3>
-              <p className="text-blue-100">Convierte tu presencia digital en contratos reales</p>
+              <p style={{ color: '#e5e7eb' }}>Convierte tu presencia digital en contratos reales</p>
             </div>
-            <div className="bg-blue-700 rounded-lg p-6">
+            <div style={{ backgroundColor: '#1a2f7a' }} className="rounded-lg p-6">
               <div className="text-4xl mb-4">🌎</div>
               <h3 className="text-xl font-semibold mb-3">Alcance continental</h3>
-              <p className="text-blue-100">Desde México hasta Argentina: haz que te vean</p>
+              <p style={{ color: '#e5e7eb' }}>Desde México hasta Argentina: haz que te vean</p>
             </div>
           </div>
         </div>
@@ -322,17 +325,17 @@ export default function PublicMemberships() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">1</div>
+                <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">1</div>
                 <h3 className="text-lg font-semibold mb-2 text-gray-800">Elige y paga</h3>
                 <p className="text-gray-600">Elige tu plan y registra tu pago en línea</p>
               </div>
               <div className="text-center">
-                <div className="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">2</div>
+                <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">2</div>
                 <h3 className="text-lg font-semibold mb-2 text-gray-800">Envía información</h3>
                 <p className="text-gray-600">Envía tu información y materiales</p>
               </div>
               <div className="text-center">
-                <div className="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">3</div>
+                <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">3</div>
                 <h3 className="text-lg font-semibold mb-2 text-gray-800">¡Activo en 5 días!</h3>
                 <p className="text-gray-600">Tu micrositio estará activo dentro de 5 días hábiles</p>
               </div>
@@ -342,11 +345,11 @@ export default function PublicMemberships() {
 
         {/* Call to Action Final */}
         <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl shadow-lg p-12 max-w-5xl mx-auto text-white">
+          <div style={{ background: 'linear-gradient(135deg, #0f2161 0%, #1a2f7a 100%)' }} className="rounded-2xl shadow-lg p-12 max-w-5xl mx-auto text-white">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
               ¡Súmate hoy al directorio más grande de América Latina!
             </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl mb-8 max-w-3xl mx-auto leading-relaxed" style={{ color: '#e5e7eb' }}>
               No dejes pasar la oportunidad de gozar de una herramienta que impulsa la calidad, 
               la innovación y las alianzas en el sector del espacio público. 
               Conecta, crece y transforma junto a la ANPR México.
