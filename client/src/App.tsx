@@ -37,7 +37,7 @@ function Router() {
         <Login />
       </Route>
       
-      <Route path="/admin">
+      <Route path="/dashboard">
         <ProtectedRoute>
           <AppLayout>
             <Dashboard />
@@ -45,7 +45,7 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      <Route path="/admin/companies">
+      <Route path="/empresas">
         <ProtectedRoute>
           <AppLayout>
             <Companies />
@@ -53,7 +53,7 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      <Route path="/admin/categories">
+      <Route path="/categorias">
         <ProtectedRoute>
           <AppLayout>
             <Categories />
@@ -61,7 +61,7 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      <Route path="/admin/memberships">
+      <Route path="/membresias">
         <ProtectedRoute>
           <AppLayout>
             <Memberships />
@@ -69,7 +69,7 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
-      <Route path="/admin/users">
+      <Route path="/usuarios">
         <ProtectedRoute requireAdmin>
           <AppLayout>
             <Users />

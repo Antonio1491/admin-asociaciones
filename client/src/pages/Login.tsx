@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -40,12 +42,16 @@ export default function Login() {
           title: "Cuenta creada",
           description: "Tu cuenta ha sido creada exitosamente",
         });
+        // Redirigir al dashboard después de crear cuenta
+        setTimeout(() => setLocation("/dashboard"), 1000);
       } else {
         await signInWithEmail(data.email, data.password);
         toast({
           title: "Bienvenido",
           description: "Has iniciado sesión exitosamente",
         });
+        // Redirigir al dashboard después del login
+        setTimeout(() => setLocation("/dashboard"), 1000);
       }
     } catch (error: any) {
       let errorMessage = "Ha ocurrido un error";
@@ -80,6 +86,8 @@ export default function Login() {
         title: "Bienvenido",
         description: "Has iniciado sesión con Google exitosamente",
       });
+      // Redirigir al dashboard después del login con Google
+      setTimeout(() => setLocation("/dashboard"), 1000);
     } catch (error: any) {
       toast({
         title: "Error",
