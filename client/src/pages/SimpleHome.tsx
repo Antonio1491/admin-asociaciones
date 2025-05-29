@@ -74,35 +74,18 @@ export default function SimpleHome() {
           
           {/* Buscador mejorado */}
           <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-            <div style={{ position: "relative" }}>
-              <div style={{
-                position: "absolute",
-                left: "20px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                color: "#666",
-                zIndex: 3
-              }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <path d="m21 21-4.35-4.35"></path>
-                </svg>
-                <span style={{ fontSize: "1rem", fontWeight: "500" }}>Buscar</span>
-              </div>
+            <div style={{ position: "relative", display: "flex" }}>
               <input
                 type="text"
                 placeholder="empresas, servicios o categorías..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
-                  width: "100%",
-                  padding: "1.2rem 1.2rem 1.2rem 100px",
+                  flex: 1,
+                  padding: "1.2rem 1.5rem",
                   fontSize: "1.1rem",
                   border: "none",
-                  borderRadius: "50px",
+                  borderRadius: "50px 0 0 50px",
                   outline: "none",
                   boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                   backgroundColor: "rgba(255,255,255,0.95)",
@@ -110,6 +93,40 @@ export default function SimpleHome() {
                   color: "#333"
                 }}
               />
+              <button
+                style={{
+                  backgroundColor: "#bcce16",
+                  color: "#0f2161",
+                  border: "none",
+                  borderRadius: "0 50px 50px 0",
+                  padding: "1.2rem 2rem",
+                  fontSize: "1rem",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                  transition: "all 0.2s ease"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#a8b914";
+                  e.currentTarget.style.transform = "scale(1.02)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#bcce16";
+                  e.currentTarget.style.transform = "scale(1)";
+                }}
+                onClick={() => {
+                  // Trigger search functionality if needed
+                }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                Buscar
+              </button>
             </div>
           </div>
         </div>
