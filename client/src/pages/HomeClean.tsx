@@ -9,7 +9,6 @@ function CategoriesSection() {
 
   const categories = (categoriesResponse as any) || [];
 
-  // Iconos para diferentes categorías
   const getCategoryIcon = (categoryName: string) => {
     const name = categoryName.toLowerCase();
     if (name.includes('tecnología') || name.includes('software')) return '💻';
@@ -139,7 +138,159 @@ function CategoryIcon({ category, icon }: { category: any, icon: string }) {
   );
 }
 
-export default function SimpleHome() {
+function CompanyCard({ company }: { company: any }) {
+  return (
+    <div style={{
+      backgroundColor: "white",
+      borderRadius: "12px",
+      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+      overflow: "hidden",
+      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+      cursor: "pointer",
+      height: "400px",
+      display: "flex",
+      flexDirection: "column"
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "translateY(-4px)";
+      e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.15)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "translateY(0)";
+      e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
+    }}>
+      
+      <div style={{
+        height: "120px",
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "0.8rem"
+      }}>
+        {company.logotipoUrl ? (
+          <img
+            src={company.logotipoUrl}
+            alt={company.nombreEmpresa}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain"
+            }}
+          />
+        ) : (
+          <div style={{
+            width: "60px",
+            height: "60px",
+            backgroundColor: "rgba(255,255,255,0.2)",
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.5rem",
+            fontWeight: "bold",
+            color: "white"
+          }}>
+            {company.nombreEmpresa?.charAt(0) || "?"}
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: "1rem", flex: 1, display: "flex", flexDirection: "column" }}>
+        {company.category && (
+          <span style={{
+            backgroundColor: "#eff6ff",
+            color: "#2563eb",
+            padding: "0.25rem 0.75rem",
+            borderRadius: "20px",
+            fontSize: "0.8rem",
+            fontWeight: "500",
+            marginBottom: "1rem",
+            display: "inline-block"
+          }}>
+            {company.category.nombreCategoria}
+          </span>
+        )}
+
+        <h3 style={{
+          fontSize: "1.25rem",
+          fontWeight: "bold",
+          marginBottom: "0.5rem",
+          color: "#1f2937"
+        }}>
+          {company.nombreEmpresa}
+        </h3>
+
+        <div style={{
+          color: "#6b7280",
+          fontSize: "0.8rem",
+          lineHeight: "1.3",
+          marginBottom: "0.8rem",
+          height: "2.4rem",
+          overflow: "hidden",
+          flex: 1
+        }}
+        dangerouslySetInnerHTML={{ 
+          __html: company.descripcionEmpresa?.substring(0, 80) + "..." || "Sin descripción" 
+        }} />
+
+        <div style={{ marginBottom: "0.8rem" }}>
+          {company.direccionFisica && (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "0.3rem",
+              fontSize: "0.75rem",
+              color: "#6b7280"
+            }}>
+              <span style={{ marginRight: "0.4rem" }}>📍</span>
+              <span>{company.direccionFisica.substring(0, 25)}{company.direccionFisica.length > 25 ? "..." : ""}</span>
+            </div>
+          )}
+          
+          {company.telefono1 && (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              fontSize: "0.75rem",
+              color: "#6b7280"
+            }}>
+              <span style={{ marginRight: "0.4rem" }}>📞</span>
+              <span>{company.telefono1}</span>
+            </div>
+          )}
+        </div>
+
+        <Link href={`/empresa/${company.id}`}>
+          <button style={{
+            width: "100%",
+            padding: "0.6rem",
+            backgroundColor: "#667eea",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            fontSize: "0.9rem",
+            fontFamily: "'Montserrat', sans-serif",
+            fontWeight: "700",
+            cursor: "pointer",
+            transition: "background-color 0.2s ease",
+            marginTop: "auto"
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#5a67d8";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#667eea";
+          }}>
+            Ver Detalles
+          </button>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+export default function HomeClean() {
   const [searchTerm, setSearchTerm] = useState("");
   const sliderRef = useRef<HTMLDivElement>(null);
 
@@ -180,7 +331,6 @@ export default function SimpleHome() {
         textAlign: "center",
         position: "relative"
       }}>
-        {/* Overlay adicional */}
         <div style={{
           position: "absolute",
           top: 0,
@@ -209,7 +359,6 @@ export default function SimpleHome() {
             Encuentra las mejores empresas y servicios profesionales
           </p>
           
-          {/* Buscador mejorado */}
           <div style={{ maxWidth: "600px", margin: "0 auto" }}>
             <div style={{ position: "relative", display: "flex" }}>
               <input
@@ -255,9 +404,6 @@ export default function SimpleHome() {
                   e.currentTarget.style.backgroundColor = "#bcce16";
                   e.currentTarget.style.transform = "scale(1)";
                 }}
-                onClick={() => {
-                  // Trigger search functionality if needed
-                }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <circle cx="11" cy="11" r="8"></circle>
@@ -270,10 +416,8 @@ export default function SimpleHome() {
         </div>
       </div>
 
-      {/* Sección de Categorías */}
       <CategoriesSection />
 
-      {/* Contenido */}
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         {isLoading && (
           <div style={{ textAlign: "center", padding: "3rem" }}>
@@ -318,7 +462,6 @@ export default function SimpleHome() {
               </div>
             ) : (
               <div style={{ position: "relative" }}>
-                {/* Botón Izquierdo */}
                 {companies.length > 3 && (
                   <button
                     onClick={scrollLeft}
@@ -352,7 +495,6 @@ export default function SimpleHome() {
                   </button>
                 )}
 
-                {/* Slider Container */}
                 <div
                   ref={sliderRef}
                   style={{
@@ -377,7 +519,6 @@ export default function SimpleHome() {
                   ))}
                 </div>
 
-                {/* Botón Derecho */}
                 {companies.length > 3 && (
                   <button
                     onClick={scrollRight}
@@ -414,169 +555,6 @@ export default function SimpleHome() {
             )}
           </>
         )}
-      </div>
-
-
-    </div>
-  );
-}
-
-
-
-function CompanyCard({ company }: { company: any }) {
-  return (
-    <div style={{
-      backgroundColor: "white",
-      borderRadius: "12px",
-      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-      overflow: "hidden",
-      transition: "transform 0.2s ease, box-shadow 0.2s ease",
-      cursor: "pointer",
-      height: "400px",
-      display: "flex",
-      flexDirection: "column"
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "translateY(-4px)";
-      e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,0,0,0.15)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "translateY(0)";
-      e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)";
-    }}>
-      
-      {/* Logo/Header */}
-      <div style={{
-        height: "120px",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "0.8rem"
-      }}>
-        {company.logotipoUrl ? (
-          <img
-            src={company.logotipoUrl}
-            alt={company.nombreEmpresa}
-            style={{
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain"
-            }}
-          />
-        ) : (
-          <div style={{
-            width: "60px",
-            height: "60px",
-            backgroundColor: "rgba(255,255,255,0.2)",
-            borderRadius: "50%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "1.5rem",
-            fontWeight: "bold",
-            color: "white"
-          }}>
-            {company.nombreEmpresa?.charAt(0) || "?"}
-          </div>
-        )}
-      </div>
-
-      {/* Contenido */}
-      <div style={{ padding: "1rem", flex: 1, display: "flex", flexDirection: "column" }}>
-        {/* Categoría */}
-        {company.category && (
-          <span style={{
-            backgroundColor: "#eff6ff",
-            color: "#2563eb",
-            padding: "0.25rem 0.75rem",
-            borderRadius: "20px",
-            fontSize: "0.8rem",
-            fontWeight: "500",
-            marginBottom: "1rem",
-            display: "inline-block"
-          }}>
-            {company.category.nombreCategoria}
-          </span>
-        )}
-
-        {/* Nombre */}
-        <h3 style={{
-          fontSize: "1.25rem",
-          fontWeight: "bold",
-          marginBottom: "0.5rem",
-          color: "#1f2937"
-        }}>
-          {company.nombreEmpresa}
-        </h3>
-
-        {/* Descripción */}
-        <div style={{
-          color: "#6b7280",
-          fontSize: "0.8rem",
-          lineHeight: "1.3",
-          marginBottom: "0.8rem",
-          height: "2.4rem",
-          overflow: "hidden",
-          flex: 1
-        }}
-        dangerouslySetInnerHTML={{ 
-          __html: company.descripcionEmpresa?.substring(0, 80) + "..." || "Sin descripción" 
-        }} />
-
-        {/* Información de contacto */}
-        <div style={{ marginBottom: "0.8rem" }}>
-          {company.direccionFisica && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "0.3rem",
-              fontSize: "0.75rem",
-              color: "#6b7280"
-            }}>
-              <span style={{ marginRight: "0.4rem" }}>📍</span>
-              <span>{company.direccionFisica.substring(0, 25)}{company.direccionFisica.length > 25 ? "..." : ""}</span>
-            </div>
-          )}
-          
-          {company.telefono1 && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              fontSize: "0.75rem",
-              color: "#6b7280"
-            }}>
-              <span style={{ marginRight: "0.4rem" }}>📞</span>
-              <span>{company.telefono1}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Botón */}
-        <Link href={`/empresa/${company.id}`}>
-          <button style={{
-            width: "100%",
-            padding: "0.6rem",
-            backgroundColor: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontSize: "0.9rem",
-            fontFamily: "'Montserrat', sans-serif",
-            fontWeight: "700",
-            cursor: "pointer",
-            transition: "background-color 0.2s ease",
-            marginTop: "auto"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#5a67d8";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#667eea";
-          }}>
-            Ver Detalles
-          </button>
-        </Link>
       </div>
     </div>
   );
