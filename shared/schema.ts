@@ -18,6 +18,7 @@ export const categories = pgTable("categories", {
   nombreCategoria: text("nombre_categoria").notNull(),
   descripcion: text("descripcion"),
   icono: text("icono").default("Tag"), // Lucide icon name
+  iconoUrl: text("icono_url"), // Custom icon URL
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

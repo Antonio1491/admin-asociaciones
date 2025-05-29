@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Table,
@@ -47,6 +48,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import CategoryDataTable from "@/components/CategoryDataTable";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Upload, X } from "lucide-react";
 
 // Available icons for categories
 const availableIcons = [
@@ -80,6 +82,7 @@ const categorySchema = z.object({
   nombreCategoria: z.string().min(1, "El nombre de la categoría es requerido"),
   descripcion: z.string().optional(),
   icono: z.string().default("Tags"),
+  iconoUrl: z.string().optional(),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -98,6 +101,7 @@ export default function Categories() {
       nombreCategoria: "",
       descripcion: "",
       icono: "Tags",
+      iconoUrl: "",
     },
   });
 
@@ -107,6 +111,7 @@ export default function Categories() {
       nombreCategoria: "",
       descripcion: "",
       icono: "Tags",
+      iconoUrl: "",
     },
   });
 
@@ -200,6 +205,7 @@ export default function Categories() {
       nombreCategoria: category.nombreCategoria,
       descripcion: category.descripcion || "",
       icono: category.icono || "Tags",
+      iconoUrl: category.iconoUrl || "",
     });
     setIsEditModalOpen(true);
   };
@@ -328,6 +334,70 @@ export default function Categories() {
                             })}
                           </SelectContent>
                         </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="iconoUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Icono Personalizado (Opcional)</FormLabel>
+                      <FormControl>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  // Convert to base64 for preview
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    field.onChange(reader.result as string);
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="hidden"
+                              id="icon-upload"
+                            />
+                            <Label
+                              htmlFor="icon-upload"
+                              className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+                            >
+                              <Upload className="w-4 h-4" />
+                              Subir Icono
+                            </Label>
+                            {field.value && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => field.onChange("")}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                          {field.value && (
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={field.value}
+                                alt="Preview"
+                                className="w-8 h-8 object-cover rounded"
+                              />
+                              <span className="text-sm text-gray-500">Vista previa del icono</span>
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-500">
+                            Sube un icono personalizado (PNG, JPG, SVG). Recomendado: 32x32px
+                          </p>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -530,6 +600,70 @@ export default function Categories() {
                           })}
                         </SelectContent>
                       </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="iconoUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Icono Personalizado (Opcional)</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                // Convert to base64 for preview
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  field.onChange(reader.result as string);
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                            id="edit-icon-upload"
+                          />
+                          <Label
+                            htmlFor="edit-icon-upload"
+                            className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50"
+                          >
+                            <Upload className="w-4 h-4" />
+                            Subir Icono
+                          </Label>
+                          {field.value && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => field.onChange("")}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                        {field.value && (
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={field.value}
+                              alt="Preview"
+                              className="w-8 h-8 object-cover rounded"
+                            />
+                            <span className="text-sm text-gray-500">Vista previa del icono</span>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500">
+                          Sube un icono personalizado (PNG, JPG, SVG). Recomendado: 32x32px
+                        </p>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
