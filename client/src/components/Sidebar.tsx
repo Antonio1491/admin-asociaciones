@@ -7,6 +7,7 @@ import {
   Tags, 
   Crown, 
   FileText,
+  Award,
   Menu,
   X,
   LogOut,
@@ -49,6 +50,11 @@ const navigationItems = [
       {
         name: "Membresías",
         href: "/membresias",
+        requireAdmin: false,
+      },
+      {
+        name: "Certificados",
+        href: "/certificados",
         requireAdmin: false,
       },
     ],

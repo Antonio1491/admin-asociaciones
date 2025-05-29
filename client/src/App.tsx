@@ -11,6 +11,7 @@ import Companies from "@/pages/Companies";
 import Categories from "@/pages/Categories";
 import Memberships from "@/pages/Memberships";
 import Users from "@/pages/Users";
+import Certificates from "@/pages/Certificates";
 import Login from "@/pages/Login";
 import HomeClean from "@/pages/HomeClean";
 import CompanyDetails from "@/pages/CompanyDetails";
@@ -73,6 +74,14 @@ function Router() {
         <ProtectedRoute requireAdmin>
           <AppLayout>
             <Users />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/certificados">
+        <ProtectedRoute>
+          <AppLayout>
+            <Certificates />
           </AppLayout>
         </ProtectedRoute>
       </Route>

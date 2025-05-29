@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertCompanySchema, insertCategorySchema, insertMembershipTypeSchema } from "@shared/schema";
+import { insertUserSchema, insertCompanySchema, insertCategorySchema, insertMembershipTypeSchema, insertCertificateSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -307,6 +307,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete membership type" });
+    }
+  });
+
+  // Certificates API
+  app.get("/api/certificates", async (req, res) => {
+    try {
+      const certificates = await storage.getAllCertificates();
+      res.json(certificates);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch certificates" });
+    }
+  });
+
+  app.get("/api/certificates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const certificate = await storage.getCertificate(id);
+      if (!certificate) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+      res.json(certificate);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch certificate" });
+    }
+  });
+
+  app.post("/api/certificates", async (req, res) => {
+    try {
+      const certificateData = insertCertificateSchema.parse(req.body);
+      const certificate = await storage.createCertificate(certificateData);
+      res.status(201).json(certificate);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Validation error", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create certificate" });
+    }
+  });
+
+  app.put("/api/certificates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const certificateData = insertCertificateSchema.partial().parse(req.body);
+      const certificate = await storage.updateCertificate(id, certificateData);
+      if (!certificate) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+      res.json(certificate);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Validation error", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update certificate" });
+    }
+  });
+
+  app.delete("/api/certificates/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteCertificate(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete certificate" });
     }
   });
 
