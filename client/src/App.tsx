@@ -15,6 +15,8 @@ import Certificates from "@/pages/Certificates";
 import Login from "@/pages/Login";
 import HomeClean from "@/pages/HomeClean";
 import CompanyDetails from "@/pages/CompanyDetails";
+import PublicMemberships from "@/pages/PublicMemberships";
+import MainNavigation from "@/components/MainNavigation";
 import TestHome from "@/TestHome";
 import NotFound from "@/pages/not-found";
 
@@ -26,6 +28,17 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="p-6 pt-20 lg:pt-6">
           {children}
         </div>
+      </main>
+    </div>
+  );
+}
+
+function PublicLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <MainNavigation />
+      <main>
+        {children}
       </main>
     </div>
   );
@@ -87,15 +100,27 @@ function Router() {
       </Route>
       
       <Route path="/empresa/:id">
-        <CompanyDetails />
+        <PublicLayout>
+          <CompanyDetails />
+        </PublicLayout>
       </Route>
       
       <Route path="/directorio">
-        <HomeClean />
+        <PublicLayout>
+          <HomeClean />
+        </PublicLayout>
+      </Route>
+      
+      <Route path="/planes">
+        <PublicLayout>
+          <PublicMemberships />
+        </PublicLayout>
       </Route>
       
       <Route path="/">
-        <HomeClean />
+        <PublicLayout>
+          <HomeClean />
+        </PublicLayout>
       </Route>
     </div>
   );
