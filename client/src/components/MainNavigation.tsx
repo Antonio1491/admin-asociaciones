@@ -6,8 +6,7 @@ import {
   CreditCard, 
   User, 
   Menu, 
-  X,
-  Phone
+  X
 } from "lucide-react";
 import { useState } from "react";
 
@@ -19,7 +18,6 @@ export default function MainNavigation() {
     { href: "/", label: "Inicio", icon: Home },
     { href: "/directorio", label: "Directorio", icon: Building2 },
     { href: "/planes", label: "Membresías", icon: CreditCard },
-    { href: "/contacto", label: "Contacto", icon: Phone },
   ];
 
   const isActive = (href: string) => {
