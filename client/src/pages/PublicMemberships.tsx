@@ -359,13 +359,26 @@ export default function PublicMemberships() {
               <Button size="lg" className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 text-lg">
                 Registrarse Ahora
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold px-8 py-4 text-lg">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-white text-white font-semibold px-8 py-4 text-lg transition-colors"
+                style={{ borderColor: '#ffffff' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#ffffff';
+                  e.currentTarget.style.color = '#0f2161';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#ffffff';
+                }}
+              >
                 Solicitar Información
               </Button>
             </div>
             
-            <div className="border-t border-blue-400 pt-8 mt-8">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-blue-100">
+            <div className="border-t pt-8 mt-8" style={{ borderColor: '#ffffff40' }}>
+              <div className="flex flex-col md:flex-row items-center justify-center gap-6" style={{ color: '#e5e7eb' }}>
                 <div className="flex items-center gap-2">
                   <span>📩</span>
                   <a href="mailto:conexion@anpr.org.mx" className="hover:text-white transition-colors">
