@@ -147,29 +147,85 @@ export default function Companies() {
   const generateCSV = () => {
     const headers = [
       'Nombre Empresa',
+      'Descripción',
       'Categoría',
       'Membresía',
-      'Email',
-      'Teléfono',
+      'Email 1',
+      'Email 2',
+      'Email 3',
+      'Teléfono 1',
+      'Teléfono 2',
+      'Teléfono 3',
+      'Dirección',
       'Ciudad',
       'Estado',
-      'Sitio Web'
+      'País',
+      'Código Postal',
+      'Sitio Web',
+      'Facebook',
+      'Instagram',
+      'LinkedIn',
+      'Twitter',
+      'YouTube',
+      'TikTok',
+      'Representante 1 - Nombre',
+      'Representante 1 - Cargo',
+      'Representante 1 - Email',
+      'Representante 1 - Teléfono',
+      'Representante 2 - Nombre',
+      'Representante 2 - Cargo',
+      'Representante 2 - Email',
+      'Representante 2 - Teléfono',
+      'Representante 3 - Nombre',
+      'Representante 3 - Cargo',
+      'Representante 3 - Email',
+      'Representante 3 - Teléfono',
+      'Video URL',
+      'Notas Adicionales'
     ];
 
     const rows = companies.map(company => [
       company.nombreEmpresa || '',
+      company.descripcionEmpresa?.replace(/<[^>]*>/g, '') || '', // Remove HTML tags
       company.category?.nombreCategoria || '',
       company.membershipType?.nombrePlan || '',
       company.email1 || '',
+      company.email2 || '',
+      company.email3 || '',
       company.telefono1 || '',
+      company.telefono2 || '',
+      company.telefono3 || '',
+      company.direccion || '',
       company.ciudad || '',
       company.estado || '',
-      company.sitioWeb || ''
+      company.pais || '',
+      company.codigoPostal || '',
+      company.sitioWeb || '',
+      company.facebook || '',
+      company.instagram || '',
+      company.linkedin || '',
+      company.twitter || '',
+      company.youtube || '',
+      company.tiktok || '',
+      company.representante1Nombre || '',
+      company.representante1Cargo || '',
+      company.representante1Email || '',
+      company.representante1Telefono || '',
+      company.representante2Nombre || '',
+      company.representante2Cargo || '',
+      company.representante2Email || '',
+      company.representante2Telefono || '',
+      company.representante3Nombre || '',
+      company.representante3Cargo || '',
+      company.representante3Email || '',
+      company.representante3Telefono || '',
+      company.videoUrl || '',
+      company.notasAdicionales || ''
     ]);
 
     return [
       headers.join(','),
-      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
     ].join('\n');
   };
 
