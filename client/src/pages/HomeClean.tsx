@@ -60,7 +60,7 @@ function CategoriesSection() {
       <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 2rem" }}>
         <h5
           style={{
-            fontSize: "1.3rem",
+            fontSize: "1rem",
             textTransform: "uppercase",
             textAlign: "center",
             marginBottom: "1.5rem",
@@ -69,7 +69,7 @@ function CategoriesSection() {
             textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
           }}
         >
-          Exploremos los mejores productos de la industria
+          Explore por Solución: Su Puerta de Entrada a Proveedores Especializados
         </h5>
 
         <div
@@ -289,6 +289,8 @@ function CompanyCard({ company }: { company: any }) {
 
 export default function HomeClean() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -299,23 +301,34 @@ export default function HomeClean() {
     queryKey: ["/api/companies"],
   });
 
-  const companies = (companiesResponse as any)?.companies || [];
+  const {
+    data: categoriesResponse,
+    isLoading: categoriesLoading,
+  } = useQuery({
+    queryKey: ["/api/categories"],
+  });
 
-  const searchResults =
-    searchTerm.length > 0
-      ? companies.filter(
-          (company: any) =>
-            company.nombreEmpresa
-              ?.toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            company.descripcionEmpresa
-              ?.toLowerCase()
-              .includes(searchTerm.toLowerCase()) ||
-            company.category?.nombreCategoria
-              ?.toLowerCase()
-              .includes(searchTerm.toLowerCase()),
-        )
-      : companies;
+  const companies = (companiesResponse as any)?.companies || [];
+  const categories = (categoriesResponse as any) || [];
+  
+  // Obtener ubicaciones únicas de las empresas
+  const locations = companies.map((company: any) => company.ciudad).filter(Boolean);
+  const uniqueLocations = locations.filter((location, index) => locations.indexOf(location) === index);
+
+  const searchResults = companies.filter((company: any) => {
+    const matchesSearch = searchTerm.trim() === "" || 
+      company.nombreEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.descripcionEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      company.category?.nombreCategoria?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = selectedCategory === "" || 
+      company.category?.id?.toString() === selectedCategory;
+    
+    const matchesLocation = selectedLocation === "" || 
+      company.ciudad === selectedLocation;
+    
+    return matchesSearch && matchesCategory && matchesLocation;
+  });
 
   const scrollLeft = () => {
     if (sliderRef.current) {
@@ -378,27 +391,29 @@ export default function HomeClean() {
             Conéctese con fabricantes, distribuidores y especialistas líderes. Descubra soluciones innovadoras y haga crecer su red de proyectos. ¡Comience su búsqueda hoy mismo!
           </p>
 
-          <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-            <div style={{ position: "relative", display: "flex" }}>
-              <input
-                type="text"
-                placeholder="empresas, servicios o categorías..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{
-                  flex: 1,
-                  padding: "1.2rem 1.5rem",
-                  fontSize: "1.1rem",
-                  border: "none",
-                  borderRadius: "50px 0 0 50px",
-                  outline: "none",
-                  boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
-                  backgroundColor: "rgba(255,255,255,0.95)",
-                  backdropFilter: "blur(10px)",
-                  color: "#333",
-                }}
-              />
-              <button
+          <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+              {/* Campo de búsqueda */}
+              <div style={{ flex: 2, display: "flex" }}>
+                <input
+                  type="text"
+                  placeholder="empresas, servicios o categorías..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    flex: 1,
+                    padding: "1.2rem 1.5rem",
+                    fontSize: "1.1rem",
+                    border: "none",
+                    borderRadius: "50px 0 0 50px",
+                    outline: "none",
+                    boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                    backgroundColor: "rgba(255,255,255,0.95)",
+                    backdropFilter: "blur(10px)",
+                    color: "#333",
+                  }}
+                />
+                <button
                 style={{
                   backgroundColor: "#bcce16",
                   color: "#0f2161",
@@ -436,7 +451,64 @@ export default function HomeClean() {
                   <path d="m21 21-4.35-4.35"></path>
                 </svg>
                 Buscar
-              </button>
+                </button>
+              </div>
+              
+              {/* Filtro de categoría */}
+              <div style={{ flex: 1 }}>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "1.2rem 1.5rem",
+                    fontSize: "1.1rem",
+                    border: "none",
+                    borderRadius: "50px",
+                    outline: "none",
+                    boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                    backgroundColor: "rgba(255,255,255,0.95)",
+                    backdropFilter: "blur(10px)",
+                    color: "#333",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="">Todas las categorías</option>
+                  {categories.map((category: any) => (
+                    <option key={category.id} value={category.id}>
+                      {category.nombreCategoria}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Filtro de ubicación */}
+              <div style={{ flex: 1 }}>
+                <select
+                  value={selectedLocation}
+                  onChange={(e) => setSelectedLocation(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "1.2rem 1.5rem",
+                    fontSize: "1.1rem",
+                    border: "none",
+                    borderRadius: "50px",
+                    outline: "none",
+                    boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                    backgroundColor: "rgba(255,255,255,0.95)",
+                    backdropFilter: "blur(10px)",
+                    color: "#333",
+                    cursor: "pointer",
+                  }}
+                >
+                  <option value="">Todas las ubicaciones</option>
+                  {uniqueLocations.map((location: any) => (
+                    <option key={location} value={location}>
+                      {location}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -481,12 +553,12 @@ export default function HomeClean() {
                 fontWeight: "bold",
                 marginBottom: "1rem",
                 textAlign: "center",
-                color: "#0f2161",
+                color: "#4a4a49",
                 fontFamily: "'Montserrat', sans-serif",
                 lineHeight: "1.2"
               }}
             >
-              Su Viaje Comienza Aquí: Encuentre Exactamente lo que Necesita para su Proyecto
+              Encuentre Exactamente lo que Necesita para su Proyecto
             </h2>
             
             <p style={{
