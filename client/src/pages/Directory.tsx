@@ -44,9 +44,9 @@ export default function Directory() {
   const filteredCompanies = companies.filter((company: CompanyWithDetails) => {
     const matchesSearch = company.nombreEmpresa.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (company.descripcionEmpresa && company.descripcionEmpresa.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = !selectedCategory || 
+    const matchesCategory = !selectedCategory || selectedCategory === "all" || 
                            (company.categories && company.categories.some((cat: Category) => cat.id.toString() === selectedCategory));
-    const matchesState = !selectedState || company.estado === selectedState;
+    const matchesState = !selectedState || selectedState === "all" || company.estado === selectedState;
     
     return matchesSearch && matchesCategory && matchesState;
   });
@@ -102,7 +102,7 @@ export default function Directory() {
                   <SelectValue placeholder="Categoría" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas las categorías</SelectItem>
+                  <SelectItem value="all">Todas las categorías</SelectItem>
                   {categories?.map((category: Category) => (
                     <SelectItem key={category.id} value={category.id.toString()}>
                       {category.nombreCategoria}
@@ -116,7 +116,7 @@ export default function Directory() {
                   <SelectValue placeholder="Estado" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos los estados</SelectItem>
+                  <SelectItem value="all">Todos los estados</SelectItem>
                   {states.map((state: any) => (
                     <SelectItem key={state} value={state}>
                       {state}
@@ -144,8 +144,8 @@ export default function Directory() {
                 size="sm"
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedCategory("");
-                  setSelectedState("");
+                  setSelectedCategory("all");
+                  setSelectedState("all");
                 }}
               >
                 Limpiar filtros
