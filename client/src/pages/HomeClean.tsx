@@ -477,7 +477,7 @@ export default function HomeClean() {
           <>
             <h2
               style={{
-                fontSize: "2.5rem",
+                fontSize: "1.25rem",
                 fontWeight: "bold",
                 marginBottom: "1rem",
                 textAlign: "center",
