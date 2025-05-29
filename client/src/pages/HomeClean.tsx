@@ -2,6 +2,22 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useRef } from "react";
 import { Link } from "wouter";
 
+function getCategoryIcon(categoryName: string): string {
+  const iconMap: { [key: string]: string } = {
+    "Comercio": "🛍️",
+    "Tecnología": "💻",
+    "Servicios": "🔧",
+    "Salud": "⚕️",
+    "Educación": "📚",
+    "Alimentación": "🍽️",
+    "Construcción": "🏗️",
+    "Transporte": "🚛",
+    "Financiero": "💰",
+    "Entretenimiento": "🎭"
+  };
+  return iconMap[categoryName] || "🏢";
+}
+
 function CategoriesSection() {
   const { data: categoriesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/categories"],
@@ -195,6 +211,7 @@ function CompanyCard({ company }: { company: any }) {
         height: "25%", 
         padding: "0.75rem", 
         display: "flex", 
+        flexDirection: "column",
         alignItems: "center", 
         justifyContent: "center" 
       }}>
@@ -204,7 +221,7 @@ function CompanyCard({ company }: { company: any }) {
           color: "#1f2937",
           textAlign: "center",
           lineHeight: "1.2",
-          margin: "0",
+          margin: "0 0 0.5rem 0",
           display: "-webkit-box",
           WebkitLineClamp: 2,
           WebkitBoxOrient: "vertical",
@@ -212,6 +229,17 @@ function CompanyCard({ company }: { company: any }) {
         }}>
           {company.nombreEmpresa}
         </h3>
+        
+        {company.category && (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.2rem"
+          }}>
+            {getCategoryIcon(company.category.nombreCategoria)}
+          </div>
+        )}
       </div>
     </div>
   );
