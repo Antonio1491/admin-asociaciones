@@ -46,7 +46,7 @@ const companySchema = z.object({
   estadosPresencia: z.array(z.string()).min(1, "Selecciona al menos un estado"),
   ciudadesPresencia: z.array(z.string()).min(1, "Selecciona al menos una ciudad"),
   descripcionEmpresa: z.string().optional(),
-  categoryId: z.number({ required_error: "La categoría es requerida" }),
+  categoriesIds: z.array(z.number()).min(1, "Selecciona al menos una categoría"),
   membershipTypeId: z.number({ required_error: "El tipo de membresía es requerido" }),
 });
 
@@ -90,7 +90,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       estadosPresencia: [],
       ciudadesPresencia: [],
       descripcionEmpresa: "",
-      categoryId: undefined,
+      categoriesIds: [],
       membershipTypeId: undefined,
     },
   });
@@ -128,7 +128,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         estadosPresencia: company.estadosPresencia || [],
         ciudadesPresencia: company.ciudadesPresencia || [],
         descripcionEmpresa: company.descripcionEmpresa || "",
-        categoryId: company.categoryId,
+        categoriesIds: company.categoriesIds || [],
         membershipTypeId: company.membershipTypeId,
       });
     }
@@ -347,27 +347,37 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   )}
                 />
 
-                {/* Categoría */}
+                {/* Categorías */}
                 <FormField
                   control={form.control}
-                  name="categoryId"
+                  name="categoriesIds"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Categoría *</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona una categoría" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id.toString()}>
+                      <FormLabel>Categorías *</FormLabel>
+                      <div className="grid grid-cols-2 gap-3 mt-2">
+                        {categories.map((category) => (
+                          <div key={category.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`category-${category.id}`}
+                              checked={field.value?.includes(category.id) || false}
+                              onCheckedChange={(checked) => {
+                                const currentValues = field.value || [];
+                                if (checked) {
+                                  field.onChange([...currentValues, category.id]);
+                                } else {
+                                  field.onChange(currentValues.filter(id => id !== category.id));
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor={`category-${category.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            >
                               {category.nombreCategoria}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                            </label>
+                          </div>
+                        ))}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
