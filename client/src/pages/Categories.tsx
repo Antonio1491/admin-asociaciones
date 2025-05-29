@@ -491,6 +491,51 @@ export default function Categories() {
                 )}
               />
 
+              <FormField
+                control={editForm.control}
+                name="icono"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Icono</FormLabel>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona un icono">
+                            {field.value && (() => {
+                              const selectedIcon = availableIcons.find(icon => icon.name === field.value);
+                              if (selectedIcon) {
+                                const IconComponent = selectedIcon.component;
+                                return (
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent className="w-4 h-4" />
+                                    <span>{selectedIcon.label}</span>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableIcons.map((icon) => {
+                            const IconComponent = icon.component;
+                            return (
+                              <SelectItem key={icon.name} value={icon.name}>
+                                <div className="flex items-center gap-2">
+                                  <IconComponent className="w-4 h-4" />
+                                  <span>{icon.label}</span>
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="flex items-center justify-end space-x-2 pt-4">
                 <Button 
                   type="button" 
