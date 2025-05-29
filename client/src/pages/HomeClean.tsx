@@ -549,7 +549,7 @@ export default function HomeClean() {
           <>
             <h2
               style={{
-                fontSize: "1.25rem",
+                fontSize: "1.5rem",
                 fontWeight: "bold",
                 marginBottom: "1rem",
                 textAlign: "center",
@@ -680,6 +680,88 @@ export default function HomeClean() {
             )}
           </>
         )}
+      </div>
+
+      {/* Nueva sección: Empresas líderes por categoría */}
+      <div style={{ padding: "4rem 2rem", backgroundColor: "#f8fafc" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <h2 style={{
+            fontSize: "2rem",
+            fontWeight: "bold",
+            marginBottom: "1rem",
+            textAlign: "center",
+            color: "#0f2161",
+            fontFamily: "'Montserrat', sans-serif"
+          }}>
+            Empresas líderes en las que puede confiar
+          </h2>
+          
+          <p style={{
+            fontSize: "1.1rem",
+            textAlign: "center",
+            color: "#6b7280",
+            marginBottom: "3rem",
+            maxWidth: "800px",
+            margin: "0 auto 3rem auto"
+          }}>
+            Descubra empresas mejor valoradas, soluciones innovadoras y proyectos inspiradores. 
+            Haga clic para explorar sus perfiles y conectarse directamente.
+          </p>
+
+          {/* Slider de empresas por categoría */}
+          <div style={{ position: "relative" }}>
+            <div style={{
+              display: "flex",
+              gap: "1.5rem",
+              overflowX: "auto",
+              scrollBehavior: "smooth",
+              paddingBottom: "1rem",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              padding: "0 20px"
+            }}>
+              {categories.map((category: any) => {
+                // Buscar una empresa de esta categoría
+                const categoryCompany = companies.find((company: any) => 
+                  company.category?.id === category.id
+                );
+                
+                if (!categoryCompany) return null;
+                
+                return (
+                  <div key={category.id} style={{ 
+                    minWidth: "220px", 
+                    maxWidth: "220px",
+                    flexShrink: 0 
+                  }}>
+                    <div style={{
+                      backgroundColor: "white",
+                      borderRadius: "12px",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      overflow: "hidden",
+                      marginBottom: "1rem"
+                    }}>
+                      {/* Badge de categoría */}
+                      <div style={{
+                        backgroundColor: "#0f2161",
+                        color: "white",
+                        padding: "0.5rem 1rem",
+                        fontSize: "0.9rem",
+                        fontWeight: "600",
+                        textAlign: "center"
+                      }}>
+                        {getCategoryIcon(category.nombreCategoria)} {category.nombreCategoria}
+                      </div>
+                      
+                      {/* Tarjeta de empresa */}
+                      <CompanyCard company={categoryCompany} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
