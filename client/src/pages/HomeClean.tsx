@@ -1149,30 +1149,7 @@ export default function HomeClean() {
             </div>
           </div>
 
-          {/* Botón Únase a la conversación */}
-          <div style={{ textAlign: "center" }}>
-            <button style={{
-              backgroundColor: "#bcce16",
-              color: "#0f2161",
-              border: "none",
-              borderRadius: "50px",
-              padding: "1rem 2rem",
-              fontSize: "1.1rem",
-              fontFamily: "'Montserrat', sans-serif",
-              fontWeight: "700",
-              cursor: "pointer",
-              transition: "background-color 0.2s ease",
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "#a8b914";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "#bcce16";
-            }}>
-              Únase a la conversación
-            </button>
-          </div>
+
         </div>
       </div>
 
