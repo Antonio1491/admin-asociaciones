@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, Video, FileText } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, Video, FileText, Award, Star, MessageSquare, Calculator, Building, Grid3x3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,22 @@ export default function CompanyDetails() {
       const response = await fetch(`/api/companies/${id}`);
       if (!response.ok) throw new Error("Company not found");
       return response.json();
+    },
+  });
+
+  // Query para certificados
+  const { data: certificates = [] } = useQuery({
+    queryKey: ["/api/certificates"],
+  });
+
+  // Query para empresas relacionadas
+  const { data: relatedCompanies = [] } = useQuery({
+    queryKey: ["/api/companies"],
+    queryFn: async () => {
+      const response = await fetch("/api/companies?limit=4");
+      if (!response.ok) throw new Error("Failed to fetch companies");
+      const data = await response.json();
+      return data.companies.filter((c: any) => c.id !== parseInt(id || "0"));
     },
   });
 
@@ -144,21 +160,26 @@ export default function CompanyDetails() {
               </CardContent>
             </Card>
 
-            {/* Galería de Fotos */}
+            {/* Galería de Productos - Tipo Masonry */}
             {galeria.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Galería de Productos</CardTitle>
+                  <CardTitle className="flex items-center">
+                    <Grid3x3 className="h-5 w-5 mr-2" />
+                    Galería de Productos
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
                     {galeria.map((imagen, index) => (
-                      <img
-                        key={index}
-                        src={imagen}
-                        alt={`${company.nombreEmpresa} - Imagen ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg hover:scale-105 transition-transform cursor-pointer"
-                      />
+                      <div key={index} className="break-inside-avoid">
+                        <img
+                          src={imagen}
+                          alt={`${company.nombreEmpresa} - Producto ${index + 1}`}
+                          className="w-full rounded-lg hover:scale-105 transition-transform cursor-pointer shadow-md"
+                          style={{ aspectRatio: 'auto' }}
+                        />
+                      </div>
                     ))}
                   </div>
                 </CardContent>
@@ -190,6 +211,114 @@ export default function CompanyDetails() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Certificados y Reconocimientos */}
+            {certificates.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Award className="h-5 w-5 mr-2" />
+                    Certificados y Reconocimientos
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {certificates.map((certificate: any) => (
+                      <div key={certificate.id} className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="text-center">
+                          <img
+                            src={certificate.imagenUrl}
+                            alt={certificate.nombreCertificado}
+                            className="w-16 h-16 mx-auto mb-3 object-contain"
+                          />
+                          <h4 className="font-semibold text-gray-800 mb-2">{certificate.nombreCertificado}</h4>
+                          {certificate.entidadEmisora && (
+                            <p className="text-sm text-gray-600 mb-2">Emitido por: {certificate.entidadEmisora}</p>
+                          )}
+                          {certificate.fechaEmision && (
+                            <p className="text-xs text-gray-500">Fecha: {certificate.fechaEmision}</p>
+                          )}
+                          {certificate.descripcion && (
+                            <p className="text-sm text-gray-600 mt-2">{certificate.descripcion}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Reseñas de Clientes */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <MessageSquare className="h-5 w-5 mr-2" />
+                  Lo que dicen nuestros clientes
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  {/* Reseñas de ejemplo */}
+                  <div className="border-l-4 border-blue-500 pl-4">
+                    <div className="flex items-center mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-gray-700 mb-2">"Excelente servicio y calidad en todos sus productos. Muy recomendados."</p>
+                    <p className="text-sm text-gray-500">- Cliente Satisfecho</p>
+                  </div>
+                  
+                  <div className="border-l-4 border-green-500 pl-4">
+                    <div className="flex items-center mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-gray-700 mb-2">"Profesionalismo y compromiso en cada proyecto. Muy satisfecho con los resultados."</p>
+                    <p className="text-sm text-gray-500">- Empresa Asociada</p>
+                  </div>
+                </div>
+                
+                <div className="mt-6 text-center">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Dejar una reseña
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* CTA - Solicitar Cotización */}
+            <Card className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+              <CardContent className="p-8 text-center">
+                <Calculator className="h-12 w-12 mx-auto mb-4 text-blue-200" />
+                <h3 className="text-2xl font-bold mb-4">¿Interesado en nuestros servicios?</h3>
+                <p className="text-blue-100 mb-6 text-lg">
+                  Obtén una cotización personalizada para tu proyecto. Nuestro equipo está listo para ayudarte.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    size="lg" 
+                    className="bg-white text-blue-600 hover:bg-gray-100 font-semibold"
+                  >
+                    <Calculator className="h-5 w-5 mr-2" />
+                    Solicitar Cotización
+                  </Button>
+                  {company.telefono1 && (
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold"
+                    >
+                      <Phone className="h-5 w-5 mr-2" />
+                      Llamar Ahora
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Representantes de Ventas */}
             {representantes.length > 0 && (
@@ -353,6 +482,110 @@ export default function CompanyDetails() {
             )}
           </div>
         </div>
+
+        {/* Sección del Mapa - Nuestra Ubicación */}
+        {(company.direccionFisica || company.latitud && company.longitud) && (
+          <div className="mt-12">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <MapPin className="h-5 w-5 mr-2" />
+                  Nuestra Ubicación
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {company.direccionFisica && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <p className="text-gray-700 font-medium">{company.direccionFisica}</p>
+                      {company.ciudad && company.estado && (
+                        <p className="text-gray-600 text-sm mt-1">
+                          {company.ciudad}, {company.estado}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Placeholder para el mapa */}
+                  <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                      <MapPin className="h-12 w-12 mx-auto mb-2" />
+                      <p>Mapa de ubicación</p>
+                      <p className="text-sm">Integración con Google Maps disponible</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <Button variant="outline" className="w-full sm:w-auto">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      Ver en Google Maps
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Sección de Empresas Relacionadas */}
+        {relatedCompanies.length > 0 && (
+          <div className="mt-12">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Building className="h-5 w-5 mr-2" />
+                  Empresas Relacionadas
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {relatedCompanies.slice(0, 4).map((relatedCompany: any) => (
+                    <div key={relatedCompany.id} className="group cursor-pointer">
+                      <Card className="hover:shadow-lg transition-shadow">
+                        <CardContent className="p-4">
+                          <div className="text-center">
+                            {relatedCompany.logotipoUrl ? (
+                              <img
+                                src={relatedCompany.logotipoUrl}
+                                alt={relatedCompany.nombreEmpresa}
+                                className="w-16 h-16 mx-auto mb-3 object-contain rounded-lg"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 mx-auto mb-3 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
+                                <span className="text-xl font-bold text-blue-600">
+                                  {relatedCompany.nombreEmpresa.charAt(0)}
+                                </span>
+                              </div>
+                            )}
+                            <h4 className="font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition-colors">
+                              {relatedCompany.nombreEmpresa}
+                            </h4>
+                            {relatedCompany.ciudad && (
+                              <p className="text-sm text-gray-500 mb-2">
+                                <MapPin className="h-3 w-3 inline mr-1" />
+                                {relatedCompany.ciudad}
+                              </p>
+                            )}
+                            <div className="pt-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full"
+                                onClick={() => window.location.href = `/empresa/${relatedCompany.id}`}
+                              >
+                                Ver Empresa
+                              </Button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
