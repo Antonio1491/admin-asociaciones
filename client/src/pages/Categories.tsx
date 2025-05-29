@@ -41,14 +41,14 @@ import {
   Plus, MoreHorizontal, Edit, Trash2, Tags, Table as TableIcon, Grid, Eye,
   Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag,
   Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
-  Gamepad2, Book, Palette, MapPin, Plane, Ship, Train, Zap
+  Gamepad2, Book, Palette, MapPin, Plane, Ship, Train, Zap,
+  Download, Upload, X
 } from "lucide-react";
 import { Category } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import CategoryDataTable from "@/components/CategoryDataTable";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, X } from "lucide-react";
 
 // Available icons for categories
 const availableIcons = [
@@ -221,6 +221,91 @@ export default function Categories() {
     }
   };
 
+  // Función para exportar categorías
+  const exportCategories = () => {
+    if (!categories) return;
+    
+    const dataToExport = categories.map(category => ({
+      nombreCategoria: category.nombreCategoria,
+      descripcion: category.descripcion,
+      icono: category.icono,
+      iconoUrl: category.iconoUrl
+    }));
+
+    const dataStr = JSON.stringify(dataToExport, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+    const exportFileDefaultName = `categorias_${new Date().toISOString().split('T')[0]}.json`;
+
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+
+    toast({
+      title: "Exportación exitosa",
+      description: `Se han exportado ${categories.length} categorías`,
+    });
+  };
+
+  // Función para importar categorías
+  const handleImportFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const importedData = JSON.parse(text);
+
+      if (!Array.isArray(importedData)) {
+        throw new Error("El archivo debe contener un array de categorías");
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const categoryData of importedData) {
+        try {
+          if (!categoryData.nombreCategoria) {
+            throw new Error("Falta el nombre de la categoría");
+          }
+
+          await apiRequest('/api/categories', {
+            method: 'POST',
+            body: JSON.stringify({
+              nombreCategoria: categoryData.nombreCategoria,
+              descripcion: categoryData.descripcion || null,
+              icono: categoryData.icono || null,
+              iconoUrl: categoryData.iconoUrl || null
+            })
+          });
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          console.error('Error importing category:', categoryData, error);
+        }
+      }
+
+      // Actualizar la lista
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+
+      toast({
+        title: "Importación completada",
+        description: `Importadas: ${successCount}, Errores: ${errorCount}`,
+      });
+
+    } catch (error) {
+      toast({
+        title: "Error de importación",
+        description: "Error al procesar el archivo. Verifica el formato.",
+        variant: "destructive"
+      });
+    }
+
+    // Limpiar el input
+    event.target.value = '';
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -248,6 +333,37 @@ export default function Categories() {
             >
               <Grid className="w-4 h-4" />
             </Button>
+          </div>
+          
+          {/* Import/Export Buttons */}
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={exportCategories}
+              className="flex items-center space-x-2"
+            >
+              <Download className="w-4 h-4" />
+              <span>Exportar</span>
+            </Button>
+            
+            <div className="relative">
+              <input
+                type="file"
+                accept=".json,.csv"
+                onChange={handleImportFile}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                id="import-file"
+              />
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Importar</span>
+              </Button>
+            </div>
           </div>
           
           <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
