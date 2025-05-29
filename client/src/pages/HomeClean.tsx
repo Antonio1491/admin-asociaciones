@@ -31,19 +31,23 @@ function CategoriesSection() {
   return (
     <div style={{ 
       backgroundColor: "#f8fafc", 
-      padding: "4rem 2rem",
-      borderTop: "1px solid #e5e7eb"
+      padding: "0 2rem 4rem 2rem",
+      marginTop: "-60px",
+      position: "relative",
+      zIndex: 10
     }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        <h2 style={{
-          fontSize: "2.2rem",
+        <h4 style={{
+          fontSize: "1.8rem",
           fontWeight: "700",
           textAlign: "center",
           marginBottom: "3rem",
-          color: "#0f2161"
+          color: "white",
+          textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
+          paddingTop: "2rem"
         }}>
-          Explora por Categorías
-        </h2>
+          Exploremos los mejores productos de la industria
+        </h4>
         
         <div style={{
           display: "grid",
