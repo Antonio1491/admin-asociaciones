@@ -215,7 +215,7 @@ function CompanyCard({ company }: { company: any }) {
             position: "relative",
           }}
         >
-          {company.category && (
+          {company.categories && company.categories.length > 0 && (
             <div
               style={{
                 position: "absolute",
@@ -232,7 +232,7 @@ function CompanyCard({ company }: { company: any }) {
                 boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               }}
             >
-              {getCategoryIcon(company.category.nombreCategoria)}
+              {getCategoryIcon(company.categories[0].nombreCategoria)}
             </div>
           )}
 
@@ -320,10 +320,10 @@ export default function HomeClean() {
     const matchesSearch = searchTerm.trim() === "" || 
       company.nombreEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       company.descripcionEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      company.category?.nombreCategoria?.toLowerCase().includes(searchTerm.toLowerCase());
+      company.categories?.some((cat: any) => cat.nombreCategoria?.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesCategory = selectedCategory === "" || 
-      company.category?.id?.toString() === selectedCategory;
+      company.categories?.some((cat: any) => cat.id?.toString() === selectedCategory);
     
     const matchesLocation = selectedLocation === "" || 
       company.ciudad === selectedLocation;
