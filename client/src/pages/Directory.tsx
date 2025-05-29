@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,26 +12,15 @@ import {
   Mail, 
   Building2, 
   Search, 
-  Filter,
   ExternalLink,
-  Grid3X3,
-  Map
+  Grid3X3
 } from "lucide-react";
 import type { CompanyWithDetails, Category } from "@/../../shared/schema";
-
-declare global {
-  interface Window {
-    google: any;
-  }
-}
 
 export default function Directory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedState, setSelectedState] = useState<string>("");
-  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
-  const [map, setMap] = useState<any>(null);
-  const [markers, setMarkers] = useState<any[]>([]);
 
   const { data: companiesData, isLoading: companiesLoading } = useQuery({
     queryKey: ["/api/companies"],
@@ -64,96 +53,6 @@ export default function Directory() {
 
   // Unique states from companies
   const states = Array.from(new Set(companies.map((company: CompanyWithDetails) => company.estado))).filter(Boolean);
-
-  // Initialize Google Maps
-  const initializeMap = () => {
-    if (typeof window !== 'undefined' && window.google && document.getElementById('map')) {
-      const mapInstance = new window.google.maps.Map(document.getElementById('map'), {
-        zoom: 6,
-        center: { lat: 23.6345, lng: -102.5528 }, // Mexico center
-        styles: [
-          {
-            featureType: "poi",
-            elementType: "labels",
-            stylers: [{ visibility: "off" }]
-          }
-        ]
-      });
-      
-      setMap(mapInstance);
-      addMarkersToMap(mapInstance, filteredCompanies);
-    }
-  };
-
-  const addMarkersToMap = (mapInstance: any, companiesToShow: CompanyWithDetails[]) => {
-    // Clear existing markers
-    markers.forEach(marker => marker.setMap(null));
-    const newMarkers: any[] = [];
-
-    companiesToShow.forEach((company: CompanyWithDetails) => {
-      if (company.latitud && company.longitud) {
-        const marker = new window.google.maps.Marker({
-          position: { lat: parseFloat(company.latitud), lng: parseFloat(company.longitud) },
-          map: mapInstance,
-          title: company.nombreEmpresa,
-          icon: {
-            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="16" cy="16" r="16" fill="#2563eb"/>
-                <path d="M16 8C13.2386 8 11 10.2386 11 13C11 17.25 16 24 16 24C16 24 21 17.25 21 13C21 10.2386 18.7614 8 16 8ZM16 15.5C14.6193 15.5 13.5 14.3807 13.5 13C13.5 11.6193 14.6193 10.5 16 10.5C17.3807 10.5 18.5 11.6193 18.5 13C18.5 14.3807 17.3807 15.5 16 15.5Z" fill="white"/>
-              </svg>
-            `),
-            scaledSize: new window.google.maps.Size(32, 32),
-          }
-        });
-
-        const infoWindow = new window.google.maps.InfoWindow({
-          content: `
-            <div class="p-3 max-w-xs">
-              <h3 class="font-semibold text-gray-900 mb-2">${company.nombreEmpresa}</h3>
-              ${company.descripcion ? `<p class="text-sm text-gray-600 mb-2">${company.descripcion.substring(0, 100)}...</p>` : ''}
-              <div class="space-y-1 text-xs text-gray-500">
-                ${company.telefono1 ? `<p><strong>Teléfono:</strong> ${company.telefono1}</p>` : ''}
-                ${company.email1 ? `<p><strong>Email:</strong> ${company.email1}</p>` : ''}
-                ${company.direccion ? `<p><strong>Dirección:</strong> ${company.direccion}</p>` : ''}
-              </div>
-              <a href="/empresa/${company.id}" class="inline-block mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
-                Ver detalles →
-              </a>
-            </div>
-          `
-        });
-
-        marker.addListener('click', () => {
-          infoWindow.open(mapInstance, marker);
-        });
-
-        newMarkers.push(marker);
-      }
-    });
-
-    setMarkers(newMarkers);
-  };
-
-  useEffect(() => {
-    if (viewMode === 'map') {
-      // Load Google Maps API if not already loaded
-      if (!window.google) {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places`;
-        script.onload = initializeMap;
-        document.head.appendChild(script);
-      } else {
-        initializeMap();
-      }
-    }
-  }, [viewMode]);
-
-  useEffect(() => {
-    if (map && viewMode === 'map') {
-      addMarkersToMap(map, filteredCompanies);
-    }
-  }, [filteredCompanies, map]);
 
   if (companiesLoading) {
     return (
@@ -218,7 +117,7 @@ export default function Directory() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">Todos los estados</SelectItem>
-                  {states.map((state: string) => (
+                  {states.map((state: any) => (
                     <SelectItem key={state} value={state}>
                       {state}
                     </SelectItem>
@@ -228,21 +127,9 @@ export default function Directory() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-              >
+              <Button variant="default" size="sm">
                 <Grid3X3 className="h-4 w-4 mr-2" />
                 Lista
-              </Button>
-              <Button
-                variant={viewMode === 'map' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setViewMode('map')}
-              >
-                <Map className="h-4 w-4 mr-2" />
-                Mapa
               </Button>
             </div>
           </div>
@@ -270,102 +157,84 @@ export default function Directory() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCompanies.map((company: CompanyWithDetails) => (
-              <Card key={company.id} className="hover:shadow-lg transition-shadow group">
-                <CardHeader className="pb-4">
-                  <div className="flex items-start space-x-4">
-                    {company.logotipoUrl ? (
-                      <img
-                        src={company.logotipoUrl}
-                        alt={`Logo de ${company.nombreEmpresa}`}
-                        className="w-16 h-16 rounded-lg object-cover border-2 border-gray-100"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                        <Building2 className="h-8 w-8 text-white" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                        {company.nombreEmpresa}
-                      </CardTitle>
-                      {company.categories && company.categories.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          {company.categories.slice(0, 2).map((category: Category) => (
-                            <Badge key={category.id} variant="secondary" className="text-xs">
-                              {category.nombreCategoria}
-                            </Badge>
-                          ))}
-                          {company.categories.length > 2 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{company.categories.length - 2}
-                            </Badge>
-                          )}
-                        </div>
-                      )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCompanies.map((company: CompanyWithDetails) => (
+            <Card key={company.id} className="hover:shadow-lg transition-shadow group">
+              <CardHeader className="pb-4">
+                <div className="flex items-start space-x-4">
+                  {company.logotipoUrl ? (
+                    <img
+                      src={company.logotipoUrl}
+                      alt={`Logo de ${company.nombreEmpresa}`}
+                      className="w-16 h-16 rounded-lg object-cover border-2 border-gray-100"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                      <Building2 className="h-8 w-8 text-white" />
                     </div>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="pt-0">
-                  {company.descripcion && (
-                    <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                      {company.descripcion}
-                    </p>
                   )}
-                  
-                  <div className="space-y-2 mb-4">
-                    {company.telefono1 && (
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Phone className="h-4 w-4 mr-2 flex-shrink-0" />
-                        <span>{company.telefono1}</span>
-                      </div>
-                    )}
-                    {company.email1 && (
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
-                        <span className="truncate">{company.email1}</span>
-                      </div>
-                    )}
-                    {(company.ciudad || company.estado) && (
-                      <div className="flex items-center text-sm text-gray-500">
-                        <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
-                        <span>{[company.ciudad, company.estado].filter(Boolean).join(", ")}</span>
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                      {company.nombreEmpresa}
+                    </CardTitle>
+                    {company.categories && company.categories.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {company.categories.slice(0, 2).map((category: Category) => (
+                          <Badge key={category.id} variant="secondary" className="text-xs">
+                            {category.nombreCategoria}
+                          </Badge>
+                        ))}
+                        {company.categories.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{company.categories.length - 2}
+                          </Badge>
+                        )}
                       </div>
                     )}
                   </div>
-                  
-                  <Link href={`/empresa/${company.id}`}>
-                    <Button className="w-full" size="sm">
-                      Ver Detalles
-                      <ExternalLink className="h-4 w-4 ml-2" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="relative">
-            <div 
-              id="map" 
-              className="w-full h-[600px] rounded-lg shadow-lg border"
-              style={{ minHeight: '600px' }}
-            />
-            {filteredCompanies.length === 0 && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
-                <div className="text-center">
-                  <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No hay empresas para mostrar en el mapa</p>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              </CardHeader>
+              
+              <CardContent className="pt-0">
+                {company.descripcionEmpresa && (
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                    {company.descripcionEmpresa}
+                  </p>
+                )}
+                
+                <div className="space-y-2 mb-4">
+                  {company.telefono1 && (
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Phone className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span>{company.telefono1}</span>
+                    </div>
+                  )}
+                  {company.email1 && (
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Mail className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span className="truncate">{company.email1}</span>
+                    </div>
+                  )}
+                  {company.estado && (
+                    <div className="flex items-center text-sm text-gray-500">
+                      <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
+                      <span>{company.estado}</span>
+                    </div>
+                  )}
+                </div>
+                
+                <Link href={`/empresa/${company.id}`}>
+                  <Button className="w-full" size="sm">
+                    Ver Detalles
+                    <ExternalLink className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-        {filteredCompanies.length === 0 && viewMode === 'grid' && (
+        {filteredCompanies.length === 0 && (
           <div className="text-center py-16">
             <Building2 className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -376,6 +245,26 @@ export default function Directory() {
             </p>
           </div>
         )}
+      </div>
+
+      {/* Map Section Placeholder */}
+      <div className="bg-white border-t">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Mapa de Empresas
+            </h2>
+            <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
+              <div className="text-center">
+                <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-2">Mapa interactivo próximamente</p>
+                <p className="text-sm text-gray-500">
+                  Visualiza la ubicación de todas las empresas registradas
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
