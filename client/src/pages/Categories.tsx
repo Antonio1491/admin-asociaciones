@@ -36,15 +36,50 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Plus, MoreHorizontal, Edit, Trash2, Tags, Table as TableIcon, Grid, Eye } from "lucide-react";
+import { 
+  Plus, MoreHorizontal, Edit, Trash2, Tags, Table as TableIcon, Grid, Eye,
+  Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag,
+  Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
+  Gamepad2, Book, Palette, MapPin, Plane, Ship, Train, Zap
+} from "lucide-react";
 import { Category } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import CategoryDataTable from "@/components/CategoryDataTable";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+// Available icons for categories
+const availableIcons = [
+  { name: "Tags", component: Tags, label: "Etiqueta" },
+  { name: "Building2", component: Building2, label: "Edificio" },
+  { name: "Car", component: Car, label: "Automóvil" },
+  { name: "Truck", component: Truck, label: "Camión" },
+  { name: "Hammer", component: Hammer, label: "Herramientas" },
+  { name: "Factory", component: Factory, label: "Fábrica" },
+  { name: "Cpu", component: Cpu, label: "Tecnología" },
+  { name: "Wrench", component: Wrench, label: "Mantenimiento" },
+  { name: "ShoppingBag", component: ShoppingBag, label: "Comercio" },
+  { name: "Briefcase", component: Briefcase, label: "Negocios" },
+  { name: "Heart", component: Heart, label: "Salud" },
+  { name: "GraduationCap", component: GraduationCap, label: "Educación" },
+  { name: "Home", component: Home, label: "Hogar" },
+  { name: "Coffee", component: Coffee, label: "Restaurantes" },
+  { name: "Camera", component: Camera, label: "Fotografía" },
+  { name: "Music", component: Music, label: "Música" },
+  { name: "Gamepad2", component: Gamepad2, label: "Entretenimiento" },
+  { name: "Book", component: Book, label: "Libros" },
+  { name: "Palette", component: Palette, label: "Arte" },
+  { name: "MapPin", component: MapPin, label: "Ubicación" },
+  { name: "Plane", component: Plane, label: "Viajes" },
+  { name: "Ship", component: Ship, label: "Marítimo" },
+  { name: "Train", component: Train, label: "Transporte" },
+  { name: "Zap", component: Zap, label: "Energía" }
+];
 
 const categorySchema = z.object({
   nombreCategoria: z.string().min(1, "El nombre de la categoría es requerido"),
   descripcion: z.string().optional(),
+  icono: z.string().default("Tags"),
 });
 
 type CategoryFormData = z.infer<typeof categorySchema>;
@@ -62,6 +97,7 @@ export default function Categories() {
     defaultValues: {
       nombreCategoria: "",
       descripcion: "",
+      icono: "Tags",
     },
   });
 
@@ -70,6 +106,7 @@ export default function Categories() {
     defaultValues: {
       nombreCategoria: "",
       descripcion: "",
+      icono: "Tags",
     },
   });
 
@@ -162,6 +199,7 @@ export default function Categories() {
     editForm.reset({
       nombreCategoria: category.nombreCategoria,
       descripcion: category.descripcion || "",
+      icono: category.icono || "Tags",
     });
     setIsEditModalOpen(true);
   };
@@ -245,6 +283,51 @@ export default function Categories() {
                           rows={3}
                           {...field} 
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="icono"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Icono</FormLabel>
+                      <FormControl>
+                        <Select value={field.value} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un icono">
+                              {field.value && (() => {
+                                const selectedIcon = availableIcons.find(icon => icon.name === field.value);
+                                if (selectedIcon) {
+                                  const IconComponent = selectedIcon.component;
+                                  return (
+                                    <div className="flex items-center gap-2">
+                                      <IconComponent className="w-4 h-4" />
+                                      <span>{selectedIcon.label}</span>
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableIcons.map((icon) => {
+                              const IconComponent = icon.component;
+                              return (
+                                <SelectItem key={icon.name} value={icon.name}>
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent className="w-4 h-4" />
+                                    <span>{icon.label}</span>
+                                  </div>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

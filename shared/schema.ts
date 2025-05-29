@@ -17,6 +17,7 @@ export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   nombreCategoria: text("nombre_categoria").notNull(),
   descripcion: text("descripcion"),
+  icono: text("icono").default("Tag"), // Lucide icon name
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
