@@ -181,7 +181,10 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   // Funciones para redes sociales
   const addSocialMedia = () => {
     if (redesSociales.length < 5) {
-      setRedesSociales([...redesSociales, { plataforma: "", url: "" }]);
+      const newSocial = redesSociales.length === 0 
+        ? { plataforma: "Sitio Web", url: "" }
+        : { plataforma: "", url: "" };
+      setRedesSociales([...redesSociales, newSocial]);
     }
   };
 
@@ -311,23 +314,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   )}
                 />
 
-                {/* Sitio web */}
-                <FormField
-                  control={form.control}
-                  name="sitioWeb"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Globe className="h-4 w-4" />
-                        Sitio Web
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://www.empresa.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
 
                 {/* Video URL */}
                 <FormField

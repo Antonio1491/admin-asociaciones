@@ -200,7 +200,6 @@ export default function Companies() {
       company.estado || '',
       company.pais || '',
       company.codigoPostal || '',
-      company.sitioWeb || '',
       company.facebook || '',
       company.instagram || '',
       company.linkedin || '',

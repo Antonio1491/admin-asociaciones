@@ -203,7 +203,10 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
 
   // Funciones para redes sociales dinámicas
   const addRedSocial = () => {
-    setRedesSociales([...redesSociales, { plataforma: "", url: "" }]);
+    const newSocial = redesSociales.length === 0 
+      ? { plataforma: "Sitio Web", url: "" }
+      : { plataforma: "", url: "" };
+    setRedesSociales([...redesSociales, newSocial]);
   };
 
   const removeRedSocial = (index: number) => {
@@ -525,20 +528,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                   </div>
                 </FormItem>
 
-                {/* Sitio web */}
-                <FormField
-                  control={form.control}
-                  name="sitioWeb"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sitio Web</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://www.ejemplo.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
 
                 {/* Video URL */}
                 <FormField
