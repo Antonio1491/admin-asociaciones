@@ -292,6 +292,7 @@ export default function HomeClean() {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
   const sliderRef = useRef<HTMLDivElement>(null);
+  const categorySliderRef = useRef<HTMLDivElement>(null);
 
   const {
     data: companiesResponse,
@@ -339,6 +340,18 @@ export default function HomeClean() {
   const scrollRight = () => {
     if (sliderRef.current) {
       sliderRef.current.scrollBy({ left: 350, behavior: "smooth" });
+    }
+  };
+
+  const scrollCategoryLeft = () => {
+    if (categorySliderRef.current) {
+      categorySliderRef.current.scrollBy({ left: -620, behavior: "smooth" });
+    }
+  };
+
+  const scrollCategoryRight = () => {
+    if (categorySliderRef.current) {
+      categorySliderRef.current.scrollBy({ left: 620, behavior: "smooth" });
     }
   };
 
@@ -710,16 +723,68 @@ export default function HomeClean() {
 
           {/* Slider de empresas por categoría */}
           <div style={{ position: "relative" }}>
-            <div style={{
-              display: "flex",
-              gap: "2rem",
-              overflowX: "auto",
-              scrollBehavior: "smooth",
-              paddingBottom: "1rem",
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-              padding: "0 20px"
-            }}>
+            {/* Botones de navegación */}
+            <button
+              onClick={scrollCategoryLeft}
+              style={{
+                position: "absolute",
+                left: "-10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                backgroundColor: "white",
+                border: "2px solid #e5e7eb",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                zIndex: 10,
+                color: "#0f2161"
+              }}
+            >
+              ‹
+            </button>
+
+            <button
+              onClick={scrollCategoryRight}
+              style={{
+                position: "absolute",
+                right: "-10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                backgroundColor: "white",
+                border: "2px solid #e5e7eb",
+                borderRadius: "50%",
+                width: "40px",
+                height: "40px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                zIndex: 10,
+                color: "#0f2161"
+              }}
+            >
+              ›
+            </button>
+
+            <div 
+              ref={categorySliderRef}
+              style={{
+                display: "flex",
+                gap: "2rem",
+                overflowX: "auto",
+                scrollBehavior: "smooth",
+                paddingBottom: "1rem",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                padding: "0 20px",
+                WebkitOverflowScrolling: "touch"
+              }}>
               {categories.map((category: any) => {
                 // Buscar una empresa de esta categoría
                 const categoryCompany = companies.find((company: any) => 
