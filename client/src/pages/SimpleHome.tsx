@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "wouter";
 
 export default function SimpleHome() {
   const [searchTerm, setSearchTerm] = useState("");
+  const sliderRef = useRef<HTMLDivElement>(null);
 
   const { data: companiesResponse, isLoading, error } = useQuery({
     queryKey: ["/api/companies"],
@@ -16,6 +17,18 @@ export default function SimpleHome() {
     company.descripcionEmpresa?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     company.category?.nombreCategoria?.toLowerCase().includes(searchTerm.toLowerCase())
   ) : companies;
+
+  const scrollLeft = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: -350, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (sliderRef.current) {
+      sliderRef.current.scrollBy({ left: 350, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
@@ -97,26 +110,101 @@ export default function SimpleHome() {
                 </p>
               </div>
             ) : (
-              <div style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-                gap: "2rem"
-              }}>
-                {searchResults.map((company: any) => (
-                  <CompanyCard key={company.id} company={company} />
-                ))}
+              <div style={{ position: "relative" }}>
+                {/* Botón Izquierdo */}
+                {companies.length > 3 && (
+                  <button
+                    onClick={scrollLeft}
+                    style={{
+                      position: "absolute",
+                      left: "-20px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      zIndex: 10,
+                      backgroundColor: "white",
+                      border: "2px solid #e5e7eb",
+                      borderRadius: "50%",
+                      width: "50px",
+                      height: "50px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      fontSize: "1.5rem",
+                      color: "#667eea"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f3f4f6";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "white";
+                    }}
+                  >
+                    ‹
+                  </button>
+                )}
+
+                {/* Slider Container */}
+                <div
+                  ref={sliderRef}
+                  style={{
+                    display: "flex",
+                    gap: "2rem",
+                    overflowX: "auto",
+                    scrollBehavior: "smooth",
+                    paddingBottom: "1rem",
+                    scrollbarWidth: "none",
+                    msOverflowStyle: "none"
+                  }}
+                >
+                  {searchResults.map((company: any) => (
+                    <div key={company.id} style={{ minWidth: "350px", flexShrink: 0 }}>
+                      <CompanyCard company={company} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Botón Derecho */}
+                {companies.length > 3 && (
+                  <button
+                    onClick={scrollRight}
+                    style={{
+                      position: "absolute",
+                      right: "-20px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      zIndex: 10,
+                      backgroundColor: "white",
+                      border: "2px solid #e5e7eb",
+                      borderRadius: "50%",
+                      width: "50px",
+                      height: "50px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+                      fontSize: "1.5rem",
+                      color: "#667eea"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f3f4f6";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "white";
+                    }}
+                  >
+                    ›
+                  </button>
+                )}
               </div>
             )}
           </>
         )}
       </div>
 
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+
     </div>
   );
 }
