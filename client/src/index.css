@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Montserrat font family for the entire site */
+* {
+  font-family: 'Montserrat', sans-serif;
+}
+
 :root {
   --background: 0 0% 100%;
   --foreground: 0 0% 3.9%;
