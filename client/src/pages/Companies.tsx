@@ -161,7 +161,6 @@ export default function Companies() {
       'Estado',
       'País',
       'Código Postal',
-      'Sitio Web',
       'Facebook',
       'Instagram',
       'LinkedIn',
