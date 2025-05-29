@@ -161,15 +161,15 @@ export default function CompanyDetails() {
             </Card>
 
             {/* Galería de Productos - Tipo Masonry */}
-            {galeria.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Grid3x3 className="h-5 w-5 mr-2" />
-                    Galería de Productos
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Grid3x3 className="h-5 w-5 mr-2" />
+                  Galería de Productos
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {galeria.length > 0 ? (
                   <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
                     {galeria.map((imagen, index) => (
                       <div key={index} className="break-inside-avoid">
@@ -182,9 +182,14 @@ export default function CompanyDetails() {
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                ) : (
+                  <div className="text-center py-8">
+                    <Grid3x3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">Galería de productos próximamente disponible</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Videos */}
             {videos.length > 0 && (
@@ -484,48 +489,55 @@ export default function CompanyDetails() {
         </div>
 
         {/* Sección del Mapa - Nuestra Ubicación */}
-        {(company.direccionFisica || company.latitud && company.longitud) && (
-          <div className="mt-12">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MapPin className="h-5 w-5 mr-2" />
-                  Nuestra Ubicación
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {company.direccionFisica && (
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-700 font-medium">{company.direccionFisica}</p>
-                      {company.ciudad && company.estado && (
-                        <p className="text-gray-600 text-sm mt-1">
-                          {company.ciudad}, {company.estado}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  
-                  {/* Placeholder para el mapa */}
-                  <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <MapPin className="h-12 w-12 mx-auto mb-2" />
-                      <p>Mapa de ubicación</p>
-                      <p className="text-sm">Integración con Google Maps disponible</p>
-                    </div>
+        <div className="mt-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <MapPin className="h-5 w-5 mr-2" />
+                Nuestra Ubicación
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {company.direccionFisica ? (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-gray-700 font-medium">{company.direccionFisica}</p>
+                    {company.ciudad && company.estado && (
+                      <p className="text-gray-600 text-sm mt-1">
+                        {company.ciudad}, {company.estado}
+                      </p>
+                    )}
                   </div>
-                  
-                  <div className="flex justify-center">
-                    <Button variant="outline" className="w-full sm:w-auto">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Ver en Google Maps
-                    </Button>
+                ) : (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-gray-500">Dirección física no disponible</p>
+                    {company.ciudad && company.estado && (
+                      <p className="text-gray-600 text-sm mt-1">
+                        {company.ciudad}, {company.estado}
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                {/* Mapa */}
+                <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <MapPin className="h-12 w-12 mx-auto mb-2" />
+                    <p>Mapa de ubicación</p>
+                    <p className="text-sm">Integración con Google Maps disponible</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+                
+                <div className="flex justify-center">
+                  <Button variant="outline" className="w-full sm:w-auto">
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Ver en Google Maps
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Sección de Empresas Relacionadas */}
         {relatedCompanies.length > 0 && (
