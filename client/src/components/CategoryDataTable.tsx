@@ -17,7 +17,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MoreHorizontal, Edit, Trash2, Eye, Tags } from "lucide-react";
+import { 
+  MoreHorizontal, Edit, Trash2, Eye, Tags,
+  Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag,
+  Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
+  Gamepad2, Book, Palette, MapPin, Plane, Ship, Train, Zap
+} from "lucide-react";
 import { Category } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -28,8 +33,34 @@ interface CategoryDataTableProps {
   onView: (category: Category) => void;
 }
 
+// Map of icon names to components
+const iconMap = {
+  Tags, Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag,
+  Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
+  Gamepad2, Book, Palette, MapPin, Plane, Ship, Train, Zap
+};
+
 export default function CategoryDataTable({ categories, onEdit, onView }: CategoryDataTableProps) {
   const { toast } = useToast();
+
+  // Function to render the correct icon
+  const renderCategoryIcon = (category: Category) => {
+    // If custom icon URL exists, use it
+    if (category.iconoUrl) {
+      return (
+        <img
+          src={category.iconoUrl}
+          alt={category.nombreCategoria}
+          className="w-5 h-5 object-cover rounded"
+        />
+      );
+    }
+
+    // Otherwise use Lucide icon
+    const iconName = category.icono || "Tags";
+    const IconComponent = iconMap[iconName as keyof typeof iconMap] || Tags;
+    return <IconComponent className="w-5 h-5 text-primary" />;
+  };
 
   // Delete category mutation
   const deleteCategoryMutation = useMutation({
@@ -104,7 +135,8 @@ export default function CategoryDataTable({ categories, onEdit, onView }: Catego
                 {categories.map((category) => (
                   <TableRow key={category.id} className="hover:bg-gray-50">
                     <TableCell>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-3">
+                        {renderCategoryIcon(category)}
                         <Badge variant={getBadgeVariant(category.nombreCategoria)}>
                           {category.nombreCategoria}
                         </Badge>
