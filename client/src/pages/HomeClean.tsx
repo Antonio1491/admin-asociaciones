@@ -31,20 +31,18 @@ function CategoriesSection() {
   return (
     <div style={{ 
       backgroundColor: "transparent", 
-      padding: "0 2rem 4rem 2rem",
-      marginTop: "-120px",
+      padding: "4rem 0 2rem 0",
       position: "relative",
       zIndex: 10
     }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 2rem" }}>
         <h4 style={{
           fontSize: "1.8rem",
           fontWeight: "700",
           textAlign: "center",
           marginBottom: "3rem",
           color: "white",
-          textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
-          paddingTop: "2rem"
+          textShadow: "2px 2px 4px rgba(0,0,0,0.3)"
         }}>
           Exploremos los mejores productos de la industria
         </h4>
@@ -418,9 +416,10 @@ export default function HomeClean() {
             </div>
           </div>
         </div>
+        
+        {/* Sección de categorías integrada dentro del header */}
+        <CategoriesSection />
       </div>
-
-      <CategoriesSection />
 
       <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
         {isLoading && (
