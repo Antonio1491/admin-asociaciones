@@ -89,9 +89,24 @@ export default function Login() {
       // Redirigir al dashboard después del login con Google
       setTimeout(() => setLocation("/dashboard"), 1000);
     } catch (error: any) {
+      console.error("Error detallado de Google Sign-In:", error);
+      let errorMessage = "No se pudo iniciar sesión con Google";
+      
+      if (error.code === "auth/popup-blocked") {
+        errorMessage = "El navegador bloqueó la ventana emergente. Permitir ventanas emergentes para este sitio.";
+      } else if (error.code === "auth/popup-closed-by-user") {
+        errorMessage = "Ventana de inicio de sesión cerrada por el usuario.";
+      } else if (error.code === "auth/unauthorized-domain") {
+        errorMessage = "Este dominio no está autorizado para usar Firebase Auth.";
+      } else if (error.code === "auth/configuration-not-found") {
+        errorMessage = "Configuración de Firebase no encontrada.";
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       toast({
-        title: "Error",
-        description: "No se pudo iniciar sesión con Google",
+        title: "Error de autenticación",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
