@@ -90,10 +90,10 @@ export default function CompanyDetails() {
                 <img
                   src={company.logotipoUrl}
                   alt={company.nombreEmpresa}
-                  className="w-32 h-32 object-contain bg-white/10 rounded-2xl p-4"
+                  className="w-32 h-32 object-contain bg-white/10 rounded-full p-4"
                 />
               ) : (
-                <div className="w-32 h-32 bg-white/10 rounded-2xl flex items-center justify-center">
+                <div className="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center">
                   <span className="text-5xl font-bold">
                     {company.nombreEmpresa.charAt(0)}
                   </span>
