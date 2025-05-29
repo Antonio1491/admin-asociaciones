@@ -30,7 +30,7 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { insertCompanySchema, Category, MembershipType } from "@shared/schema";
+import { insertCompanySchema, Category, MembershipType, Certificate } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
 import { Upload, X, Building, Phone, Mail, Plus, FileText, Trash2, Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, MapPin } from "lucide-react";
 import MapLocationPicker from "./MapLocationPicker";
@@ -45,6 +45,7 @@ const companySchema = insertCompanySchema.extend({
   estadosPresencia: z.array(z.string()).optional(),
   ciudadesPresencia: z.array(z.string()).optional(),
   categoriesIds: z.array(z.number()).min(1, "Selecciona al menos una categoría"),
+  certificateIds: z.array(z.number()).optional(),
   redesSociales: z.array(z.object({
     plataforma: z.string(),
     url: z.string().url("URL inválida"),
@@ -108,6 +109,10 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
 
   const { data: membershipTypes = [] } = useQuery<MembershipType[]>({
     queryKey: ["/api/membership-types"],
+  });
+
+  const { data: certificates = [] } = useQuery<Certificate[]>({
+    queryKey: ["/api/certificates"],
   });
 
   const createCompanyMutation = useMutation({

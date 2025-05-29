@@ -58,6 +58,7 @@ export const companies = pgTable("companies", {
   videoUrl3: text("video_url3"),
   membershipTypeId: integer("membership_type_id").references(() => membershipTypes.id),
   sitioWeb: text("sitio_web"),
+  certificateIds: jsonb("certificate_ids"), // Array of certificate IDs
   userId: integer("user_id").references(() => users.id), // Owner of the company
   estado: text("estado").notNull().default("activo"), // "activo", "inactivo", "pendiente"
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -129,4 +130,5 @@ export type CompanyWithDetails = Company & {
   categories?: Category[];
   membershipType?: MembershipType;
   user?: User;
+  certificates?: Certificate[];
 };
