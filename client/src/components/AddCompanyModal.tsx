@@ -99,6 +99,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       estadosPresencia: [],
       ciudadesPresencia: [],
       categoriesIds: [],
+      certificateIds: [],
       redesSociales: [],
     },
   });
@@ -581,6 +582,64 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                           </div>
                         ))}
                       </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Certificados */}
+                <FormField
+                  control={form.control}
+                  name="certificateIds"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Certificados Disponibles</FormLabel>
+                      {certificates.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2 max-h-48 overflow-y-auto border rounded-lg p-4">
+                          {certificates.map((certificate) => (
+                            <div key={certificate.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                              <Checkbox
+                                id={`certificate-${certificate.id}`}
+                                checked={field.value?.includes(certificate.id) || false}
+                                onCheckedChange={(checked) => {
+                                  const currentValues = field.value || [];
+                                  if (checked) {
+                                    field.onChange([...currentValues, certificate.id]);
+                                  } else {
+                                    field.onChange(currentValues.filter(id => id !== certificate.id));
+                                  }
+                                }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <label
+                                  htmlFor={`certificate-${certificate.id}`}
+                                  className="text-sm font-medium leading-none cursor-pointer block"
+                                >
+                                  {certificate.nombreCertificado}
+                                </label>
+                                {certificate.entidadEmisora && (
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Emisor: {certificate.entidadEmisora}
+                                  </p>
+                                )}
+                              </div>
+                              {certificate.imagenUrl && (
+                                <img 
+                                  src={certificate.imagenUrl} 
+                                  alt={certificate.nombreCertificado}
+                                  className="w-8 h-8 object-cover rounded"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 text-gray-500">
+                          <FileText className="mx-auto h-12 w-12 text-gray-400" />
+                          <p className="mt-2 text-sm">No hay certificados disponibles</p>
+                          <p className="text-xs">Crea certificados primero en la sección correspondiente</p>
+                        </div>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}

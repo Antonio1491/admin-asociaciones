@@ -30,7 +30,7 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Category, MembershipType, CompanyWithDetails } from "@shared/schema";
+import { Category, MembershipType, CompanyWithDetails, Certificate } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
 import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube } from "lucide-react";
 import MapLocationPicker from "./MapLocationPicker";
@@ -47,6 +47,7 @@ const companySchema = z.object({
   ciudadesPresencia: z.array(z.string()).min(1, "Selecciona al menos una ciudad"),
   descripcionEmpresa: z.string().optional(),
   categoriesIds: z.array(z.number()).min(1, "Selecciona al menos una categoría"),
+  certificateIds: z.array(z.number()).optional(),
   membershipTypeId: z.number({ required_error: "El tipo de membresía es requerido" }),
 });
 
@@ -91,6 +92,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       ciudadesPresencia: [],
       descripcionEmpresa: "",
       categoriesIds: [],
+      certificateIds: [],
       membershipTypeId: undefined,
     },
   });
@@ -103,6 +105,11 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   // Cargar tipos de membresía
   const { data: membershipTypes = [] } = useQuery<MembershipType[]>({
     queryKey: ["/api/membership-types"],
+  });
+
+  // Cargar certificados
+  const { data: certificates = [] } = useQuery<Certificate[]>({
+    queryKey: ["/api/certificates"],
   });
 
   // Cargar datos de la empresa en el formulario
