@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, Video, FileText, Award, Star, MessageSquare, Calculator, Building, Grid3x3 } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, Video, FileText, Award, Star, MessageSquare, Calculator, Building, Grid3x3, Facebook, Linkedin, Twitter, Instagram, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -82,58 +82,142 @@ export default function CompanyDetails() {
 
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
-            <div className="lg:col-span-2">
-              <div className="mb-4">
-                {company.category && (
-                  <Badge variant="secondary" className="mb-4 bg-white/20 text-white border-white/30">
-                    {company.category.nombreCategoria}
-                  </Badge>
-                )}
-                {company.membershipType && (
-                  <Badge variant="outline" className="ml-2 bg-white/10 text-white border-white/30">
-                    {company.membershipType.nombrePlan}
-                  </Badge>
-                )}
-              </div>
-              <h1 className="text-4xl font-bold mb-4">{company.nombreEmpresa}</h1>
-              <div 
-                className="text-xl text-blue-100 mb-6"
-                dangerouslySetInnerHTML={{ __html: company.descripcionEmpresa || '' }}
-              />
-              
-              {/* Información de contacto principal */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {telefonos[0] && (
-                  <div className="flex items-center">
-                    <Phone className="h-5 w-5 mr-3" />
-                    <span>{telefonos[0]}</span>
-                  </div>
-                )}
-                {emails[0] && (
-                  <div className="flex items-center">
-                    <Mail className="h-5 w-5 mr-3" />
-                    <span>{emails[0]}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex justify-center lg:justify-end">
+        <div className="max-w-5xl mx-auto px-4 py-16">
+          <div className="text-center">
+            {/* Logo de la empresa como primer elemento */}
+            <div className="flex justify-center mb-8">
               {company.logotipoUrl ? (
                 <img
                   src={company.logotipoUrl}
                   alt={company.nombreEmpresa}
-                  className="max-w-48 max-h-48 object-contain bg-white/10 rounded-2xl p-6"
+                  className="w-32 h-32 object-contain bg-white/10 rounded-2xl p-4"
                 />
               ) : (
-                <div className="w-48 h-48 bg-white/10 rounded-2xl flex items-center justify-center">
-                  <span className="text-6xl font-bold">
+                <div className="w-32 h-32 bg-white/10 rounded-2xl flex items-center justify-center">
+                  <span className="text-5xl font-bold">
                     {company.nombreEmpresa.charAt(0)}
                   </span>
                 </div>
               )}
+            </div>
+
+            {/* Nombre de la empresa */}
+            <h1 className="text-4xl font-bold mb-6">{company.nombreEmpresa}</h1>
+
+            {/* Descripción corta */}
+            <div 
+              className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: company.descripcionEmpresa || '' }}
+            />
+
+            {/* Categorías a las que pertenece la empresa (iconos pequeños) */}
+            {company.categories && company.categories.length > 0 && (
+              <div className="flex justify-center items-center gap-4 mb-6">
+                <span className="text-blue-200 text-sm">Categorías:</span>
+                <div className="flex gap-3 flex-wrap justify-center">
+                  {company.categories.map((category: any) => (
+                    <div key={category.id} className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
+                      {category.icono ? (
+                        <span className="text-lg">{category.icono}</span>
+                      ) : (
+                        <div className="w-4 h-4 bg-white/20 rounded-full flex items-center justify-center">
+                          <span className="text-xs text-white font-bold">
+                            {category.nombreCategoria.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                      <span className="text-sm text-white">{category.nombreCategoria}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Plan de membresía */}
+            {company.membershipType && (
+              <div className="flex justify-center mb-8">
+                <Badge variant="outline" className="bg-white/10 text-white border-white/30 text-sm px-4 py-1">
+                  {company.membershipType.nombrePlan}
+                </Badge>
+              </div>
+            )}
+
+            {/* Datos importantes de contacto */}
+            <div className="border-t border-white/20 pt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
+                {emails[0] && (
+                  <div className="flex items-center justify-center group">
+                    <Mail className="h-5 w-5 mr-3 text-blue-200" />
+                    <a href={`mailto:${emails[0]}`} className="text-white hover:text-blue-200 transition-colors text-sm">
+                      {emails[0]}
+                    </a>
+                  </div>
+                )}
+                {telefonos[0] && (
+                  <div className="flex items-center justify-center group">
+                    <Phone className="h-5 w-5 mr-3 text-green-200" />
+                    <a href={`tel:${telefonos[0]}`} className="text-white hover:text-green-200 transition-colors text-sm">
+                      {telefonos[0]}
+                    </a>
+                  </div>
+                )}
+                {company.sitioWeb && (
+                  <div className="flex items-center justify-center group">
+                    <Globe className="h-5 w-5 mr-3 text-purple-200" />
+                    <a 
+                      href={company.sitioWeb} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-white hover:text-purple-200 transition-colors text-sm"
+                    >
+                      Sitio web
+                    </a>
+                  </div>
+                )}
+                {company.ciudadesPresencia && company.ciudadesPresencia.length > 0 && (
+                  <div className="flex items-center justify-center">
+                    <MapPin className="h-5 w-5 mr-3 text-orange-200" />
+                    <span className="text-white text-sm">
+                      {company.ciudadesPresencia[0]}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Redes sociales */}
+              {company.redesSociales && company.redesSociales.length > 0 && (
+                <div className="flex justify-center items-center gap-4 mt-8">
+                  <span className="text-blue-200 text-sm">Síguenos:</span>
+                  <div className="flex gap-4">
+                    {company.redesSociales.map((red: any, index: number) => (
+                      <a
+                        key={index}
+                        href={red.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-white/70 hover:text-white transition-colors p-2 bg-white/10 rounded-full hover:bg-white/20"
+                      >
+                        {red.plataforma === 'Facebook' && <Facebook className="h-5 w-5" />}
+                        {red.plataforma === 'LinkedIn' && <Linkedin className="h-5 w-5" />}
+                        {red.plataforma === 'Twitter' && <Twitter className="h-5 w-5" />}
+                        {red.plataforma === 'Instagram' && <Instagram className="h-5 w-5" />}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Botones de acción */}
+              <div className="flex justify-center gap-4 mt-8">
+                <Button className="bg-green-600 hover:bg-green-700 text-white">
+                  <Phone className="h-4 w-4 mr-2" />
+                  Contactar
+                </Button>
+                <Button variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                  <Heart className="h-4 w-4 mr-2" />
+                  Guardar
+                </Button>
+              </div>
             </div>
           </div>
         </div>
