@@ -34,35 +34,84 @@ export default function SimpleHome() {
     <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
       {/* Header */}
       <div style={{ 
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        background: `linear-gradient(rgba(102, 126, 234, 0.85), rgba(118, 75, 162, 0.85)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundAttachment: "fixed",
         color: "white",
-        padding: "4rem 2rem",
-        textAlign: "center" 
+        padding: "5rem 2rem",
+        textAlign: "center",
+        position: "relative"
       }}>
-        <h1 style={{ fontSize: "3rem", fontWeight: "bold", marginBottom: "1rem" }}>
-          🏢 Directorio de Empresas
-        </h1>
-        <p style={{ fontSize: "1.2rem", marginBottom: "2rem", opacity: 0.9 }}>
-          Descubre las mejores empresas y servicios
-        </p>
+        {/* Overlay adicional */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.2)",
+          zIndex: 1
+        }}></div>
         
-        {/* Buscador */}
-        <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-          <input
-            type="text"
-            placeholder="Buscar empresas, servicios o categorías..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "1rem",
-              fontSize: "1.1rem",
-              border: "none",
-              borderRadius: "50px",
-              outline: "none",
-              boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
-            }}
-          />
+        <div style={{ position: "relative", zIndex: 2 }}>
+          <h1 style={{ 
+            fontSize: "3.5rem", 
+            fontWeight: "bold", 
+            marginBottom: "1rem",
+            textShadow: "2px 2px 4px rgba(0,0,0,0.3)"
+          }}>
+            🏢 Directorio Empresarial
+          </h1>
+          <p style={{ 
+            fontSize: "1.3rem", 
+            marginBottom: "3rem", 
+            opacity: 0.95,
+            textShadow: "1px 1px 2px rgba(0,0,0,0.3)"
+          }}>
+            Encuentra las mejores empresas y servicios profesionales
+          </p>
+          
+          {/* Buscador mejorado */}
+          <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+            <div style={{ position: "relative" }}>
+              <div style={{
+                position: "absolute",
+                left: "20px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                color: "#666",
+                zIndex: 3
+              }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <span style={{ fontSize: "1rem", fontWeight: "500" }}>Buscar</span>
+              </div>
+              <input
+                type="text"
+                placeholder="empresas, servicios o categorías..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "1.2rem 1.2rem 1.2rem 100px",
+                  fontSize: "1.1rem",
+                  border: "none",
+                  borderRadius: "50px",
+                  outline: "none",
+                  boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+                  backgroundColor: "rgba(255,255,255,0.95)",
+                  backdropFilter: "blur(10px)",
+                  color: "#333"
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
