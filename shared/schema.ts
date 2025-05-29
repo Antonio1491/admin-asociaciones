@@ -50,7 +50,7 @@ export const companies = pgTable("companies", {
   representantesVentas: jsonb("representantes_ventas"), // Array of user IDs
   descripcionEmpresa: text("descripcion_empresa"),
   galeriaProductosUrls: jsonb("galeria_productos_urls"), // Array of image URLs
-  categoryId: integer("category_id").references(() => categories.id),
+  categoriesIds: jsonb("categories_ids"), // Array of category IDs
   redesSociales: jsonb("redes_sociales"), // Object with social media URLs
   catalogoDigitalUrl: text("catalogo_digital_url"),
   videoUrl1: text("video_url1"),
@@ -104,7 +104,7 @@ export type InsertCompany = z.infer<typeof insertCompanySchema>;
 
 // Extended types for API responses
 export type CompanyWithDetails = Company & {
-  category?: Category;
+  categories?: Category[];
   membershipType?: MembershipType;
   user?: User;
 };
