@@ -187,8 +187,28 @@ function CompanyCard({ company }: { company: any }) {
           : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        position: "relative"
       }}>
+        {company.category && (
+          <div style={{
+            position: "absolute",
+            top: "8px",
+            left: "8px",
+            backgroundColor: "rgba(255, 255, 255, 0.9)",
+            borderRadius: "50%",
+            width: "32px",
+            height: "32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1rem",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+          }}>
+            {getCategoryIcon(company.category.nombreCategoria)}
+          </div>
+        )}
+        
         {!company.imagenPortada && !company.logotipoUrl && (
           <div style={{
             width: "60px",
@@ -211,7 +231,6 @@ function CompanyCard({ company }: { company: any }) {
         height: "25%", 
         padding: "0.75rem", 
         display: "flex", 
-        flexDirection: "column",
         alignItems: "center", 
         justifyContent: "center" 
       }}>
@@ -221,7 +240,7 @@ function CompanyCard({ company }: { company: any }) {
           color: "#1f2937",
           textAlign: "center",
           lineHeight: "1.2",
-          margin: "0 0 0.5rem 0",
+          margin: "0",
           display: "-webkit-box",
           WebkitLineClamp: 2,
           WebkitBoxOrient: "vertical",
@@ -229,17 +248,6 @@ function CompanyCard({ company }: { company: any }) {
         }}>
           {company.nombreEmpresa}
         </h3>
-        
-        {company.category && (
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "1.2rem"
-          }}>
-            {getCategoryIcon(company.category.nombreCategoria)}
-          </div>
-        )}
       </div>
     </div>
   );
