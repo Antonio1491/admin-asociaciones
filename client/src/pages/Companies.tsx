@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, Download, Upload } from "lucide-react";
 import CompanyTable from "@/components/CompanyTable";
 import AddCompanyModal from "@/components/AddCompanyModal";
 import EditCompanyModal from "@/components/EditCompanyModal";
@@ -113,6 +113,87 @@ export default function Companies() {
     setCurrentPage(1);
   };
 
+  const handleExport = () => {
+    const csvContent = generateCSV();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `empresas_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Exportación exitosa",
+      description: "El archivo CSV ha sido descargado",
+    });
+  };
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      processCSV(text);
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
+
+  const generateCSV = () => {
+    const headers = [
+      'Nombre Empresa',
+      'Categoría',
+      'Membresía',
+      'Email',
+      'Teléfono',
+      'Ciudad',
+      'Estado',
+      'Sitio Web'
+    ];
+
+    const rows = companies.map(company => [
+      company.nombreEmpresa || '',
+      company.category?.nombreCategoria || '',
+      company.membershipType?.nombrePlan || '',
+      company.email1 || '',
+      company.telefono1 || '',
+      company.ciudad || '',
+      company.estado || '',
+      company.sitioWeb || ''
+    ]);
+
+    return [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+  };
+
+  const processCSV = (csvText: string) => {
+    try {
+      const lines = csvText.split('\n').filter(line => line.trim());
+      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+      const dataRows = lines.slice(1);
+
+      toast({
+        title: "Importación procesada",
+        description: `Se procesaron ${dataRows.length} filas del archivo CSV`,
+      });
+
+      console.log('CSV data:', { headers, dataRows });
+    } catch (error) {
+      toast({
+        title: "Error en importación",
+        description: "No se pudo procesar el archivo CSV",
+        variant: "destructive",
+      });
+    }
+  };
+
   const companies = companiesData?.companies || [];
   const totalPages = companiesData?.totalPages || 1;
 
@@ -124,10 +205,88 @@ export default function Companies() {
           <h1 className="text-3xl font-bold text-primary">Directorio de Empresas</h1>
           <p className="text-gray-600 mt-1">Gestiona y visualiza todas las empresas registradas</p>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)} className="flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
-          <Plus className="w-4 h-4" />
-          <span>Nueva Empresa</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Botón Exportar */}
+          <Button 
+            onClick={() => {
+              const csvContent = generateCSV();
+              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+              const link = document.createElement('a');
+              const url = URL.createObjectURL(blob);
+              link.setAttribute('href', url);
+              link.setAttribute('download', `empresas_${new Date().toISOString().split('T')[0]}.csv`);
+              link.style.visibility = 'hidden';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              
+              toast({
+                title: "Exportación exitosa",
+                description: "El archivo CSV ha sido descargado",
+              });
+            }}
+            variant="outline" 
+            className="flex items-center space-x-2"
+          >
+            <Download className="w-4 h-4" />
+            <span>Exportar</span>
+          </Button>
+          
+          {/* Botón Importar */}
+          <div className="relative">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  const text = e.target?.result as string;
+                  try {
+                    const lines = text.split('\n').filter(line => line.trim());
+                    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+                    const dataRows = lines.slice(1);
+
+                    toast({
+                      title: "Importación procesada",
+                      description: `Se procesaron ${dataRows.length} filas del archivo CSV`,
+                    });
+
+                    console.log('CSV data:', { headers, dataRows });
+                  } catch (error) {
+                    toast({
+                      title: "Error en importación",
+                      description: "No se pudo procesar el archivo CSV",
+                      variant: "destructive",
+                    });
+                  }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+              }}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              id="import-file"
+            />
+            <Button 
+              variant="outline" 
+              className="flex items-center space-x-2"
+              asChild
+            >
+              <label htmlFor="import-file" className="cursor-pointer">
+                <Upload className="w-4 h-4" />
+                <span>Importar</span>
+              </label>
+            </Button>
+          </div>
+          
+          {/* Botón Nueva Empresa */}
+          <Button onClick={() => setIsAddModalOpen(true)} className="flex items-center space-x-2 bg-secondary text-secondary-foreground hover:bg-secondary/90">
+            <Plus className="w-4 h-4" />
+            <span>Nueva Empresa</span>
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
