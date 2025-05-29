@@ -26,42 +26,42 @@ interface SidebarProps {
 const navigationItems = [
   {
     name: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: BarChart3,
     requireAdmin: false,
   },
   {
     name: "Directorio de Empresas",
-    href: "/companies",
+    href: "/empresas",
     icon: Building,
     requireAdmin: false,
     subItems: [
       {
         name: "Empresas",
-        href: "/companies",
+        href: "/empresas",
         requireAdmin: false,
       },
       {
         name: "Categorías",
-        href: "/categories",
+        href: "/categorias",
         requireAdmin: false,
       },
       {
         name: "Membresías",
-        href: "/memberships",
+        href: "/membresias",
         requireAdmin: false,
       },
     ],
   },
   {
     name: "Gestión de Usuarios",
-    href: "/users",
+    href: "/usuarios",
     icon: Users,
     requireAdmin: true,
   },
   {
     name: "Reportes",
-    href: "/reports",
+    href: "/reportes",
     icon: FileText,
     requireAdmin: true,
   },
