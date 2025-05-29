@@ -375,7 +375,7 @@ export default function HomeClean() {
               textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
             }}
           >
-            Encuentra las mejores empresas y servicios profesionales
+            Conéctese con fabricantes, distribuidores y especialistas líderes. Descubra soluciones innovadoras y haga crecer su red de proyectos. ¡Comience su búsqueda hoy mismo!
           </p>
 
           <div style={{ maxWidth: "600px", margin: "0 auto" }}>
@@ -477,17 +477,30 @@ export default function HomeClean() {
           <>
             <h2
               style={{
-                fontSize: "2rem",
+                fontSize: "2.5rem",
                 fontWeight: "bold",
-                marginBottom: "2rem",
+                marginBottom: "1rem",
                 textAlign: "center",
-                color: "#374151",
+                color: "#0f2161",
+                fontFamily: "'Montserrat', sans-serif",
+                lineHeight: "1.2"
               }}
             >
+              Su Viaje Comienza Aquí: Encuentre Exactamente lo que Necesita para su Proyecto
+            </h2>
+            
+            <p style={{
+              fontSize: "1.1rem",
+              textAlign: "center",
+              color: "#6b7280",
+              marginBottom: "3rem",
+              maxWidth: "800px",
+              margin: "0 auto 3rem auto"
+            }}>
               {searchTerm
                 ? `Resultados de búsqueda (${searchResults.length})`
-                : `Empresas Registradas (${companies.length})`}
-            </h2>
+                : `Descubra ${companies.length} empresas líderes en diferentes sectores`}
+            </p>
 
             {searchResults.length === 0 ? (
               <div style={{ textAlign: "center", padding: "3rem" }}>
