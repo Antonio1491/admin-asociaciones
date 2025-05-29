@@ -149,7 +149,7 @@ function CompanyCard({ company }: { company: any }) {
       overflow: "hidden",
       transition: "transform 0.2s ease, box-shadow 0.2s ease",
       cursor: "pointer",
-      height: "400px",
+      aspectRatio: "1",
       display: "flex",
       flexDirection: "column"
     }}
@@ -163,24 +163,17 @@ function CompanyCard({ company }: { company: any }) {
     }}>
       
       <div style={{
-        height: "120px",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        height: "75%",
+        background: company.imagenPortada
+          ? `url(${company.imagenPortada}) center/cover`
+          : company.logotipoUrl
+          ? `url(${company.logotipoUrl}) center/contain no-repeat #f8fafc`
+          : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center",
-        padding: "0.8rem"
+        justifyContent: "center"
       }}>
-        {company.logotipoUrl ? (
-          <img
-            src={company.logotipoUrl}
-            alt={company.nombreEmpresa}
-            style={{
-              maxWidth: "100%",
-              maxHeight: "100%",
-              objectFit: "contain"
-            }}
-          />
-        ) : (
+        {!company.imagenPortada && !company.logotipoUrl && (
           <div style={{
             width: "60px",
             height: "60px",
@@ -198,95 +191,27 @@ function CompanyCard({ company }: { company: any }) {
         )}
       </div>
 
-      <div style={{ padding: "1rem", flex: 1, display: "flex", flexDirection: "column" }}>
-        {company.category && (
-          <span style={{
-            backgroundColor: "#eff6ff",
-            color: "#2563eb",
-            padding: "0.25rem 0.75rem",
-            borderRadius: "20px",
-            fontSize: "0.8rem",
-            fontWeight: "500",
-            marginBottom: "1rem",
-            display: "inline-block"
-          }}>
-            {company.category.nombreCategoria}
-          </span>
-        )}
-
+      <div style={{ 
+        height: "25%", 
+        padding: "0.75rem", 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "center" 
+      }}>
         <h3 style={{
-          fontSize: "1.25rem",
-          fontWeight: "bold",
-          marginBottom: "0.5rem",
-          color: "#1f2937"
+          fontSize: "0.95rem",
+          fontWeight: "600",
+          color: "#1f2937",
+          textAlign: "center",
+          lineHeight: "1.2",
+          margin: "0",
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden"
         }}>
           {company.nombreEmpresa}
         </h3>
-
-        <div style={{
-          color: "#6b7280",
-          fontSize: "0.8rem",
-          lineHeight: "1.3",
-          marginBottom: "0.8rem",
-          height: "2.4rem",
-          overflow: "hidden",
-          flex: 1
-        }}
-        dangerouslySetInnerHTML={{ 
-          __html: company.descripcionEmpresa?.substring(0, 80) + "..." || "Sin descripción" 
-        }} />
-
-        <div style={{ marginBottom: "0.8rem" }}>
-          {company.direccionFisica && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "0.3rem",
-              fontSize: "0.75rem",
-              color: "#6b7280"
-            }}>
-              <span style={{ marginRight: "0.4rem" }}>📍</span>
-              <span>{company.direccionFisica.substring(0, 25)}{company.direccionFisica.length > 25 ? "..." : ""}</span>
-            </div>
-          )}
-          
-          {company.telefono1 && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              fontSize: "0.75rem",
-              color: "#6b7280"
-            }}>
-              <span style={{ marginRight: "0.4rem" }}>📞</span>
-              <span>{company.telefono1}</span>
-            </div>
-          )}
-        </div>
-
-        <Link href={`/empresa/${company.id}`}>
-          <button style={{
-            width: "100%",
-            padding: "0.6rem",
-            backgroundColor: "#667eea",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontSize: "0.9rem",
-            fontFamily: "'Montserrat', sans-serif",
-            fontWeight: "700",
-            cursor: "pointer",
-            transition: "background-color 0.2s ease",
-            marginTop: "auto"
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#5a67d8";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#667eea";
-          }}>
-            Ver Detalles
-          </button>
-        </Link>
       </div>
     </div>
   );
@@ -513,8 +438,8 @@ export default function HomeClean() {
                 >
                   {searchResults.slice(0, 5).map((company: any) => (
                     <div key={company.id} style={{ 
-                      minWidth: "280px", 
-                      maxWidth: "280px",
+                      minWidth: "220px", 
+                      maxWidth: "220px",
                       flexShrink: 0 
                     }}>
                       <CompanyCard company={company} />
