@@ -16,6 +16,7 @@ import Login from "@/pages/Login";
 import HomeClean from "@/pages/HomeClean";
 import CompanyDetails from "@/pages/CompanyDetails";
 import PublicMemberships from "@/pages/PublicMemberships";
+import Directory from "@/pages/Directory";
 import MainNavigation from "@/components/MainNavigation";
 import TestHome from "@/TestHome";
 import NotFound from "@/pages/not-found";
@@ -107,7 +108,7 @@ function Router() {
       
       <Route path="/directorio">
         <PublicLayout>
-          <HomeClean />
+          <Directory />
         </PublicLayout>
       </Route>
       

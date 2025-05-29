@@ -7,7 +7,6 @@ import {
   User, 
   Menu, 
   X,
-  Search,
   Phone
 } from "lucide-react";
 import { useState } from "react";
@@ -62,12 +61,8 @@ export default function MainNavigation() {
             })}
           </div>
 
-          {/* Search and Login */}
+          {/* Login */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="sm">
-              <Search className="h-4 w-4 mr-2" />
-              Buscar
-            </Button>
             <Link href="/login">
               <Button size="sm">
                 <User className="h-4 w-4 mr-2" />
@@ -115,12 +110,8 @@ export default function MainNavigation() {
                 );
               })}
               
-              {/* Mobile Search and Login */}
+              {/* Mobile Login */}
               <div className="border-t pt-3 mt-3 space-y-2">
-                <Button variant="ghost" size="sm" className="w-full justify-start">
-                  <Search className="h-4 w-4 mr-2" />
-                  Buscar
-                </Button>
                 <Link href="/login">
                   <Button size="sm" className="w-full justify-start" onClick={() => setIsMenuOpen(false)}>
                     <User className="h-4 w-4 mr-2" />
