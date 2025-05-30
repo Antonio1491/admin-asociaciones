@@ -12,6 +12,7 @@ import { CompanyWithDetails, Category, MembershipType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
+import * as XLSX from 'xlsx';
 
 export default function Companies() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -248,6 +249,75 @@ export default function Companies() {
     }
   };
 
+  const processExcel = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        // Usar la primera hoja
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // Convertir a JSON
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        if (jsonData.length === 0) {
+          toast({
+            title: "Error en importación",
+            description: "El archivo Excel está vacío",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const headers = jsonData[0] as string[];
+        const dataRows = jsonData.slice(1);
+
+        toast({
+          title: "Importación procesada",
+          description: `Se procesaron ${dataRows.length} filas del archivo Excel`,
+        });
+
+        console.log('Excel data:', { headers, dataRows });
+      } catch (error) {
+        toast({
+          title: "Error en importación",
+          description: "No se pudo procesar el archivo Excel",
+          variant: "destructive",
+        });
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    
+    if (fileExtension === 'csv') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        processCSV(text);
+      };
+      reader.readAsText(file);
+    } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+      processExcel(file);
+    } else {
+      toast({
+        title: "Formato no compatible",
+        description: "Solo se admiten archivos CSV y Excel (.xlsx, .xls)",
+        variant: "destructive",
+      });
+    }
+    
+    event.target.value = '';
+  };
+
   const companies = companiesData?.companies || [];
   const totalPages = companiesData?.totalPages || 1;
 
@@ -290,36 +360,8 @@ export default function Companies() {
           <div className="relative">
             <input
               type="file"
-              accept=".csv"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                  const text = e.target?.result as string;
-                  try {
-                    const lines = text.split('\n').filter(line => line.trim());
-                    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-                    const dataRows = lines.slice(1);
-
-                    toast({
-                      title: "Importación procesada",
-                      description: `Se procesaron ${dataRows.length} filas del archivo CSV`,
-                    });
-
-                    console.log('CSV data:', { headers, dataRows });
-                  } catch (error) {
-                    toast({
-                      title: "Error en importación",
-                      description: "No se pudo procesar el archivo CSV",
-                      variant: "destructive",
-                    });
-                  }
-                };
-                reader.readAsText(file);
-                event.target.value = '';
-              }}
+              accept=".csv,.xlsx,.xls"
+              onChange={handleFileImport}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               id="import-file"
             />
