@@ -88,16 +88,9 @@ function CategoriesSection() {
             onClick={() => window.location.href = `/directorio?categoryId=${category.id}`}
           >
             <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300">
-              {category.iconoUrl && category.iconoUrl.startsWith('data:image/') ? (
-                <img 
-                  src={category.iconoUrl} 
-                  alt={category.nombreCategoria}
-                  className="w-10 h-10 object-contain"
-                  style={{ filter: 'brightness(0) invert(1)' }}
-                />
-              ) : (
-                <Tag className="h-8 w-8 text-white" />
-              )}
+              <span className="text-white text-xs font-bold text-center px-1">
+                {category.nombreCategoria.split(' ').map(word => word.charAt(0)).join('').substring(0, 3)}
+              </span>
             </div>
             <h3 className="font-semibold text-lg mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
               {category.nombreCategoria}
