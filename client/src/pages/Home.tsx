@@ -97,6 +97,7 @@ function getCategoryIcon(iconName: string) {
     'Package': Package,
     'Settings': Settings,
     'Tag': Tag,
+    'Tags': Tag, // Support both Tag and Tags
   };
   
   return iconMap[iconName as keyof typeof iconMap] || Tag;
