@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "wouter";
-import { Search, MapPin, Phone, Mail, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, MapPin, Phone, Mail, ChevronLeft, ChevronRight, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Category } from "@shared/schema";
 
 export default function Home() {
   return (
@@ -36,8 +37,72 @@ export default function Home() {
         </div>
       </div>
 
+      <CategoriesSection />
       <CompaniesSection />
     </div>
+  );
+}
+
+function CategoriesSection() {
+  const { data: categories, isLoading, error } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando categorías...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !categories) {
+    return null;
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-16 bg-white">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">
+          Explorar por Categorías
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Encuentra empresas especializadas en diferentes sectores del equipamiento urbano
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {categories.map((category) => (
+          <CategoryCard key={category.id} category={category} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CategoryCard({ category }: { category: Category }) {
+  return (
+    <Link href={`/directorio?categoria=${category.id}`}>
+      <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group">
+        <CardContent className="p-6 text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300">
+            <Tag className="h-8 w-8 text-white" />
+          </div>
+          <h3 className="font-semibold text-lg mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
+            {category.nombreCategoria}
+          </h3>
+          {category.descripcion && (
+            <div 
+              className="text-sm text-gray-600 line-clamp-2"
+              dangerouslySetInnerHTML={{ __html: category.descripcion }}
+            />
+          )}
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
