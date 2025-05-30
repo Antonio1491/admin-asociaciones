@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
 import { ArrowLeft, MapPin, Phone, Mail, Globe, Video, FileText, Award, Star, MessageSquare, Calculator, Building, Grid3x3, Facebook, Linkedin, Twitter, Instagram, Heart } from "lucide-react";
@@ -6,10 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import CompanyLocationMap from "@/components/CompanyLocationMap";
+import ReviewModal from "@/components/ReviewModal";
 import type { CompanyWithDetails } from "@/../../shared/schema";
 
 export default function CompanyDetails() {
   const { id } = useParams();
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
 
   const { data: company, isLoading } = useQuery({
     queryKey: ["/api/companies", id],
@@ -339,7 +342,10 @@ export default function CompanyDetails() {
                 </div>
                 
                 <div className="mt-6 text-center">
-                  <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Button 
+                    className="bg-blue-600 hover:bg-blue-700"
+                    onClick={() => setReviewModalOpen(true)}
+                  >
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Dejar una reseña
                   </Button>
