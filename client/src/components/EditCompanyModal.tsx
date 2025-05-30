@@ -116,31 +116,40 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   useEffect(() => {
     if (company && open) {
       // Resetear estados
-      setSelectedEstados(company.estadosPresencia || []);
-      setSelectedCiudades(company.ciudadesPresencia || []);
+      setSelectedEstados((company.estadosPresencia as string[]) || []);
+      setSelectedCiudades((company.ciudadesPresencia as string[]) || []);
       // Convertir objeto redesSociales a array para el formulario
       const redesSocialesArray = company.redesSociales ? 
-        Object.entries(company.redesSociales).map(([plataforma, url]) => ({ plataforma, url })) : 
+        Object.entries(company.redesSociales as Record<string, string>).map(([plataforma, url]) => ({ plataforma, url })) : 
         [];
       setRedesSociales(redesSocialesArray);
       setEmailsAdicionales([]);
       setTelefonosAdicionales([]);
-      setRepresentantes(company.representantesVentas || []);
+      setRepresentantes((company.representantesVentas as string[]) || []);
       setDireccionesPorCiudad({});
 
       // Cargar datos en el formulario
       form.reset({
         nombreEmpresa: company.nombreEmpresa,
-        email1: company.email1,
+        logotipoUrl: company.logotipoUrl || "",
         telefono1: company.telefono1 || "",
+        telefono2: company.telefono2 || "",
+        email1: company.email1,
+        email2: company.email2 || "",
         sitioWeb: company.sitioWeb || "",
         videoUrl1: company.videoUrl1 || "",
-        paisesPresencia: company.paisesPresencia || [],
-        estadosPresencia: company.estadosPresencia || [],
-        ciudadesPresencia: company.ciudadesPresencia || [],
+        videoUrl2: company.videoUrl2 || "",
+        videoUrl3: company.videoUrl3 || "",
+        paisesPresencia: (company.paisesPresencia as string[]) || [],
+        estadosPresencia: (company.estadosPresencia as string[]) || [],
+        ciudadesPresencia: (company.ciudadesPresencia as string[]) || [],
+        direccionFisica: company.direccionFisica || "",
         descripcionEmpresa: company.descripcionEmpresa || "",
-        categoriesIds: company.categoriesIds || [],
-        membershipTypeId: company.membershipTypeId,
+        catalogoDigitalUrl: company.catalogoDigitalUrl || "",
+        categoriesIds: (company.categoriesIds as number[]) || [],
+        membershipTypeId: company.membershipTypeId ?? undefined,
+        certificateIds: (company.certificateIds as number[]) || [],
+        estado: company.estado || "activo",
       });
     }
   }, [company, open, form]);
