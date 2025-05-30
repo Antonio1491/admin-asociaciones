@@ -60,7 +60,13 @@ function CategoriesSection() {
   }
 
   if (error || !categories) {
-    return null;
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-16">
+        <div className="text-center">
+          <p className="text-gray-600">Error cargando las categorías</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -106,29 +112,40 @@ function getCategoryIcon(iconName: string) {
 function CategoryCard({ category }: { category: Category }) {
   const IconComponent = getCategoryIcon(category.icono || 'Tag');
   
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     window.location.href = `/directorio?categoryId=${category.id}`;
   };
   
-  // Si tiene iconoUrl (icono personalizado), mostrarlo en lugar del icono de Lucide
-  const hasCustomIcon = category.iconoUrl && category.iconoUrl.trim() !== '';
+  // Verificar si tiene icono personalizado válido
+  const hasCustomIcon = !!(category.iconoUrl && 
+                          category.iconoUrl.trim() !== '' && 
+                          category.iconoUrl.startsWith('data:image/'));
   
   return (
     <Card 
-      className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group" 
+      className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group bg-white" 
       onClick={handleClick}
     >
       <CardContent className="p-6 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300 overflow-hidden">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300 relative">
           {hasCustomIcon ? (
             <img 
-              src={category.iconoUrl || ''} 
+              src={category.iconoUrl} 
               alt={category.nombreCategoria}
-              className="w-10 h-10 object-contain"
+              className="w-12 h-12 object-contain rounded-full"
+              style={{ filter: 'brightness(0) invert(1)' }}
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallbackIcon = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
+                if (fallbackIcon) {
+                  fallbackIcon.style.display = 'block';
+                }
+              }}
             />
-          ) : (
-            <IconComponent className="h-8 w-8 text-white" />
-          )}
+          ) : null}
+          <IconComponent className={`h-8 w-8 text-white fallback-icon ${hasCustomIcon ? 'hidden' : ''}`} />
         </div>
         <h3 className="font-semibold text-lg mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
           {category.nombreCategoria}
