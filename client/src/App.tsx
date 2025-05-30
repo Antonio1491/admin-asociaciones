@@ -13,7 +13,7 @@ import Memberships from "@/pages/Memberships";
 import Users from "@/pages/Users";
 import Certificates from "@/pages/Certificates";
 import Roles from "@/pages/Roles";
-import Opinions from "@/pages/Opinions";
+import OpinionsAdmin from "@/pages/OpinionsAdmin";
 import Login from "@/pages/Login";
 import HomeClean from "@/pages/HomeClean";
 import CompanyDetails from "@/pages/CompanyDetails";
@@ -113,7 +113,7 @@ function Router() {
       <Route path="/opiniones">
         <ProtectedRoute requireAdmin>
           <AppLayout>
-            <Opinions />
+            <OpinionsAdmin />
           </AppLayout>
         </ProtectedRoute>
       </Route>
