@@ -4,16 +4,22 @@ import {
   categories, 
   membershipTypes, 
   certificates,
+  roles,
+  opinions,
   type User, 
   type Company, 
   type Category, 
   type MembershipType, 
   type Certificate,
+  type Role,
+  type Opinion,
   type InsertUser,
   type InsertCompany,
   type InsertCategory,
   type InsertMembershipType,
   type InsertCertificate,
+  type InsertRole,
+  type InsertOpinion,
   type CompanyWithDetails
 } from "@shared/schema";
 import { db } from "./db";
@@ -64,6 +70,27 @@ export interface IStorage {
   createCertificate(certificate: InsertCertificate): Promise<Certificate>;
   updateCertificate(id: number, certificate: Partial<InsertCertificate>): Promise<Certificate | undefined>;
   deleteCertificate(id: number): Promise<boolean>;
+
+  // Roles
+  getRole(id: number): Promise<Role | undefined>;
+  getAllRoles(): Promise<Role[]>;
+  createRole(role: InsertRole): Promise<Role>;
+  updateRole(id: number, role: Partial<InsertRole>): Promise<Role | undefined>;
+  deleteRole(id: number): Promise<boolean>;
+
+  // Opinions
+  getOpinion(id: number): Promise<Opinion | undefined>;
+  getAllOpinions(options?: {
+    estado?: string;
+    companyId?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ opinions: Opinion[]; total: number }>;
+  createOpinion(opinion: InsertOpinion): Promise<Opinion>;
+  updateOpinion(id: number, opinion: Partial<InsertOpinion>): Promise<Opinion | undefined>;
+  deleteOpinion(id: number): Promise<boolean>;
+  approveOpinion(id: number, approvedBy: number): Promise<Opinion | undefined>;
+  rejectOpinion(id: number, approvedBy: number): Promise<Opinion | undefined>;
 
   // Statistics
   getStatistics(): Promise<{

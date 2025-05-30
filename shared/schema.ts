@@ -79,6 +79,32 @@ export const certificates = pgTable("certificates", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const roles = pgTable("roles", {
+  id: serial("id").primaryKey(),
+  nombre: text("nombre").notNull().unique(),
+  descripcion: text("descripcion"),
+  permisos: jsonb("permisos"), // Array of permissions
+  estado: text("estado").notNull().default("activo"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const opinions = pgTable("opinions", {
+  id: serial("id").primaryKey(),
+  companyId: integer("company_id").references(() => companies.id),
+  userId: integer("user_id").references(() => users.id),
+  nombre: text("nombre").notNull(),
+  email: text("email").notNull(),
+  calificacion: integer("calificacion").notNull(), // 1-5 estrellas
+  comentario: text("comentario").notNull(),
+  fechaCreacion: timestamp("fecha_creacion").defaultNow().notNull(),
+  estado: text("estado").notNull().default("pendiente"), // pendiente, aprobada, rechazada
+  fechaAprobacion: timestamp("fecha_aprobacion"),
+  aprobadoPor: integer("aprobado_por").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -110,6 +136,21 @@ export const insertCertificateSchema = createInsertSchema(certificates).omit({
   updatedAt: true,
 });
 
+export const insertRoleSchema = createInsertSchema(roles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertOpinionSchema = createInsertSchema(opinions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  fechaCreacion: true,
+  fechaAprobacion: true,
+  aprobadoPor: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -126,12 +167,20 @@ export type InsertCompany = z.infer<typeof insertCompanySchema>;
 export type Certificate = typeof certificates.$inferSelect;
 export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
 
+export type Role = typeof roles.$inferSelect;
+export type InsertRole = z.infer<typeof insertRoleSchema>;
+
+export type Opinion = typeof opinions.$inferSelect;
+export type InsertOpinion = z.infer<typeof insertOpinionSchema>;
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   companies: many(companies),
+  opinions: many(opinions),
+  approvedOpinions: many(opinions, { relationName: "approvedBy" }),
 }));
 
-export const companiesRelations = relations(companies, ({ one }) => ({
+export const companiesRelations = relations(companies, ({ one, many }) => ({
   user: one(users, {
     fields: [companies.userId],
     references: [users.id],
@@ -140,10 +189,27 @@ export const companiesRelations = relations(companies, ({ one }) => ({
     fields: [companies.membershipTypeId],
     references: [membershipTypes.id],
   }),
+  opinions: many(opinions),
 }));
 
 export const membershipTypesRelations = relations(membershipTypes, ({ many }) => ({
   companies: many(companies),
+}));
+
+export const opinionsRelations = relations(opinions, ({ one }) => ({
+  company: one(companies, {
+    fields: [opinions.companyId],
+    references: [companies.id],
+  }),
+  user: one(users, {
+    fields: [opinions.userId],
+    references: [users.id],
+  }),
+  approvedBy: one(users, {
+    fields: [opinions.aprobadoPor],
+    references: [users.id],
+    relationName: "approvedBy",
+  }),
 }));
 
 // Extended types for API responses
