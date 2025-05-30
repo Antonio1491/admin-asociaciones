@@ -128,29 +128,22 @@ function CategoryCard({ category }: { category: Category }) {
       onClick={handleClick}
     >
       <CardContent className="p-6 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300 relative">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300">
           {hasCustomIcon ? (
             <img 
-              src={category.iconoUrl} 
+              src={category.iconoUrl || ''} 
               alt={category.nombreCategoria}
-              className="w-12 h-12 object-contain rounded-full"
+              className="w-10 h-10 object-contain"
               style={{ filter: 'brightness(0) invert(1)' }}
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const fallbackIcon = target.parentElement?.querySelector('.fallback-icon') as HTMLElement;
-                if (fallbackIcon) {
-                  fallbackIcon.style.display = 'block';
-                }
-              }}
             />
-          ) : null}
-          <IconComponent className={`h-8 w-8 text-white fallback-icon ${hasCustomIcon ? 'hidden' : ''}`} />
+          ) : (
+            <IconComponent className="h-8 w-8 text-white" />
+          )}
         </div>
         <h3 className="font-semibold text-lg mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
           {category.nombreCategoria}
         </h3>
-        {category.descripcion && (
+        {category.descripcion && category.descripcion.trim() !== '' && (
           <div 
             className="text-sm text-gray-600 line-clamp-2"
             dangerouslySetInnerHTML={{ __html: category.descripcion }}
