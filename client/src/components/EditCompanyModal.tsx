@@ -159,7 +159,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         categoriesIds: (company.categoriesIds as number[]) || [],
         membershipTypeId: company.membershipTypeId ?? undefined,
         certificateIds: (company.certificateIds as number[]) || [],
-        estado: company.estado || "activo",
+        galeriaProductosUrls: (company.galeriaProductosUrls as string[]) || [],
       });
     }
   }, [company, open, form]);
@@ -173,12 +173,10 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         ...data,
         redesSociales,
         representantesVentas: representantes.filter(r => r.trim() !== ""),
+        galeriaProductosUrls: galeriaImagenes.filter(img => img.trim() !== ""),
       };
 
-      const response = await apiRequest(`/api/companies/${company.id}`, {
-        method: "PUT",
-        body: JSON.stringify(updateData),
-      });
+      const response = await apiRequest(`/api/companies/${company.id}`, "PUT", updateData);
 
       if (!response.ok) {
         throw new Error("Error al actualizar la empresa");
