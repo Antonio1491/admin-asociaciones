@@ -55,7 +55,7 @@ export default function ReviewModal({
   const form = useForm<ReviewFormData>({
     resolver: zodResolver(reviewSchema),
     defaultValues: {
-      nombre: user?.nombre || "",
+      nombre: user?.displayName || "",
       email: user?.email || "",
       calificacion: 0,
       comentario: "",

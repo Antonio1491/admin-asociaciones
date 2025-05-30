@@ -701,6 +701,14 @@ export default function CompanyDetails() {
           </div>
         )}
       </div>
+
+      {/* Modal de Reseñas */}
+      <ReviewModal
+        open={reviewModalOpen}
+        onOpenChange={setReviewModalOpen}
+        companyId={parseInt(id || "0")}
+        companyName={company?.nombreEmpresa || ""}
+      />
     </div>
   );
 }
