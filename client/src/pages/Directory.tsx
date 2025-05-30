@@ -259,22 +259,17 @@ export default function Directory() {
         )}
       </div>
 
-      {/* Map Section Placeholder */}
+      {/* Map Section */}
       <div className="bg-white border-t">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">
               Mapa de Empresas
             </h2>
-            <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-2">Mapa interactivo próximamente</p>
-                <p className="text-sm text-gray-500">
-                  Visualiza la ubicación de todas las empresas registradas
-                </p>
-              </div>
-            </div>
+            <p className="text-gray-600 mb-8">
+              Visualiza la ubicación de todas las empresas registradas
+            </p>
+            <DirectoryMap companies={filteredCompanies} />
           </div>
         </div>
       </div>
