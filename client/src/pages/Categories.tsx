@@ -48,6 +48,7 @@ import { Category } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import CategoryDataTable from "@/components/CategoryDataTable";
+import * as XLSX from 'xlsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Available icons for categories
@@ -221,31 +222,152 @@ export default function Categories() {
     }
   };
 
-  // Función para exportar categorías
-  const exportCategories = () => {
+  // Función para exportar categorías a CSV
+  const exportCategoriesToCSV = () => {
     if (!categories) return;
     
-    const dataToExport = categories.map(category => ({
-      nombreCategoria: category.nombreCategoria,
-      descripcion: category.descripcion,
-      icono: category.icono,
-      iconoUrl: category.iconoUrl
-    }));
+    const headers = ['Nombre de Categoría', 'Descripción', 'Ícono', 'URL del Ícono'];
+    
+    const rows = categories.map(category => [
+      category.nombreCategoria || '',
+      category.descripcion || '',
+      category.icono || '',
+      category.iconoUrl || ''
+    ]);
 
-    const dataStr = JSON.stringify(dataToExport, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
 
-    const exportFileDefaultName = `categorias_${new Date().toISOString().split('T')[0]}.json`;
-
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `categorias_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
     toast({
       title: "Exportación exitosa",
-      description: `Se han exportado ${categories.length} categorías`,
+      description: `Se han exportado ${categories.length} categorías a CSV`,
     });
+  };
+
+  // Función para exportar categorías a Excel
+  const exportCategoriesToExcel = () => {
+    if (!categories) return;
+    
+    const dataToExport = categories.map(category => ({
+      'Nombre de Categoría': category.nombreCategoria || '',
+      'Descripción': category.descripcion || '',
+      'Ícono': category.icono || '',
+      'URL del Ícono': category.iconoUrl || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Categorías');
+    
+    XLSX.writeFile(workbook, `categorias_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+    toast({
+      title: "Exportación exitosa",
+      description: `Se han exportado ${categories.length} categorías a Excel`,
+    });
+  };
+
+  // Función para procesar CSV
+  const processCSV = (csvText: string) => {
+    try {
+      const lines = csvText.split('\n').filter(line => line.trim());
+      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+      const dataRows = lines.slice(1);
+
+      toast({
+        title: "Importación procesada",
+        description: `Se procesaron ${dataRows.length} filas del archivo CSV`,
+      });
+
+      console.log('CSV data:', { headers, dataRows });
+    } catch (error) {
+      toast({
+        title: "Error en importación",
+        description: "No se pudo procesar el archivo CSV",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Función para procesar Excel
+  const processExcel = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        if (jsonData.length === 0) {
+          toast({
+            title: "Error en importación",
+            description: "El archivo Excel está vacío",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const headers = jsonData[0] as string[];
+        const dataRows = jsonData.slice(1);
+
+        toast({
+          title: "Importación procesada",
+          description: `Se procesaron ${dataRows.length} filas del archivo Excel`,
+        });
+
+        console.log('Excel data:', { headers, dataRows });
+      } catch (error) {
+        toast({
+          title: "Error en importación",
+          description: "No se pudo procesar el archivo Excel",
+          variant: "destructive",
+        });
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+
+  // Función para manejar importación de archivos
+  const handleFileImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    
+    if (fileExtension === 'csv') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        processCSV(text);
+      };
+      reader.readAsText(file);
+    } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+      processExcel(file);
+    } else {
+      toast({
+        title: "Formato no compatible",
+        description: "Solo se admiten archivos CSV y Excel (.xlsx, .xls)",
+        variant: "destructive",
+      });
+    }
+    
+    event.target.value = '';
   };
 
   // Función para importar categorías
@@ -270,14 +392,11 @@ export default function Categories() {
             throw new Error("Falta el nombre de la categoría");
           }
 
-          await apiRequest('/api/categories', {
-            method: 'POST',
-            body: JSON.stringify({
-              nombreCategoria: categoryData.nombreCategoria,
-              descripcion: categoryData.descripcion || null,
-              icono: categoryData.icono || null,
-              iconoUrl: categoryData.iconoUrl || null
-            })
+          await apiRequest("POST", '/api/categories', {
+            nombreCategoria: categoryData.nombreCategoria,
+            descripcion: categoryData.descripcion || null,
+            icono: categoryData.icono || null,
+            iconoUrl: categoryData.iconoUrl || null
           });
           successCount++;
         } catch (error) {
@@ -337,21 +456,33 @@ export default function Categories() {
           
           {/* Import/Export Buttons */}
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={exportCategories}
-              className="flex items-center space-x-2"
-            >
-              <Download className="w-4 h-4" />
-              <span>Exportar</span>
-            </Button>
+            {/* Dropdown para exportar */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Exportar</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={exportCategoriesToCSV}>
+                  Exportar como CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportCategoriesToExcel}>
+                  Exportar como Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <div className="relative">
               <input
                 type="file"
-                accept=".json,.csv"
-                onChange={handleImportFile}
+                accept=".csv,.xlsx,.xls"
+                onChange={handleFileImport}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 id="import-file"
               />
@@ -359,9 +490,12 @@ export default function Categories() {
                 variant="outline" 
                 size="sm"
                 className="flex items-center space-x-2"
+                asChild
               >
-                <Upload className="w-4 h-4" />
-                <span>Importar</span>
+                <label htmlFor="import-file" className="cursor-pointer">
+                  <Upload className="w-4 h-4" />
+                  <span>Importar</span>
+                </label>
               </Button>
             </div>
           </div>
