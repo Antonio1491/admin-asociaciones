@@ -32,7 +32,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Category, MembershipType, CompanyWithDetails, Certificate } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
-import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube } from "lucide-react";
+import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube, Award } from "lucide-react";
 import MapLocationPicker from "./MapLocationPicker";
 import RichTextEditor from "./RichTextEditor";
 
@@ -40,8 +40,13 @@ const companySchema = z.object({
   nombreEmpresa: z.string().min(1, "El nombre de la empresa es requerido"),
   email1: z.string().email("Email inválido"),
   telefono1: z.string().optional(),
+  telefono2: z.string().optional(),
+  email2: z.string().email("Email inválido").optional().or(z.literal("")),
+  logotipoUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
   videoUrl1: z.string().url("URL inválida").optional().or(z.literal("")),
+  catalogoDigitalUrl: z.string().url("URL inválida").optional().or(z.literal("")),
+  direccionFisica: z.string().optional(),
   paisesPresencia: z.array(z.string()).min(1, "Selecciona al menos un país"),
   estadosPresencia: z.array(z.string()).min(1, "Selecciona al menos un estado"),
   ciudadesPresencia: z.array(z.string()).min(1, "Selecciona al menos una ciudad"),
@@ -408,6 +413,35 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   )}
                 />
 
+                {/* Tipo de Membresía */}
+                <FormField
+                  control={form.control}
+                  name="membershipTypeId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Tipo de Membresía *
+                      </FormLabel>
+                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona el tipo de membresía" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {membershipTypes.map((membership) => (
+                            <SelectItem key={membership.id} value={membership.id.toString()}>
+                              {membership.nombrePlan}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Categorías */}
                 <FormField
                   control={form.control}
@@ -692,6 +726,42 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                       </FormLabel>
                       <FormControl>
                         <Input placeholder="contacto@empresa.com" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Email secundario */}
+                <FormField
+                  control={form.control}
+                  name="email2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Mail className="h-4 w-4" />
+                        Email Secundario
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="ventas@empresa.com" type="email" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Dirección física */}
+                <FormField
+                  control={form.control}
+                  name="direccionFisica"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Dirección Física
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Calle, número, colonia, ciudad, estado" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
