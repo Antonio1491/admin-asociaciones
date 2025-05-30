@@ -104,10 +104,11 @@ export class MemStorage implements IStorage {
   private initializeDefaultData() {
     // Default categories
     const defaultCategories = [
-      { nombreCategoria: "Tecnología", descripcion: "Empresas de tecnología e innovación" },
-      { nombreCategoria: "Manufactura", descripcion: "Empresas manufactureras e industriales" },
-      { nombreCategoria: "Servicios", descripcion: "Empresas de servicios profesionales" },
-      { nombreCategoria: "Comercio", descripcion: "Empresas comerciales y retail" }
+      { nombreCategoria: "Juegos Infantiles", descripcion: "Fabricantes y distribuidores de equipos de juegos para parques y espacios públicos", icono: "🎪", iconoUrl: null },
+      { nombreCategoria: "Mobiliario Urbano", descripcion: "Diseño y fabricación de mobiliario para espacios públicos y urbanos", icono: "🪑", iconoUrl: null },
+      { nombreCategoria: "Superficies Deportivas", descripcion: "Instalación y mantenimiento de superficies deportivas y recreativas", icono: "🏀", iconoUrl: null },
+      { nombreCategoria: "Iluminación y Energía", descripcion: "Soluciones de iluminación LED y sistemas de energía renovable", icono: "💡", iconoUrl: null },
+      { nombreCategoria: "Paisajismo y Riego", descripcion: "Sistemas de riego automatizado y diseño de espacios verdes", icono: "💧", iconoUrl: null }
     ];
 
     defaultCategories.forEach(cat => {
@@ -124,24 +125,24 @@ export class MemStorage implements IStorage {
     const defaultMembershipTypes = [
       {
         nombrePlan: "Básico",
-        descripcionPlan: "Plan básico con funcionalidades esenciales",
-        costo: "99.00",
+        descripcionPlan: "Perfil básico en el directorio con información esencial de contacto",
+        costo: "150.00",
         periodicidad: "monthly",
-        beneficios: ["Perfil básico", "Contacto directo", "Listado en directorio"]
+        beneficios: ["Perfil empresarial básico", "Información de contacto", "Listado en directorio público"]
       },
       {
         nombrePlan: "Premium",
-        descripcionPlan: "Plan premium con funcionalidades avanzadas",
-        costo: "199.00",
+        descripcionPlan: "Perfil destacado con galería de productos y mayor visibilidad",
+        costo: "300.00",
         periodicidad: "monthly",
-        beneficios: ["Todo lo del plan básico", "Galería de productos", "Estadísticas", "Soporte prioritario"]
+        beneficios: ["Todo lo del plan básico", "Galería de productos", "Logo destacado", "Posición preferencial", "Estadísticas básicas"]
       },
       {
         nombrePlan: "Enterprise",
-        descripcionPlan: "Plan empresarial con todas las funcionalidades",
-        costo: "399.00",
+        descripcionPlan: "Máxima visibilidad con micrositio personalizado y promoción destacada",
+        costo: "500.00",
         periodicidad: "monthly",
-        beneficios: ["Todo lo del plan premium", "API access", "Integración personalizada", "Cuenta dedicada"]
+        beneficios: ["Todo lo del plan premium", "Micrositio personalizado", "Certificados visibles", "Promoción en eventos", "Soporte dedicado", "API access"]
       }
     ];
 
@@ -155,7 +156,361 @@ export class MemStorage implements IStorage {
       this.membershipTypes.set(membershipType.id, membershipType);
     });
 
-    // No sample companies - clean start
+    // Sample companies data
+    const sampleCompanies = [
+      {
+        nombreEmpresa: "PlayTech México",
+        email1: "contacto@playtech.mx",
+        telefono1: "+52 55 1234 5678",
+        sitioWeb: "https://www.playtech.mx",
+        paisesPresencia: ["México", "Colombia"],
+        estadosPresencia: ["Ciudad de México", "Nuevo León"],
+        ciudadesPresencia: ["Ciudad de México, Ciudad de México", "Monterrey, Nuevo León"],
+        descripcionEmpresa: "Fabricante líder de equipos de juegos infantiles para parques públicos con más de 20 años de experiencia.",
+        categoriesIds: [1],
+        membershipTypeId: 3,
+        redesSociales: [{ plataforma: "Facebook", url: "https://facebook.com/playtech" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Mobiliario Urbano Integral",
+        email1: "ventas@mobiliariourbano.mx",
+        telefono1: "+52 33 2345 6789",
+        sitioWeb: "https://www.mobiliariourbano.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Jalisco", "Michoacán"],
+        ciudadesPresencia: ["Guadalajara, Jalisco", "Morelia, Michoacán"],
+        descripcionEmpresa: "Diseño y fabricación de mobiliario urbano sustentable para espacios públicos.",
+        categoriesIds: [2],
+        membershipTypeId: 2,
+        redesSociales: [{ plataforma: "LinkedIn", url: "https://linkedin.com/company/mobiliariourbano" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "SportFloor Solutions",
+        email1: "info@sportfloor.mx",
+        telefono1: "+52 81 3456 7890",
+        sitioWeb: "https://www.sportfloor.mx",
+        paisesPresencia: ["México", "Estados Unidos"],
+        estadosPresencia: ["Nuevo León", "Tamaulipas"],
+        ciudadesPresencia: ["Monterrey, Nuevo León", "Reynosa, Tamaulipas"],
+        descripcionEmpresa: "Especialistas en instalación de superficies deportivas sintéticas y canchas multideportivas.",
+        categoriesIds: [3],
+        membershipTypeId: 2,
+        redesSociales: [{ plataforma: "Instagram", url: "https://instagram.com/sportfloor" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "LED Urbano",
+        email1: "contacto@ledurbano.mx",
+        telefono1: "+52 55 4567 8901",
+        sitioWeb: "https://www.ledurbano.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Ciudad de México", "Estado de México"],
+        ciudadesPresencia: ["Ciudad de México, Ciudad de México", "Toluca, Estado de México"],
+        descripcionEmpresa: "Soluciones integrales de iluminación LED para espacios públicos y sistemas de energía solar.",
+        categoriesIds: [4],
+        membershipTypeId: 3,
+        redesSociales: [{ plataforma: "YouTube", url: "https://youtube.com/ledurbano" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "AquaTech Riego",
+        email1: "ventas@aquatech.mx",
+        telefono1: "+52 442 5678 9012",
+        sitioWeb: "https://www.aquatech.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Querétaro", "Guanajuato"],
+        ciudadesPresencia: ["Querétaro, Querétaro", "León, Guanajuato"],
+        descripcionEmpresa: "Sistemas de riego automatizado inteligente y diseño de jardines sustentables.",
+        categoriesIds: [5],
+        membershipTypeId: 1,
+        redesSociales: [{ plataforma: "Facebook", url: "https://facebook.com/aquatech" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "KidsPlay Equipment",
+        email1: "info@kidsplay.mx",
+        telefono1: "+52 998 6789 0123",
+        sitioWeb: "https://www.kidsplay.mx",
+        paisesPresencia: ["México", "Guatemala"],
+        estadosPresencia: ["Quintana Roo", "Yucatán"],
+        ciudadesPresencia: ["Cancún, Quintana Roo", "Mérida, Yucatán"],
+        descripcionEmpresa: "Fabricación de juegos infantiles inclusivos y equipos de ejercicio al aire libre.",
+        categoriesIds: [1],
+        membershipTypeId: 2,
+        redesSociales: [{ plataforma: "Instagram", url: "https://instagram.com/kidsplay" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Bancas y Más",
+        email1: "pedidos@bancasymas.mx",
+        telefono1: "+52 662 7890 1234",
+        sitioWeb: "https://www.bancasymas.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Sonora", "Sinaloa"],
+        ciudadesPresencia: ["Hermosillo, Sonora", "Culiacán, Sinaloa"],
+        descripcionEmpresa: "Fabricación artesanal de bancas, mesas y mobiliario urbano en madera y metal.",
+        categoriesIds: [2],
+        membershipTypeId: 1,
+        redesSociales: [{ plataforma: "Facebook", url: "https://facebook.com/bancasymas" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Courts Pro",
+        email1: "instalaciones@courtspro.mx",
+        telefono1: "+52 222 8901 2345",
+        sitioWeb: "https://www.courtspro.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Puebla", "Tlaxcala"],
+        ciudadesPresencia: ["Puebla, Puebla", "Tlaxcala, Tlaxcala"],
+        descripcionEmpresa: "Construcción de canchas deportivas profesionales y mantenimiento de superficies.",
+        categoriesIds: [3],
+        membershipTypeId: 2,
+        redesSociales: [{ plataforma: "LinkedIn", url: "https://linkedin.com/company/courtspro" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "EcoLight Systems",
+        email1: "proyectos@ecolight.mx",
+        telefono1: "+52 777 9012 3456",
+        sitioWeb: "https://www.ecolight.mx",
+        paisesPresencia: ["México", "Costa Rica"],
+        estadosPresencia: ["Morelos", "Guerrero"],
+        ciudadesPresencia: ["Cuernavaca, Morelos", "Acapulco, Guerrero"],
+        descripcionEmpresa: "Iluminación inteligente con sensores de movimiento y paneles solares integrados.",
+        categoriesIds: [4],
+        membershipTypeId: 3,
+        redesSociales: [{ plataforma: "Twitter", url: "https://twitter.com/ecolight" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Jardines Automáticos",
+        email1: "contacto@jardinesautomaticos.mx",
+        telefono1: "+52 228 0123 4567",
+        sitioWeb: "https://www.jardinesautomaticos.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Veracruz", "Tabasco"],
+        ciudadesPresencia: ["Veracruz, Veracruz", "Villahermosa, Tabasco"],
+        descripcionEmpresa: "Automatización de riego para parques y jardines públicos con tecnología IoT.",
+        categoriesIds: [5],
+        membershipTypeId: 1,
+        redesSociales: [{ plataforma: "WhatsApp", url: "https://wa.me/522280123456" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Adventure Playground",
+        email1: "ventas@adventureplayground.mx",
+        telefono1: "+52 844 1234 5678",
+        sitioWeb: "https://www.adventureplayground.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Coahuila", "Nuevo León"],
+        ciudadesPresencia: ["Saltillo, Coahuila", "Monterrey, Nuevo León"],
+        descripcionEmpresa: "Parques temáticos modulares y equipos de aventura para espacios públicos.",
+        categoriesIds: [1],
+        membershipTypeId: 2,
+        redesSociales: [{ plataforma: "YouTube", url: "https://youtube.com/adventureplayground" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Urban Design Studio",
+        email1: "estudio@urbandesign.mx",
+        telefono1: "+52 722 2345 6789",
+        sitioWeb: "https://www.urbandesign.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Estado de México", "Hidalgo"],
+        ciudadesPresencia: ["Toluca, Estado de México", "Pachuca, Hidalgo"],
+        descripcionEmpresa: "Diseño integral de espacios urbanos y fabricación de mobiliario personalizado.",
+        categoriesIds: [2],
+        membershipTypeId: 3,
+        redesSociales: [{ plataforma: "Behance", url: "https://behance.net/urbandesign" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "MultiSport Surfaces",
+        email1: "info@multisport.mx",
+        telefono1: "+52 618 3456 7890",
+        sitioWeb: "https://www.multisport.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Durango", "Zacatecas"],
+        ciudadesPresencia: ["Durango, Durango", "Zacatecas, Zacatecas"],
+        descripcionEmpresa: "Superficies deportivas multifuncionales y mantenimiento preventivo especializado.",
+        categoriesIds: [3],
+        membershipTypeId: 1,
+        redesSociales: [{ plataforma: "Facebook", url: "https://facebook.com/multisport" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "SolarPark Lighting",
+        email1: "proyectos@solarpark.mx",
+        telefono1: "+52 961 4567 8901",
+        sitioWeb: "https://www.solarpark.mx",
+        paisesPresencia: ["México", "Belice"],
+        estadosPresencia: ["Chiapas", "Tabasco"],
+        ciudadesPresencia: ["Tuxtla Gutiérrez, Chiapas", "Villahermosa, Tabasco"],
+        descripcionEmpresa: "Sistemas de iluminación solar para parques con baterías de larga duración.",
+        categoriesIds: [4],
+        membershipTypeId: 2,
+        redesSociales: [{ plataforma: "LinkedIn", url: "https://linkedin.com/company/solarpark" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Green Irrigation Tech",
+        email1: "soporte@greenirrigation.mx",
+        telefono1: "+52 871 5678 9012",
+        sitioWeb: "https://www.greenirrigation.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Coahuila", "Chihuahua"],
+        ciudadesPresencia: ["Torreón, Coahuila", "Chihuahua, Chihuahua"],
+        descripcionEmpresa: "Tecnología de riego inteligente con sensores de humedad y control remoto.",
+        categoriesIds: [5],
+        membershipTypeId: 2,
+        redesSociales: [{ plataforma: "Instagram", url: "https://instagram.com/greenirrigation" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "PlaySafe Equipment",
+        email1: "seguridad@playsafe.mx",
+        telefono1: "+52 686 6789 0123",
+        sitioWeb: "https://www.playsafe.mx",
+        paisesPresencia: ["México", "Estados Unidos"],
+        estadosPresencia: ["Baja California", "Sonora"],
+        ciudadesPresencia: ["Mexicali, Baja California", "Hermosillo, Sonora"],
+        descripcionEmpresa: "Equipos de juegos certificados internacionalmente con máximos estándares de seguridad.",
+        categoriesIds: [1],
+        membershipTypeId: 3,
+        redesSociales: [{ plataforma: "Facebook", url: "https://facebook.com/playsafe" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Mobiliario Sostenible",
+        email1: "ventas@mobiliariosostenible.mx",
+        telefono1: "+52 492 7890 1234",
+        sitioWeb: "https://www.mobiliariosostenible.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Zacatecas", "Aguascalientes"],
+        ciudadesPresencia: ["Zacatecas, Zacatecas", "Aguascalientes, Aguascalientes"],
+        descripcionEmpresa: "Mobiliario urbano fabricado con materiales reciclados y procesos sustentables.",
+        categoriesIds: [2],
+        membershipTypeId: 1,
+        redesSociales: [{ plataforma: "LinkedIn", url: "https://linkedin.com/company/mobiliariosostenible" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Elite Sports Floors",
+        email1: "elite@sportsfloors.mx",
+        telefono1: "+52 477 8901 2345",
+        sitioWeb: "https://www.sportsfloors.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Guanajuato", "Michoacán"],
+        ciudadesPresencia: ["León, Guanajuato", "Morelia, Michoacán"],
+        descripcionEmpresa: "Pisos deportivos de alta calidad para competencias profesionales y recreativas.",
+        categoriesIds: [3],
+        membershipTypeId: 2,
+        redesSociales: [{ plataforma: "YouTube", url: "https://youtube.com/elitesportsfloors" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Smart City Lights",
+        email1: "smartcity@lights.mx",
+        telefono1: "+52 921 9012 3456",
+        sitioWeb: "https://www.smartcitylights.mx",
+        paisesPresencia: ["México"],
+        estadosPresencia: ["Tabasco", "Campeche"],
+        ciudadesPresencia: ["Villahermosa, Tabasco", "Campeche, Campeche"],
+        descripcionEmpresa: "Iluminación inteligente conectada para ciudades inteligentes con control centralizado.",
+        categoriesIds: [4],
+        membershipTypeId: 3,
+        redesSociales: [{ plataforma: "Twitter", url: "https://twitter.com/smartcitylights" }],
+        estado: "activo"
+      },
+      {
+        nombreEmpresa: "Hydro Garden Systems",
+        email1: "hydro@gardensystems.mx",
+        telefono1: "+52 983 0123 4567",
+        sitioWeb: "https://www.hydrogarden.mx",
+        paisesPresencia: ["México", "Guatemala"],
+        estadosPresencia: ["Quintana Roo", "Yucatán"],
+        ciudadesPresencia: ["Chetumal, Quintana Roo", "Mérida, Yucatán"],
+        descripcionEmpresa: "Sistemas hidropónicos para jardines urbanos y riego eficiente en parques.",
+        categoriesIds: [5],
+        membershipTypeId: 1,
+        redesSociales: [{ plataforma: "Instagram", url: "https://instagram.com/hydrogarden" }],
+        estado: "activo"
+      }
+    ];
+
+    // Create sample companies
+    sampleCompanies.forEach(companyData => {
+      const company: Company = {
+        id: this.currentCompanyId++,
+        nombreEmpresa: companyData.nombreEmpresa,
+        logotipoUrl: null,
+        telefono1: companyData.telefono1,
+        telefono2: null,
+        email1: companyData.email1,
+        email2: null,
+        paisesPresencia: companyData.paisesPresencia,
+        estadosPresencia: companyData.estadosPresencia,
+        ciudadesPresencia: companyData.ciudadesPresencia,
+        direccionFisica: null,
+        ubicacionGeografica: null,
+        representantesVentas: [],
+        descripcionEmpresa: companyData.descripcionEmpresa,
+        galeriaProductosUrls: [],
+        categoriesIds: companyData.categoriesIds,
+        redesSociales: companyData.redesSociales,
+        catalogoDigitalUrl: null,
+        videoUrl1: null,
+        videoUrl2: null,
+        videoUrl3: null,
+        membershipTypeId: companyData.membershipTypeId,
+        sitioWeb: companyData.sitioWeb,
+        userId: 1,
+        estado: companyData.estado,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.companies.set(company.id, company);
+    });
+
+    // Sample certificates
+    const sampleCertificates = [
+      {
+        nombreCertificado: "Certificación ISO 9001:2015",
+        descripcion: "Sistema de gestión de calidad internacional",
+        imagenUrl: "https://via.placeholder.com/400x300/4f46e5/ffffff?text=ISO+9001",
+        fechaEmision: "2023-01-15",
+        fechaVencimiento: "2026-01-15",
+        entidadEmisora: "Bureau Veritas",
+        estado: "activo"
+      },
+      {
+        nombreCertificado: "Certificación de Seguridad Infantil",
+        descripcion: "Cumplimiento de normas de seguridad para equipos de juegos infantiles",
+        imagenUrl: "https://via.placeholder.com/400x300/10b981/ffffff?text=Seguridad+Infantil",
+        fechaEmision: "2023-06-01",
+        fechaVencimiento: "2025-06-01",
+        entidadEmisora: "ANSI/ACCT",
+        estado: "activo"
+      }
+    ];
+
+    sampleCertificates.forEach(certData => {
+      const certificate: Certificate = {
+        id: this.currentCertificateId++,
+        nombreCertificado: certData.nombreCertificado,
+        descripcion: certData.descripcion,
+        imagenUrl: certData.imagenUrl,
+        fechaEmision: certData.fechaEmision,
+        fechaVencimiento: certData.fechaVencimiento,
+        entidadEmisora: certData.entidadEmisora,
+        estado: certData.estado,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.certificates.set(certificate.id, certificate);
+    });
   }
 
   // Users
