@@ -114,6 +114,8 @@ function CategoryCard({ category }: { category: Category }) {
   // Si tiene iconoUrl (icono personalizado), mostrarlo en lugar del icono de Lucide
   const hasCustomIcon = category.iconoUrl && category.iconoUrl.trim() !== '';
   
+  console.log('Category:', category.nombreCategoria, 'hasCustomIcon:', hasCustomIcon, 'iconoUrl:', category.iconoUrl?.substring(0, 50));
+  
   return (
     <Card 
       className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group" 
