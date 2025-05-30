@@ -769,7 +769,7 @@ export default function HomeClean() {
               {categories.map((category: any) => {
                 // Buscar una empresa de esta categoría
                 const categoryCompany = companies.find((company: any) => 
-                  company.category?.id === category.id
+                  company.categoriesIds && company.categoriesIds.includes(category.id)
                 );
                 
                 if (!categoryCompany) return null;
