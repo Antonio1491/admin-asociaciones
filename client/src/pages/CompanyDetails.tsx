@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import CompanyLocationMap from "@/components/CompanyLocationMap";
 import type { CompanyWithDetails } from "@/../../shared/schema";
 
 export default function CompanyDetails() {
@@ -579,20 +580,11 @@ export default function CompanyDetails() {
                 )}
                 
                 {/* Mapa */}
-                <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <div className="text-center text-gray-500">
-                    <MapPin className="h-12 w-12 mx-auto mb-2" />
-                    <p>Mapa de ubicación</p>
-                    <p className="text-sm">Integración con Google Maps disponible</p>
-                  </div>
-                </div>
-                
-                <div className="flex justify-center">
-                  <Button variant="outline" className="w-full sm:w-auto">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    Ver en Google Maps
-                  </Button>
-                </div>
+                <CompanyLocationMap 
+                  ubicacionGeografica={company.ubicacionGeografica}
+                  direccionFisica={company.direccionFisica}
+                  nombreEmpresa={company.nombreEmpresa}
+                />
               </div>
             </CardContent>
           </Card>

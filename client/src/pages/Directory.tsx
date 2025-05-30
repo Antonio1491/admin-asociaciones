@@ -15,6 +15,7 @@ import {
   ExternalLink,
   Grid3X3
 } from "lucide-react";
+import DirectoryMap from "@/components/DirectoryMap";
 import type { CompanyWithDetails, Category } from "@/../../shared/schema";
 
 export default function Directory() {
