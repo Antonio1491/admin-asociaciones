@@ -104,17 +104,14 @@ function getCategoryIcon(iconName: string) {
 }
 
 function CategoryCard({ category }: { category: Category }) {
-  const [, setLocation] = useLocation();
   const IconComponent = getCategoryIcon(category.icono || 'Tag');
   
   const handleClick = () => {
-    setLocation(`/directorio?categoryId=${category.id}`);
+    window.location.href = `/directorio?categoryId=${category.id}`;
   };
   
   // Si tiene iconoUrl (icono personalizado), mostrarlo en lugar del icono de Lucide
   const hasCustomIcon = category.iconoUrl && category.iconoUrl.trim() !== '';
-  
-  console.log('Category:', category.nombreCategoria, 'hasCustomIcon:', hasCustomIcon, 'iconoUrl:', category.iconoUrl?.substring(0, 50));
   
   return (
     <Card 
@@ -125,7 +122,7 @@ function CategoryCard({ category }: { category: Category }) {
         <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300 overflow-hidden">
           {hasCustomIcon ? (
             <img 
-              src={category.iconoUrl} 
+              src={category.iconoUrl || ''} 
               alt={category.nombreCategoria}
               className="w-10 h-10 object-contain"
             />
