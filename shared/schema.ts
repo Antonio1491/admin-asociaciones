@@ -1,4 +1,5 @@
 import { pgTable, text, serial, integer, boolean, timestamp, decimal, jsonb, varchar, date } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -124,6 +125,26 @@ export type InsertCompany = z.infer<typeof insertCompanySchema>;
 
 export type Certificate = typeof certificates.$inferSelect;
 export type InsertCertificate = z.infer<typeof insertCertificateSchema>;
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  companies: many(companies),
+}));
+
+export const companiesRelations = relations(companies, ({ one }) => ({
+  user: one(users, {
+    fields: [companies.userId],
+    references: [users.id],
+  }),
+  membershipType: one(membershipTypes, {
+    fields: [companies.membershipTypeId],
+    references: [membershipTypes.id],
+  }),
+}));
+
+export const membershipTypesRelations = relations(membershipTypes, ({ many }) => ({
+  companies: many(companies),
+}));
 
 // Extended types for API responses
 export type CompanyWithDetails = Company & {
