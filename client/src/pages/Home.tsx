@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "wouter";
-import { Search, MapPin, Phone, Mail, ChevronLeft, ChevronRight, Tag } from "lucide-react";
+import { Search, MapPin, Phone, Mail, ChevronLeft, ChevronRight, Tag, Building, Truck, Zap, TreePine, Wrench, Shield, Home as HomeIcon, Users, Package, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -83,13 +83,34 @@ function CategoriesSection() {
   );
 }
 
+// Función para obtener el ícono de una categoría
+function getCategoryIcon(iconName: string) {
+  const iconMap = {
+    'Building': Building,
+    'Truck': Truck,
+    'Zap': Zap,
+    'TreePine': TreePine,
+    'Wrench': Wrench,
+    'Shield': Shield,
+    'Home': HomeIcon,
+    'Users': Users,
+    'Package': Package,
+    'Settings': Settings,
+    'Tag': Tag,
+  };
+  
+  return iconMap[iconName as keyof typeof iconMap] || Tag;
+}
+
 function CategoryCard({ category }: { category: Category }) {
+  const IconComponent = getCategoryIcon(category.icono || 'Tag');
+  
   return (
-    <Link href={`/directorio?categoria=${category.id}`}>
+    <Link href={`/directorio?categoryId=${category.id}`}>
       <Card className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group">
         <CardContent className="p-6 text-center">
           <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300">
-            <Tag className="h-8 w-8 text-white" />
+            <IconComponent className="h-8 w-8 text-white" />
           </div>
           <h3 className="font-semibold text-lg mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
             {category.nombreCategoria}
