@@ -336,6 +336,42 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
 
 
 
+                {/* Logotipo URL */}
+                <FormField
+                  control={form.control}
+                  name="logotipoUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Image className="h-4 w-4" />
+                        URL del Logotipo
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://ejemplo.com/logo.png" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Sitio Web */}
+                <FormField
+                  control={form.control}
+                  name="sitioWeb"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Globe className="h-4 w-4" />
+                        Sitio Web
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://www.empresa.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Video URL */}
                 <FormField
                   control={form.control}
@@ -348,6 +384,24 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                       </FormLabel>
                       <FormControl>
                         <Input placeholder="https://youtube.com/watch?v=..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Catálogo Digital */}
+                <FormField
+                  control={form.control}
+                  name="catalogoDigitalUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Catálogo Digital (PDF)
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://ejemplo.com/catalogo.pdf" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -590,12 +644,48 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Teléfono principal */}
+                <FormField
+                  control={form.control}
+                  name="telefono1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        Teléfono Principal
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="+52-55-1234-5678" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Teléfono secundario */}
+                <FormField
+                  control={form.control}
+                  name="telefono2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        Teléfono Secundario
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="+52-55-1234-5678" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Email principal */}
                 <FormField
                   control={form.control}
                   name="email1"
                   render={({ field }) => (
-                    <FormItem className="md:col-span-2">
+                    <FormItem>
                       <FormLabel className="flex items-center gap-2">
                         <Mail className="h-4 w-4" />
                         Email Principal *
