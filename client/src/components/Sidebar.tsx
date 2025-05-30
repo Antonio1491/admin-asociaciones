@@ -59,6 +59,11 @@ const navigationItems = [
         href: "/certificados",
         requireAdmin: false,
       },
+      {
+        name: "Gestión de Opiniones",
+        href: "/opiniones",
+        requireAdmin: true,
+      },
     ],
   },
   {
@@ -71,12 +76,6 @@ const navigationItems = [
     name: "Roles del Sistema",
     href: "/roles",
     icon: Shield,
-    requireAdmin: true,
-  },
-  {
-    name: "Gestión de Opiniones",
-    href: "/opiniones",
-    icon: MessageSquare,
     requireAdmin: true,
   },
   {
