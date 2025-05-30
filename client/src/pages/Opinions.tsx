@@ -38,12 +38,13 @@ export default function Opinions() {
 
   const { data: opinionsData, isLoading } = useQuery({
     queryKey: ["/api/opinions", { estado: filterStatus === "all" ? undefined : filterStatus }],
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams();
       if (filterStatus !== "all") {
         params.append("estado", filterStatus);
       }
-      return apiRequest(`/api/opinions?${params.toString()}`);
+      const response = await apiRequest(`/api/opinions?${params.toString()}`);
+      return response.json();
     },
   });
 

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Building, Mail, Lock, Loader2 } from "lucide-react";
 import { signInWithEmail, signInWithGoogle, createUserWithEmail } from "@/lib/auth";
@@ -15,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  rememberMe: z.boolean().default(false),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -30,6 +32,7 @@ export default function Login() {
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
   });
 
@@ -45,10 +48,12 @@ export default function Login() {
         // Redirigir al dashboard después de crear cuenta
         setTimeout(() => setLocation("/dashboard"), 1000);
       } else {
-        await signInWithEmail(data.email, data.password);
+        await signInWithEmail(data.email, data.password, data.rememberMe);
         toast({
           title: "Bienvenido",
-          description: "Has iniciado sesión exitosamente",
+          description: data.rememberMe 
+            ? "Has iniciado sesión exitosamente. Tu sesión será recordada."
+            : "Has iniciado sesión exitosamente",
         });
         // Redirigir al dashboard después del login
         setTimeout(() => setLocation("/dashboard"), 1000);
@@ -174,6 +179,28 @@ export default function Login() {
                   </FormItem>
                 )}
               />
+
+              {!isSignUp && (
+                <FormField
+                  control={form.control}
+                  name="rememberMe"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm text-gray-700">
+                          Recordar mi sesión
+                        </FormLabel>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <Button type="submit" className="w-full bg-primary text-white hover:bg-primary/90" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -5,6 +5,9 @@ import {
   GoogleAuthProvider, 
   signInWithPopup,
   onAuthStateChanged,
+  setPersistence,
+  browserSessionPersistence,
+  browserLocalPersistence,
   User as FirebaseUser
 } from "firebase/auth";
 import { auth } from "./firebase";
@@ -19,7 +22,9 @@ export interface AuthUser {
 }
 
 // Sign in with email and password
-export const signInWithEmail = async (email: string, password: string): Promise<FirebaseUser> => {
+export const signInWithEmail = async (email: string, password: string, rememberMe: boolean = false): Promise<FirebaseUser> => {
+  // Set persistence based on rememberMe option
+  await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
   const result = await signInWithEmailAndPassword(auth, email, password);
   return result.user;
 };
