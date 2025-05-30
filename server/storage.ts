@@ -399,6 +399,145 @@ export class DatabaseStorage implements IStorage {
     return (result.rowCount || 0) > 0;
   }
 
+  // Roles
+  async getRole(id: number): Promise<Role | undefined> {
+    const [role] = await db.select().from(roles).where(eq(roles.id, id));
+    return role || undefined;
+  }
+
+  async getAllRoles(): Promise<Role[]> {
+    return await db.select().from(roles).orderBy(roles.nombre);
+  }
+
+  async createRole(insertRole: InsertRole): Promise<Role> {
+    const [role] = await db
+      .insert(roles)
+      .values({
+        ...insertRole,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return role;
+  }
+
+  async updateRole(id: number, roleData: Partial<InsertRole>): Promise<Role | undefined> {
+    const [role] = await db
+      .update(roles)
+      .set({
+        ...roleData,
+        updatedAt: new Date(),
+      })
+      .where(eq(roles.id, id))
+      .returning();
+    return role || undefined;
+  }
+
+  async deleteRole(id: number): Promise<boolean> {
+    const result = await db.delete(roles).where(eq(roles.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  // Opinions
+  async getOpinion(id: number): Promise<Opinion | undefined> {
+    const [opinion] = await db.select().from(opinions).where(eq(opinions.id, id));
+    return opinion || undefined;
+  }
+
+  async getAllOpinions(options: {
+    estado?: string;
+    companyId?: number;
+    limit?: number;
+    offset?: number;
+  } = {}): Promise<{ opinions: Opinion[]; total: number }> {
+    const { estado, companyId, limit = 50, offset = 0 } = options;
+    
+    let query = db.select().from(opinions);
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(opinions);
+    
+    const conditions = [];
+    if (estado) {
+      conditions.push(eq(opinions.estado, estado));
+    }
+    if (companyId) {
+      conditions.push(eq(opinions.companyId, companyId));
+    }
+    
+    if (conditions.length > 0) {
+      const whereCondition = conditions.length === 1 ? conditions[0] : and(...conditions);
+      query = query.where(whereCondition);
+      countQuery = countQuery.where(whereCondition);
+    }
+    
+    const opinionsResult = await query
+      .orderBy(sql`${opinions.fechaCreacion} DESC`)
+      .limit(limit)
+      .offset(offset);
+      
+    const [{ count }] = await countQuery;
+    
+    return {
+      opinions: opinionsResult,
+      total: count || 0,
+    };
+  }
+
+  async createOpinion(insertOpinion: InsertOpinion): Promise<Opinion> {
+    const [opinion] = await db
+      .insert(opinions)
+      .values({
+        ...insertOpinion,
+        fechaCreacion: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning();
+    return opinion;
+  }
+
+  async updateOpinion(id: number, opinionData: Partial<InsertOpinion>): Promise<Opinion | undefined> {
+    const [opinion] = await db
+      .update(opinions)
+      .set({
+        ...opinionData,
+        updatedAt: new Date(),
+      })
+      .where(eq(opinions.id, id))
+      .returning();
+    return opinion || undefined;
+  }
+
+  async deleteOpinion(id: number): Promise<boolean> {
+    const result = await db.delete(opinions).where(eq(opinions.id, id));
+    return result.rowCount !== null && result.rowCount > 0;
+  }
+
+  async approveOpinion(id: number, approvedBy: number): Promise<Opinion | undefined> {
+    const [opinion] = await db
+      .update(opinions)
+      .set({
+        estado: "aprobada",
+        fechaAprobacion: new Date(),
+        aprobadoPor: approvedBy,
+        updatedAt: new Date(),
+      })
+      .where(eq(opinions.id, id))
+      .returning();
+    return opinion || undefined;
+  }
+
+  async rejectOpinion(id: number, approvedBy: number): Promise<Opinion | undefined> {
+    const [opinion] = await db
+      .update(opinions)
+      .set({
+        estado: "rechazada",
+        fechaAprobacion: new Date(),
+        aprobadoPor: approvedBy,
+        updatedAt: new Date(),
+      })
+      .where(eq(opinions.id, id))
+      .returning();
+    return opinion || undefined;
+  }
+
   // Statistics
   async getStatistics(): Promise<{
     totalCompanies: number;

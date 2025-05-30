@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertUserSchema, insertCompanySchema, insertCategorySchema, insertMembershipTypeSchema, insertCertificateSchema } from "@shared/schema";
+import { insertUserSchema, insertCompanySchema, insertCategorySchema, insertMembershipTypeSchema, insertCertificateSchema, insertRoleSchema, insertOpinionSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -378,6 +378,178 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete certificate" });
+    }
+  });
+
+  // Roles API
+  app.get("/api/roles", async (req, res) => {
+    try {
+      const roles = await storage.getAllRoles();
+      res.json(roles);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch roles" });
+    }
+  });
+
+  app.get("/api/roles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const role = await storage.getRole(id);
+      if (!role) {
+        return res.status(404).json({ error: "Role not found" });
+      }
+      res.json(role);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch role" });
+    }
+  });
+
+  app.post("/api/roles", async (req, res) => {
+    try {
+      const roleData = insertRoleSchema.parse(req.body);
+      const role = await storage.createRole(roleData);
+      res.status(201).json(role);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Validation error", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create role" });
+    }
+  });
+
+  app.put("/api/roles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const roleData = insertRoleSchema.partial().parse(req.body);
+      const role = await storage.updateRole(id, roleData);
+      if (!role) {
+        return res.status(404).json({ error: "Role not found" });
+      }
+      res.json(role);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Validation error", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update role" });
+    }
+  });
+
+  app.delete("/api/roles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteRole(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Role not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete role" });
+    }
+  });
+
+  // Opinions API
+  app.get("/api/opinions", async (req, res) => {
+    try {
+      const { estado, companyId, page = "1", limit = "50" } = req.query;
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const offset = (pageNum - 1) * limitNum;
+      
+      const options = {
+        estado: estado as string,
+        companyId: companyId ? parseInt(companyId as string) : undefined,
+        limit: limitNum,
+        offset,
+      };
+      
+      const result = await storage.getAllOpinions(options);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch opinions" });
+    }
+  });
+
+  app.get("/api/opinions/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const opinion = await storage.getOpinion(id);
+      if (!opinion) {
+        return res.status(404).json({ error: "Opinion not found" });
+      }
+      res.json(opinion);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch opinion" });
+    }
+  });
+
+  app.post("/api/opinions", async (req, res) => {
+    try {
+      const opinionData = insertOpinionSchema.parse(req.body);
+      const opinion = await storage.createOpinion(opinionData);
+      res.status(201).json(opinion);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Validation error", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create opinion" });
+    }
+  });
+
+  app.put("/api/opinions/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const opinionData = insertOpinionSchema.partial().parse(req.body);
+      const opinion = await storage.updateOpinion(id, opinionData);
+      if (!opinion) {
+        return res.status(404).json({ error: "Opinion not found" });
+      }
+      res.json(opinion);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Validation error", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update opinion" });
+    }
+  });
+
+  app.delete("/api/opinions/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteOpinion(id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Opinion not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete opinion" });
+    }
+  });
+
+  app.post("/api/opinions/:id/approve", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { approvedBy } = req.body;
+      const opinion = await storage.approveOpinion(id, approvedBy);
+      if (!opinion) {
+        return res.status(404).json({ error: "Opinion not found" });
+      }
+      res.json(opinion);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to approve opinion" });
+    }
+  });
+
+  app.post("/api/opinions/:id/reject", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { approvedBy } = req.body;
+      const opinion = await storage.rejectOpinion(id, approvedBy);
+      if (!opinion) {
+        return res.status(404).json({ error: "Opinion not found" });
+      }
+      res.json(opinion);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to reject opinion" });
     }
   });
 
