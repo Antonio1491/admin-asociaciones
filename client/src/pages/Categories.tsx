@@ -279,19 +279,86 @@ export default function Categories() {
     });
   };
 
+  // Función para importar categorías desde datos procesados
+  const importCategories = async (headers: string[], dataRows: any[]) => {
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      for (const row of dataRows) {
+        if (!row || row.length === 0) continue;
+
+        try {
+          // Mapear los datos según las columnas del archivo
+          const categoryData: any = {};
+          
+          // Buscar las columnas relevantes (flexible para diferentes formatos)
+          headers.forEach((header, index) => {
+            const value = row[index];
+            const normalizedHeader = header.toLowerCase().trim();
+            
+            if (normalizedHeader.includes('categoria') || normalizedHeader.includes('nombre')) {
+              categoryData.nombreCategoria = value;
+            } else if (normalizedHeader.includes('descripcion')) {
+              categoryData.descripcion = value;
+            } else if (normalizedHeader.includes('icono') && !normalizedHeader.includes('url')) {
+              categoryData.icono = value;
+            } else if (normalizedHeader.includes('url') || normalizedHeader.includes('img')) {
+              categoryData.iconoUrl = value;
+            }
+          });
+
+          // Validar que tengamos al menos el nombre
+          if (!categoryData.nombreCategoria || categoryData.nombreCategoria.trim() === '') {
+            continue;
+          }
+
+          // Limpiar datos
+          categoryData.nombreCategoria = categoryData.nombreCategoria.toString().trim();
+          if (categoryData.descripcion) {
+            categoryData.descripcion = categoryData.descripcion.toString().trim();
+          }
+
+          // Crear la categoría
+          await apiRequest("POST", '/api/categories', {
+            nombreCategoria: categoryData.nombreCategoria,
+            descripcion: categoryData.descripcion || null,
+            icono: categoryData.icono || 'Tags',
+            iconoUrl: categoryData.iconoUrl || null
+          });
+          
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          console.error('Error importing category:', row, error);
+        }
+      }
+
+      // Actualizar la lista de categorías
+      queryClient.invalidateQueries({ queryKey: ['/api/categories'] });
+
+      toast({
+        title: "Importación completada",
+        description: `Importadas: ${successCount}, Errores: ${errorCount}`,
+      });
+
+    } catch (error) {
+      toast({
+        title: "Error de importación",
+        description: "Error al procesar el archivo. Verifica el formato.",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Función para procesar CSV
-  const processCSV = (csvText: string) => {
+  const processCSV = async (csvText: string) => {
     try {
       const lines = csvText.split('\n').filter(line => line.trim());
       const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
       const dataRows = lines.slice(1);
 
-      toast({
-        title: "Importación procesada",
-        description: `Se procesaron ${dataRows.length} filas del archivo CSV`,
-      });
-
-      console.log('CSV data:', { headers, dataRows });
+      await importCategories(headers, dataRows);
     } catch (error) {
       toast({
         title: "Error en importación",
@@ -304,7 +371,7 @@ export default function Categories() {
   // Función para procesar Excel
   const processExcel = (file: File) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
@@ -326,12 +393,7 @@ export default function Categories() {
         const headers = jsonData[0] as string[];
         const dataRows = jsonData.slice(1);
 
-        toast({
-          title: "Importación procesada",
-          description: `Se procesaron ${dataRows.length} filas del archivo Excel`,
-        });
-
-        console.log('Excel data:', { headers, dataRows });
+        await importCategories(headers, dataRows);
       } catch (error) {
         toast({
           title: "Error en importación",
