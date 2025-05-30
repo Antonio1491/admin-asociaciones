@@ -359,15 +359,13 @@ export default function HomeClean() {
     <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
       {/* Header */}
       <div
+        className="relative text-center text-white"
         style={{
           background: `linear-gradient(rgba(15, 33, 97, 0.9), rgba(15, 33, 97, 0.7)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundAttachment: "fixed",
-          color: "white",
-          padding: "5rem 2rem 3rem 2rem",
-          textAlign: "center",
-          position: "relative",
+          padding: "5rem 1rem 3rem 1rem",
         }}
       >
         <div
@@ -384,56 +382,39 @@ export default function HomeClean() {
 
         <div style={{ position: "relative", zIndex: 2 }}>
           <h1
+            className="text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4"
             style={{
-              fontSize: "3.5rem",
-              fontWeight: "bold",
-              marginBottom: "1rem",
               textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
             }}
           >
             Directorio de Proveedores
           </h1>
           <p
+            className="text-sm md:text-lg lg:text-xl mb-8 opacity-95 max-w-4xl mx-auto px-4"
             style={{
-              fontSize: "1.3rem",
-              marginBottom: "3rem",
-              opacity: 0.95,
               textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
             }}
           >
             Conéctese con fabricantes, distribuidores y especialistas líderes. Descubra soluciones innovadoras y haga crecer su red de proyectos. ¡Comience su búsqueda hoy mismo!
           </p>
 
-          <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="flex flex-col md:flex-row gap-4 mb-4">
               {/* Campo de búsqueda */}
-              <div style={{ flex: 2, position: "relative" }}>
+              <div className="flex-1 md:flex-2 relative">
                 <input
                   type="text"
                   placeholder="empresas, servicios o categorías..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-6 py-3 md:py-4 text-sm md:text-lg rounded-full border-none outline-none text-gray-700"
                   style={{
-                    width: "100%",
-                    padding: "1.2rem 3rem 1.2rem 1.5rem",
-                    fontSize: "1.1rem",
-                    border: "none",
-                    borderRadius: "50px",
-                    outline: "none",
                     boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     backgroundColor: "rgba(255,255,255,0.95)",
                     backdropFilter: "blur(10px)",
-                    color: "#333",
                   }}
                 />
-                <div style={{
-                  position: "absolute",
-                  right: "1.5rem",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "#6b7280",
-                  pointerEvents: "none"
-                }}>
+                <div className="absolute right-6 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none">
                   <svg
                     width="18"
                     height="18"
@@ -449,22 +430,15 @@ export default function HomeClean() {
               </div>
               
               {/* Filtro de categoría */}
-              <div style={{ flex: 1 }}>
+              <div className="flex-1">
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-4 py-3 md:py-4 text-sm md:text-lg rounded-full border-none outline-none text-gray-700 cursor-pointer"
                   style={{
-                    width: "100%",
-                    padding: "1.2rem 1.5rem",
-                    fontSize: "1.1rem",
-                    border: "none",
-                    borderRadius: "50px",
-                    outline: "none",
                     boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     backgroundColor: "rgba(255,255,255,0.95)",
                     backdropFilter: "blur(10px)",
-                    color: "#333",
-                    cursor: "pointer",
                   }}
                 >
                   <option value="">Todas las categorías</option>
@@ -477,22 +451,15 @@ export default function HomeClean() {
               </div>
               
               {/* Filtro de ubicación */}
-              <div style={{ flex: 1 }}>
+              <div className="flex-1">
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
+                  className="w-full px-4 py-3 md:py-4 text-sm md:text-lg rounded-full border-none outline-none text-gray-700 cursor-pointer"
                   style={{
-                    width: "100%",
-                    padding: "1.2rem 1.5rem",
-                    fontSize: "1.1rem",
-                    border: "none",
-                    borderRadius: "50px",
-                    outline: "none",
                     boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     backgroundColor: "rgba(255,255,255,0.95)",
                     backdropFilter: "blur(10px)",
-                    color: "#333",
-                    cursor: "pointer",
                   }}
                 >
                   <option value="">Todas las ubicaciones</option>
@@ -511,29 +478,19 @@ export default function HomeClean() {
         <CategoriesSection />
       </div>
 
-      <div style={{ padding: "2rem", maxWidth: "1200px", margin: "0 auto" }}>
+      <div className="py-8 md:py-16 px-4 max-w-6xl mx-auto">
         {isLoading && (
-          <div style={{ textAlign: "center", padding: "3rem" }}>
-            <div
-              style={{
-                width: "50px",
-                height: "50px",
-                border: "3px solid #f3f3f3",
-                borderTop: "3px solid #667eea",
-                borderRadius: "50%",
-                animation: "spin 1s linear infinite",
-                margin: "0 auto 1rem",
-              }}
-            ></div>
-            <p style={{ color: "#666", fontSize: "1.1rem" }}>
+          <div className="text-center py-12">
+            <div className="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">
               Cargando empresas...
             </p>
           </div>
         )}
 
         {error && (
-          <div style={{ textAlign: "center", padding: "3rem" }}>
-            <p style={{ color: "#dc2626", fontSize: "1.1rem" }}>
+          <div className="text-center py-12">
+            <p className="text-red-600 text-lg">
               Error al cargar las empresas: {String(error)}
             </p>
           </div>
@@ -541,71 +498,30 @@ export default function HomeClean() {
 
         {!isLoading && !error && (
           <>
-            <h2
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: "bold",
-                marginBottom: "1rem",
-                textAlign: "center",
-                color: "#4a4a49",
-                fontFamily: "'Montserrat', sans-serif",
-                lineHeight: "1.2"
-              }}
-            >
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold mb-4 text-center text-gray-700 font-['Montserrat'] leading-tight">
               Encuentre Exactamente lo que Necesita para su Proyecto
             </h2>
             
-            <p style={{
-              fontSize: "1.1rem",
-              textAlign: "center",
-              color: "#6b7280",
-              marginBottom: "3rem",
-              maxWidth: "800px",
-              margin: "0 auto 3rem auto"
-            }}>
+            <p className="text-sm md:text-lg text-center text-gray-500 mb-8 md:mb-12 max-w-4xl mx-auto px-4">
               {searchTerm
                 ? `Resultados de búsqueda (${searchResults.length})`
                 : `Descubra ${companies.length} empresas líderes en diferentes sectores`}
             </p>
 
             {searchResults.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "3rem" }}>
-                <p style={{ color: "#666", fontSize: "1.2rem" }}>
+              <div className="text-center py-12">
+                <p className="text-gray-600 text-lg md:text-xl">
                   {searchTerm
                     ? "No se encontraron empresas que coincidan con tu búsqueda."
                     : "No hay empresas registradas."}
                 </p>
               </div>
             ) : (
-              <div style={{ position: "relative" }}>
+              <div className="relative">
                 {companies.length > 3 && (
                   <button
                     onClick={scrollLeft}
-                    style={{
-                      position: "absolute",
-                      left: "-20px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      zIndex: 10,
-                      backgroundColor: "white",
-                      border: "2px solid #e5e7eb",
-                      borderRadius: "50%",
-                      width: "50px",
-                      height: "50px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                      fontSize: "1.5rem",
-                      color: "#667eea",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#f3f4f6";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "white";
-                    }}
+                    className="hidden md:flex absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white border-2 border-gray-200 rounded-full w-12 h-12 items-center justify-center cursor-pointer shadow-lg text-xl text-blue-500 hover:bg-gray-50"
                   >
                     ‹
                   </button>
@@ -613,25 +529,16 @@ export default function HomeClean() {
 
                 <div
                   ref={sliderRef}
+                  className="flex gap-4 md:gap-6 overflow-x-auto scroll-smooth pb-4 scrollbar-hide px-0 md:px-5"
                   style={{
-                    display: "flex",
-                    gap: "1.5rem",
-                    overflowX: "auto",
-                    scrollBehavior: "smooth",
-                    paddingBottom: "1rem",
                     scrollbarWidth: "none",
                     msOverflowStyle: "none",
-                    padding: "0 20px",
                   }}
                 >
                   {searchResults.slice(0, 5).map((company: any) => (
                     <div
                       key={company.id}
-                      style={{
-                        minWidth: "220px",
-                        maxWidth: "220px",
-                        flexShrink: 0,
-                      }}
+                      className="min-w-[280px] md:min-w-[320px] lg:min-w-[280px] max-w-[280px] md:max-w-[320px] lg:max-w-[280px] flex-shrink-0"
                     >
                       <CompanyCard company={company} />
                     </div>
@@ -641,31 +548,7 @@ export default function HomeClean() {
                 {companies.length > 3 && (
                   <button
                     onClick={scrollRight}
-                    style={{
-                      position: "absolute",
-                      right: "-20px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      zIndex: 10,
-                      backgroundColor: "white",
-                      border: "2px solid #e5e7eb",
-                      borderRadius: "50%",
-                      width: "50px",
-                      height: "50px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      cursor: "pointer",
-                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                      fontSize: "1.5rem",
-                      color: "#667eea",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#f3f4f6";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "white";
-                    }}
+                    className="hidden md:flex absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white border-2 border-gray-200 rounded-full w-12 h-12 items-center justify-center cursor-pointer shadow-lg text-xl text-blue-500 hover:bg-gray-50"
                   >
                     ›
                   </button>
@@ -677,27 +560,13 @@ export default function HomeClean() {
       </div>
 
       {/* Nueva sección: Empresas líderes por categoría */}
-      <div style={{ padding: "4rem 2rem", backgroundColor: "#f8fafc" }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-          <h2 style={{
-            fontSize: "2rem",
-            fontWeight: "bold",
-            marginBottom: "1rem",
-            textAlign: "center",
-            color: "#0f2161",
-            fontFamily: "'Montserrat', sans-serif"
-          }}>
+      <div className="py-8 md:py-16 px-4 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-center text-[#0f2161] font-['Montserrat']">
             Empresas líderes en las que puede confiar
           </h2>
           
-          <p style={{
-            fontSize: "1.1rem",
-            textAlign: "center",
-            color: "#6b7280",
-            marginBottom: "3rem",
-            maxWidth: "800px",
-            margin: "0 auto 3rem auto"
-          }}>
+          <p className="text-sm md:text-lg text-center text-gray-500 mb-8 md:mb-12 max-w-4xl mx-auto px-4">
             Descubra empresas mejor valoradas, soluciones innovadoras y proyectos inspiradores. 
             Haga clic para explorar sus perfiles y conectarse directamente.
           </p>
