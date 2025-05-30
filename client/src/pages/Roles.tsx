@@ -257,9 +257,11 @@ export default function Roles() {
                     <FormItem>
                       <FormLabel>Descripción</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          placeholder="Describe las responsabilidades de este rol..." 
-                          {...field} 
+                        <RichTextEditor
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          placeholder="Describe las responsabilidades de este rol..."
+                          height={150}
                         />
                       </FormControl>
                       <FormMessage />
@@ -447,9 +449,11 @@ export default function Roles() {
                   <FormItem>
                     <FormLabel>Descripción</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Describe las responsabilidades de este rol..." 
-                        {...field} 
+                      <RichTextEditor
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        placeholder="Describe las responsabilidades de este rol..."
+                        height={150}
                       />
                     </FormControl>
                     <FormMessage />
