@@ -92,6 +92,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const limitNum = parseInt(limit as string);
       const offset = (pageNum - 1) * limitNum;
 
+      console.log("Fetching companies with params:", { search, categoryId, membershipTypeId, estado, pageNum, limitNum, offset });
+
       const result = await storage.getAllCompanies({
         search: search as string,
         categoryId: categoryId ? parseInt(categoryId as string) : undefined,
@@ -101,6 +103,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         offset
       });
 
+      console.log("Companies result:", result);
+
       res.json({
         companies: result.companies,
         total: result.total,
@@ -108,7 +112,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalPages: Math.ceil(result.total / limitNum)
       });
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch companies" });
+      console.error("Error fetching companies:", error);
+      res.status(500).json({ error: "Failed to fetch companies", details: error.message });
     }
   });
 
