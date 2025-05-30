@@ -77,7 +77,113 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<{[ciudad: string]: string}>({});
   const [ubicacionesPorCiudad, setUbicacionesPorCiudad] = useState<{[ciudad: string]: { lat: number; lng: number; address: string }}>({});
   const [galeriaImagenes, setGaleriaImagenes] = useState<string[]>([]);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [catalogoFile, setCatalogoFile] = useState<File | null>(null);
+  const [galeriaFiles, setGaleriaFiles] = useState<File[]>([]);
   const { toast } = useToast();
+
+  // Funciones de validación de imágenes
+  const validateImage = (file: File): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "La imagen no debe pesar más de 5MB",
+          variant: "destructive",
+        });
+        resolve(false);
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Solo se permiten archivos de imagen",
+          variant: "destructive",
+        });
+        resolve(false);
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        if (img.width < 800 || img.height < 800) {
+          toast({
+            title: "Advertencia",
+            description: "Se recomienda que la imagen tenga al menos 800x800 píxeles para mejor calidad",
+            variant: "default",
+          });
+        }
+        resolve(true);
+      };
+      img.onerror = () => {
+        toast({
+          title: "Error",
+          description: "El archivo no es una imagen válida",
+          variant: "destructive",
+        });
+        resolve(false);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const processImageToSquare = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        const size = Math.min(img.width, img.height);
+        canvas.width = size;
+        canvas.height = size;
+        
+        const offsetX = (img.width - size) / 2;
+        const offsetY = (img.height - size) / 2;
+        
+        ctx?.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.readAsDataURL(blob);
+          }
+        }, 'image/jpeg', 0.8);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleLogoChange = async (file: File) => {
+    const isValid = await validateImage(file);
+    if (isValid) {
+      setLogoFile(file);
+      const imageUrl = await processImageToSquare(file);
+      form.setValue("logotipoUrl", imageUrl);
+    }
+  };
+
+  const handleGaleriaChange = async (files: FileList) => {
+    const validFiles: File[] = [];
+    const imageUrls: string[] = [];
+    
+    for (let i = 0; i < Math.min(files.length, 10 - galeriaFiles.length); i++) {
+      const file = files[i];
+      const isValid = await validateImage(file);
+      if (isValid) {
+        validFiles.push(file);
+        const imageUrl = URL.createObjectURL(file);
+        imageUrls.push(imageUrl);
+      }
+    }
+    
+    setGaleriaFiles([...galeriaFiles, ...validFiles]);
+    setGaleriaImagenes([...galeriaImagenes, ...imageUrls]);
+    form.setValue("galeriaProductosUrls", [...galeriaImagenes, ...imageUrls]);
+  };
 
   // Plataformas de redes sociales disponibles
   const socialPlatforms = [
@@ -344,19 +450,88 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
 
 
 
-                {/* Logotipo URL */}
+                {/* Logotipo */}
                 <FormField
                   control={form.control}
                   name="logotipoUrl"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-2">
                       <FormLabel className="flex items-center gap-2">
                         <Image className="h-4 w-4" />
-                        URL del Logotipo
+                        Logotipo de la Empresa
                       </FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://ejemplo.com/logo.png" {...field} />
-                      </FormControl>
+                      <div className="space-y-4">
+                        {/* Vista previa del logotipo actual */}
+                        {field.value && (
+                          <div className="flex items-center gap-4 p-4 border rounded-lg bg-gray-50">
+                            <img 
+                              src={field.value} 
+                              alt="Logotipo actual" 
+                              className="w-16 h-16 object-cover rounded-lg border"
+                            />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium">Logotipo actual</p>
+                              <p className="text-xs text-gray-500">Arrastra una nueva imagen o usa la URL para cambiar</p>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Zona de drag and drop */}
+                        <div
+                          className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.currentTarget.classList.add('border-blue-400', 'bg-blue-50');
+                          }}
+                          onDragLeave={(e) => {
+                            e.currentTarget.classList.remove('border-blue-400', 'bg-blue-50');
+                          }}
+                          onDrop={async (e) => {
+                            e.preventDefault();
+                            e.currentTarget.classList.remove('border-blue-400', 'bg-blue-50');
+                            const files = e.dataTransfer.files;
+                            if (files.length > 0) {
+                              await handleLogoChange(files[0]);
+                            }
+                          }}
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*';
+                            input.onchange = async (e) => {
+                              const files = (e.target as HTMLInputElement).files;
+                              if (files && files[0]) {
+                                await handleLogoChange(files[0]);
+                              }
+                            };
+                            input.click();
+                          }}
+                        >
+                          <Image className="mx-auto h-12 w-12 text-gray-400" />
+                          <p className="mt-2 text-sm text-gray-600">
+                            <span className="font-medium">Clic para subir</span> o arrastra y suelta
+                          </p>
+                          <p className="text-xs text-gray-500">PNG, JPG hasta 5MB (recomendado: 800x800px)</p>
+                        </div>
+                        
+                        {/* Campo de URL alternativo */}
+                        <div className="space-y-2">
+                          <FormLabel className="text-sm text-gray-600">O ingresa una URL:</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="https://ejemplo.com/logo.png" 
+                              {...field}
+                              onChange={(e) => {
+                                field.onChange(e);
+                                if (e.target.value && !logoFile) {
+                                  // Si se ingresa una URL, limpiar el archivo subido
+                                  setLogoFile(null);
+                                }
+                              }}
+                            />
+                          </FormControl>
+                        </div>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -458,52 +633,129 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                     <FormItem className="md:col-span-2">
                       <FormLabel className="flex items-center gap-2">
                         <Image className="h-4 w-4" />
-                        Galería de Productos (URLs de imágenes)
+                        Galería de Productos ({galeriaImagenes.length}/10)
                       </FormLabel>
-                      <div className="space-y-3">
-                        {galeriaImagenes.map((imagen, index) => (
-                          <div key={index} className="flex gap-3 items-start">
-                            <Input
-                              placeholder="https://ejemplo.com/imagen.jpg"
-                              value={imagen}
-                              onChange={(e) => {
-                                const newGaleria = [...galeriaImagenes];
-                                newGaleria[index] = e.target.value;
-                                setGaleriaImagenes(newGaleria);
-                                field.onChange(newGaleria);
-                              }}
-                              className="flex-1"
-                            />
+                      <div className="space-y-4">
+                        {/* Vista previa de imágenes actuales */}
+                        {galeriaImagenes.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {galeriaImagenes.map((imagen, index) => (
+                              <div key={index} className="relative group">
+                                <img 
+                                  src={imagen} 
+                                  alt={`Producto ${index + 1}`}
+                                  className="w-full h-24 object-cover rounded-lg border"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="sm"
+                                  className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => {
+                                    const newGaleria = galeriaImagenes.filter((_, i) => i !== index);
+                                    const newFiles = galeriaFiles.filter((_, i) => i !== index);
+                                    setGaleriaImagenes(newGaleria);
+                                    setGaleriaFiles(newFiles);
+                                    field.onChange(newGaleria);
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Zona de drag and drop para múltiples imágenes */}
+                        {galeriaImagenes.length < 10 && (
+                          <div
+                            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors cursor-pointer"
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              e.currentTarget.classList.add('border-blue-400', 'bg-blue-50');
+                            }}
+                            onDragLeave={(e) => {
+                              e.currentTarget.classList.remove('border-blue-400', 'bg-blue-50');
+                            }}
+                            onDrop={async (e) => {
+                              e.preventDefault();
+                              e.currentTarget.classList.remove('border-blue-400', 'bg-blue-50');
+                              const files = e.dataTransfer.files;
+                              if (files.length > 0) {
+                                await handleGaleriaChange(files);
+                              }
+                            }}
+                            onClick={() => {
+                              const input = document.createElement('input');
+                              input.type = 'file';
+                              input.accept = 'image/*';
+                              input.multiple = true;
+                              input.onchange = async (e) => {
+                                const files = (e.target as HTMLInputElement).files;
+                                if (files) {
+                                  await handleGaleriaChange(files);
+                                }
+                              };
+                              input.click();
+                            }}
+                          >
+                            <Image className="mx-auto h-12 w-12 text-gray-400" />
+                            <p className="mt-2 text-sm text-gray-600">
+                              <span className="font-medium">Clic para subir</span> o arrastra y suelta múltiples imágenes
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              PNG, JPG hasta 5MB cada una. Máximo {10 - galeriaImagenes.length} imágenes más.
+                            </p>
+                          </div>
+                        )}
+                        
+                        {/* Campos manuales para URLs */}
+                        <div className="space-y-3">
+                          <FormLabel className="text-sm text-gray-600">O agrega URLs manualmente:</FormLabel>
+                          {galeriaImagenes.map((imagen, index) => (
+                            <div key={index} className="flex gap-3 items-start">
+                              <Input
+                                placeholder="https://ejemplo.com/imagen.jpg"
+                                value={imagen}
+                                onChange={(e) => {
+                                  const newGaleria = [...galeriaImagenes];
+                                  newGaleria[index] = e.target.value;
+                                  setGaleriaImagenes(newGaleria);
+                                  field.onChange(newGaleria);
+                                }}
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const newGaleria = galeriaImagenes.filter((_, i) => i !== index);
+                                  setGaleriaImagenes(newGaleria);
+                                  field.onChange(newGaleria);
+                                }}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
+                          {galeriaImagenes.length < 10 && (
                             <Button
                               type="button"
                               variant="outline"
-                              size="sm"
                               onClick={() => {
-                                const newGaleria = galeriaImagenes.filter((_, i) => i !== index);
+                                const newGaleria = [...galeriaImagenes, ""];
                                 setGaleriaImagenes(newGaleria);
                                 field.onChange(newGaleria);
                               }}
-                              className="text-red-600 hover:text-red-700"
+                              className="flex items-center gap-2"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Plus className="h-4 w-4" />
+                              Agregar URL
                             </Button>
-                          </div>
-                        ))}
-                        {galeriaImagenes.length < 10 && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              const newGaleria = [...galeriaImagenes, ""];
-                              setGaleriaImagenes(newGaleria);
-                              field.onChange(newGaleria);
-                            }}
-                            className="flex items-center gap-2"
-                          >
-                            <Plus className="h-4 w-4" />
-                            Agregar Imagen
-                          </Button>
-                        )}
+                          )}
+                        </div>
                       </div>
                       <FormMessage />
                     </FormItem>
