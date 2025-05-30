@@ -581,10 +581,11 @@ export default function Memberships() {
                   <FormItem>
                     <FormLabel>Descripción del Plan</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <RichTextEditor
+                        value={field.value || ""}
+                        onChange={field.onChange}
                         placeholder="Descripción breve del plan de membresía..."
-                        rows={3}
-                        {...field} 
+                        height={120}
                       />
                     </FormControl>
                     <FormMessage />
@@ -597,12 +598,13 @@ export default function Memberships() {
                 name="beneficios"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Beneficios (uno por línea)</FormLabel>
+                    <FormLabel>Beneficios</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Perfil básico&#10;Contacto directo&#10;Listado en directorio"
-                        rows={5}
-                        {...field} 
+                      <RichTextEditor
+                        value={field.value || ""}
+                        onChange={field.onChange}
+                        placeholder="Describe los beneficios del plan de membresía..."
+                        height={150}
                       />
                     </FormControl>
                     <FormMessage />
