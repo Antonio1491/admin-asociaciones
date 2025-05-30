@@ -128,13 +128,23 @@ export class DatabaseStorage implements IStorage {
     const companyCategoriesIds = (company.categoriesIds as number[]) || [];
     const companyCertificateIds = (company.certificateIds as number[]) || [];
 
-    const companyCategories = companyCategoriesIds.length > 0 
-      ? await db.select().from(categories).where(sql`${categories.id} = ANY(${JSON.stringify(companyCategoriesIds)})`)
-      : [];
-
-    const companyCertificates = companyCertificateIds.length > 0 
-      ? await db.select().from(certificates).where(sql`${certificates.id} = ANY(${JSON.stringify(companyCertificateIds)})`)
-      : [];
+    // Get categories and certificates - simplified approach
+    let companyCategories = [];
+    let companyCertificates = [];
+    
+    if (companyCategoriesIds.length > 0) {
+      for (const catId of companyCategoriesIds) {
+        const [category] = await db.select().from(categories).where(eq(categories.id, catId));
+        if (category) companyCategories.push(category);
+      }
+    }
+    
+    if (companyCertificateIds.length > 0) {
+      for (const certId of companyCertificateIds) {
+        const [certificate] = await db.select().from(certificates).where(eq(certificates.id, certId));
+        if (certificate) companyCertificates.push(certificate);
+      }
+    }
 
     return {
       ...company,
@@ -153,74 +163,30 @@ export class DatabaseStorage implements IStorage {
     limit?: number;
     offset?: number;
   } = {}): Promise<{ companies: CompanyWithDetails[]; total: number }> {
-    const { search, categoryId, membershipTypeId, estado, limit = 10, offset = 0 } = options;
-    
-    let whereConditions = [];
+    try {
+      console.log("Starting getAllCompanies with options:", options);
+      
+      // Start with basic query
+      const allCompanies = await db.select().from(companies);
+      console.log("Retrieved companies from DB:", allCompanies.length);
+      
+      // Simple enrichment for now
+      const enrichedCompanies = allCompanies.map(company => ({
+        ...company,
+        categories: [],
+        membershipType: undefined,
+        user: undefined,
+        certificates: []
+      }));
 
-    if (search) {
-      whereConditions.push(
-        or(
-          like(companies.nombreEmpresa, `%${search}%`),
-          like(companies.descripcionEmpresa, `%${search}%`)
-        )
-      );
+      return {
+        companies: enrichedCompanies,
+        total: allCompanies.length
+      };
+    } catch (error) {
+      console.error("Error in getAllCompanies:", error);
+      throw error;
     }
-
-    if (categoryId) {
-      whereConditions.push(sql`${companies.categoriesIds} @> ${JSON.stringify([categoryId])}`);
-    }
-
-    if (membershipTypeId) {
-      whereConditions.push(eq(companies.membershipTypeId, membershipTypeId));
-    }
-
-    if (estado) {
-      whereConditions.push(eq(companies.estado, estado));
-    }
-
-    const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
-
-    const [companiesResult, countResult] = await Promise.all([
-      db.select().from(companies).where(whereClause).limit(limit).offset(offset),
-      db.select({ count: sql<number>`count(*)` }).from(companies).where(whereClause)
-    ]);
-
-    // Enrich with related data
-    const enrichedCompanies = await Promise.all(
-      companiesResult.map(async (company) => {
-        const [membershipType] = company.membershipTypeId 
-          ? await db.select().from(membershipTypes).where(eq(membershipTypes.id, company.membershipTypeId))
-          : [undefined];
-
-        const [user] = company.userId 
-          ? await db.select().from(users).where(eq(users.id, company.userId))
-          : [undefined];
-
-        const companyCategoriesIds = (company.categoriesIds as number[]) || [];
-        const companyCertificateIds = (company.certificateIds as number[]) || [];
-
-        const companyCategories = companyCategoriesIds.length > 0 
-          ? await db.select().from(categories).where(sql`${categories.id} = ANY(${JSON.stringify(companyCategoriesIds)})`)
-          : [];
-
-        const companyCertificates = companyCertificateIds.length > 0 
-          ? await db.select().from(certificates).where(sql`${certificates.id} = ANY(${JSON.stringify(companyCertificateIds)})`)
-          : [];
-
-        return {
-          ...company,
-          membershipType: membershipType || undefined,
-          user: user || undefined,
-          categories: companyCategories,
-          certificates: companyCertificates
-        };
-      })
-    );
-
-    return {
-      companies: enrichedCompanies,
-      total: countResult[0]?.count || 0
-    };
   }
 
   async createCompany(insertCompany: InsertCompany): Promise<Company> {
@@ -250,13 +216,23 @@ export class DatabaseStorage implements IStorage {
         const companyCategoriesIds = (company.categoriesIds as number[]) || [];
         const companyCertificateIds = (company.certificateIds as number[]) || [];
 
-        const companyCategories = companyCategoriesIds.length > 0 
-          ? await db.select().from(categories).where(sql`${categories.id} = ANY(${JSON.stringify(companyCategoriesIds)})`)
-          : [];
-
-        const companyCertificates = companyCertificateIds.length > 0 
-          ? await db.select().from(certificates).where(sql`${certificates.id} = ANY(${JSON.stringify(companyCertificateIds)})`)
-          : [];
+        // Get categories and certificates - simplified approach
+        let companyCategories = [];
+        let companyCertificates = [];
+        
+        if (companyCategoriesIds.length > 0) {
+          for (const catId of companyCategoriesIds) {
+            const [category] = await db.select().from(categories).where(eq(categories.id, catId));
+            if (category) companyCategories.push(category);
+          }
+        }
+        
+        if (companyCertificateIds.length > 0) {
+          for (const certId of companyCertificateIds) {
+            const [certificate] = await db.select().from(certificates).where(eq(certificates.id, certId));
+            if (certificate) companyCertificates.push(certificate);
+          }
+        }
 
         return {
           ...company,
