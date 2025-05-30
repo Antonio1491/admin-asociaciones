@@ -82,77 +82,40 @@ function CategoriesSection() {
       
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {categories.map((category) => (
-          <CategoryCard key={category.id} category={category} />
+          <div 
+            key={category.id}
+            className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group bg-white rounded-lg border p-6 text-center" 
+            onClick={() => window.location.href = `/directorio?categoryId=${category.id}`}
+          >
+            <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300">
+              {category.iconoUrl && category.iconoUrl.startsWith('data:image/') ? (
+                <img 
+                  src={category.iconoUrl} 
+                  alt={category.nombreCategoria}
+                  className="w-10 h-10 object-contain"
+                  style={{ filter: 'brightness(0) invert(1)' }}
+                />
+              ) : (
+                <Tag className="h-8 w-8 text-white" />
+              )}
+            </div>
+            <h3 className="font-semibold text-lg mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
+              {category.nombreCategoria}
+            </h3>
+            {category.descripcion && category.descripcion.trim() !== '' && (
+              <div 
+                className="text-sm text-gray-600 line-clamp-2"
+                dangerouslySetInnerHTML={{ __html: category.descripcion }}
+              />
+            )}
+          </div>
         ))}
       </div>
     </div>
   );
 }
 
-// Función para obtener el ícono de una categoría
-function getCategoryIcon(iconName: string) {
-  const iconMap = {
-    'Building': Building,
-    'Truck': Truck,
-    'Zap': Zap,
-    'TreePine': TreePine,
-    'Wrench': Wrench,
-    'Shield': Shield,
-    'Home': HomeIcon,
-    'Users': Users,
-    'Package': Package,
-    'Settings': Settings,
-    'Tag': Tag,
-    'Tags': Tag, // Support both Tag and Tags
-  };
-  
-  return iconMap[iconName as keyof typeof iconMap] || Tag;
-}
 
-function CategoryCard({ category }: { category: Category }) {
-  const IconComponent = getCategoryIcon(category.icono || 'Tag');
-  
-  const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.location.href = `/directorio?categoryId=${category.id}`;
-  };
-  
-  // Verificar si tiene icono personalizado válido
-  const hasCustomIcon = !!(category.iconoUrl && 
-                          category.iconoUrl.trim() !== '' && 
-                          category.iconoUrl.startsWith('data:image/'));
-  
-  return (
-    <Card 
-      className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group bg-white" 
-      onClick={handleClick}
-    >
-      <CardContent className="p-6 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300">
-          {hasCustomIcon ? (
-            <img 
-              src={category.iconoUrl || ''} 
-              alt={category.nombreCategoria}
-              className="w-10 h-10 object-contain"
-              style={{ filter: 'brightness(0) invert(1)' }}
-            />
-          ) : (
-            <IconComponent className="h-8 w-8 text-white" />
-          )}
-        </div>
-        <h3 className="font-semibold text-lg mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
-          {category.nombreCategoria}
-        </h3>
-        {category.descripcion && category.descripcion.trim() !== '' && (
-          <div 
-            className="text-sm text-gray-600 line-clamp-2"
-            dangerouslySetInnerHTML={{ __html: category.descripcion }}
-          />
-        )}
-      </CardContent>
-    </Card>
-  );
-}
 
 function CompaniesSection() {
   const { data: companiesResponse, isLoading, error } = useQuery({
