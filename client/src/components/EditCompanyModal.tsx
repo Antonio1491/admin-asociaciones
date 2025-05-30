@@ -45,8 +45,11 @@ const companySchema = z.object({
   logotipoUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
   videoUrl1: z.string().url("URL inválida").optional().or(z.literal("")),
+  videoUrl2: z.string().url("URL inválida").optional().or(z.literal("")),
+  videoUrl3: z.string().url("URL inválida").optional().or(z.literal("")),
   catalogoDigitalUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   direccionFisica: z.string().optional(),
+  galeriaProductosUrls: z.array(z.string().url()).optional(),
   paisesPresencia: z.array(z.string()).min(1, "Selecciona al menos un país"),
   estadosPresencia: z.array(z.string()).min(1, "Selecciona al menos un estado"),
   ciudadesPresencia: z.array(z.string()).min(1, "Selecciona al menos una ciudad"),
@@ -73,6 +76,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   const [representantes, setRepresentantes] = useState<string[]>([]);
   const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<{[ciudad: string]: string}>({});
   const [ubicacionesPorCiudad, setUbicacionesPorCiudad] = useState<{[ciudad: string]: { lat: number; lng: number; address: string }}>({});
+  const [galeriaImagenes, setGaleriaImagenes] = useState<string[]>([]);
   const { toast } = useToast();
 
   // Plataformas de redes sociales disponibles
@@ -132,6 +136,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       setTelefonosAdicionales([]);
       setRepresentantes((company.representantesVentas as string[]) || []);
       setDireccionesPorCiudad({});
+      setGaleriaImagenes((company.galeriaProductosUrls as string[]) || []);
 
       // Cargar datos en el formulario
       form.reset({
@@ -377,7 +382,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   )}
                 />
 
-                {/* Video URL */}
+                {/* Videos Promocionales */}
                 <FormField
                   control={form.control}
                   name="videoUrl1"
@@ -385,7 +390,41 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
                         <Video className="h-4 w-4" />
-                        Video Promocional
+                        Video Promocional 1
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://youtube.com/watch?v=..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="videoUrl2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Video className="h-4 w-4" />
+                        Video Promocional 2
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://youtube.com/watch?v=..." {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="videoUrl3"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Video className="h-4 w-4" />
+                        Video Promocional 3
                       </FormLabel>
                       <FormControl>
                         <Input placeholder="https://youtube.com/watch?v=..." {...field} />
@@ -408,6 +447,66 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                       <FormControl>
                         <Input placeholder="https://ejemplo.com/catalogo.pdf" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Galería de Productos */}
+                <FormField
+                  control={form.control}
+                  name="galeriaProductosUrls"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel className="flex items-center gap-2">
+                        <Image className="h-4 w-4" />
+                        Galería de Productos (URLs de imágenes)
+                      </FormLabel>
+                      <div className="space-y-3">
+                        {galeriaImagenes.map((imagen, index) => (
+                          <div key={index} className="flex gap-3 items-start">
+                            <Input
+                              placeholder="https://ejemplo.com/imagen.jpg"
+                              value={imagen}
+                              onChange={(e) => {
+                                const newGaleria = [...galeriaImagenes];
+                                newGaleria[index] = e.target.value;
+                                setGaleriaImagenes(newGaleria);
+                                field.onChange(newGaleria);
+                              }}
+                              className="flex-1"
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                const newGaleria = galeriaImagenes.filter((_, i) => i !== index);
+                                setGaleriaImagenes(newGaleria);
+                                field.onChange(newGaleria);
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {galeriaImagenes.length < 10 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              const newGaleria = [...galeriaImagenes, ""];
+                              setGaleriaImagenes(newGaleria);
+                              field.onChange(newGaleria);
+                            }}
+                            className="flex items-center gap-2"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Agregar Imagen
+                          </Button>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -469,6 +568,45 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                               className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                             >
                               {category.nombreCategoria}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Certificados */}
+                <FormField
+                  control={form.control}
+                  name="certificateIds"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Award className="h-4 w-4" />
+                        Certificados
+                      </FormLabel>
+                      <div className="grid grid-cols-1 gap-3 mt-2">
+                        {certificates.map((certificate) => (
+                          <div key={certificate.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`certificate-${certificate.id}`}
+                              checked={field.value?.includes(certificate.id) || false}
+                              onCheckedChange={(checked) => {
+                                const currentValues = field.value || [];
+                                if (checked) {
+                                  field.onChange([...currentValues, certificate.id]);
+                                } else {
+                                  field.onChange(currentValues.filter(id => id !== certificate.id));
+                                }
+                              }}
+                            />
+                            <label
+                              htmlFor={`certificate-${certificate.id}`}
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                            >
+                              {certificate.nombreCertificado}
                             </label>
                           </div>
                         ))}
