@@ -12,6 +12,8 @@ import Categories from "@/pages/Categories";
 import Memberships from "@/pages/Memberships";
 import Users from "@/pages/Users";
 import Certificates from "@/pages/Certificates";
+import Roles from "@/pages/Roles";
+import Opinions from "@/pages/Opinions";
 import Login from "@/pages/Login";
 import HomeClean from "@/pages/HomeClean";
 import CompanyDetails from "@/pages/CompanyDetails";
@@ -96,6 +98,22 @@ function Router() {
         <ProtectedRoute>
           <AppLayout>
             <Certificates />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/roles">
+        <ProtectedRoute requireAdmin>
+          <AppLayout>
+            <Roles />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/opiniones">
+        <ProtectedRoute requireAdmin>
+          <AppLayout>
+            <Opinions />
           </AppLayout>
         </ProtectedRoute>
       </Route>

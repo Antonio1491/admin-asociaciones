@@ -13,7 +13,9 @@ import {
   LogOut,
   User,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Shield,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,6 +65,18 @@ const navigationItems = [
     name: "Gestión de Usuarios",
     href: "/usuarios",
     icon: Users,
+    requireAdmin: true,
+  },
+  {
+    name: "Roles del Sistema",
+    href: "/roles",
+    icon: Shield,
+    requireAdmin: true,
+  },
+  {
+    name: "Gestión de Opiniones",
+    href: "/opiniones",
+    icon: MessageSquare,
     requireAdmin: true,
   },
   {
