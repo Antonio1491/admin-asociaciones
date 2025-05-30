@@ -118,7 +118,11 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       // Resetear estados
       setSelectedEstados(company.estadosPresencia || []);
       setSelectedCiudades(company.ciudadesPresencia || []);
-      setRedesSociales(company.redesSociales || []);
+      // Convertir objeto redesSociales a array para el formulario
+      const redesSocialesArray = company.redesSociales ? 
+        Object.entries(company.redesSociales).map(([plataforma, url]) => ({ plataforma, url })) : 
+        [];
+      setRedesSociales(redesSocialesArray);
       setEmailsAdicionales([]);
       setTelefonosAdicionales([]);
       setRepresentantes(company.representantesVentas || []);
