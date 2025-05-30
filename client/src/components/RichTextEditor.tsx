@@ -5,9 +5,6 @@ import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
 import Color from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
-import ListItem from '@tiptap/extension-list-item'
-import BulletList from '@tiptap/extension-bullet-list'
-import OrderedList from '@tiptap/extension-ordered-list'
 import { Button } from '@/components/ui/button'
 import { 
   Bold, 
@@ -55,9 +52,6 @@ export default function RichTextEditor({
       }),
       Color,
       TextStyle,
-      ListItem,
-      BulletList,
-      OrderedList,
     ],
     content: value,
     onUpdate: ({ editor }) => {
