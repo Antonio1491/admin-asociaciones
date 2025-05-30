@@ -30,7 +30,6 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 interface CategoryDataTableProps {
   categories: Category[];
   onEdit: (category: Category) => void;
-  onView: (category: Category) => void;
 }
 
 // Map of icon names to components
@@ -40,7 +39,7 @@ const iconMap = {
   Gamepad2, Book, Palette, MapPin, Plane, Ship, Train, Zap
 };
 
-export default function CategoryDataTable({ categories, onEdit, onView }: CategoryDataTableProps) {
+export default function CategoryDataTable({ categories, onEdit }: CategoryDataTableProps) {
   const { toast } = useToast();
 
   // Function to render the correct icon
@@ -162,10 +161,6 @@ export default function CategoryDataTable({ categories, onEdit, onView }: Catego
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onView(category)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            Ver detalles
-                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onEdit(category)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Editar

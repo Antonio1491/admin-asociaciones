@@ -736,7 +736,6 @@ export default function Categories() {
         <CategoryDataTable 
           categories={categories} 
           onEdit={handleEdit}
-          onView={handleView}
         />
       ) : (
         <Card>
