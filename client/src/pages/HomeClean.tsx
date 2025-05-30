@@ -572,67 +572,28 @@ export default function HomeClean() {
           </p>
 
           {/* Slider de empresas por categoría */}
-          <div style={{ position: "relative" }}>
-            {/* Botones de navegación */}
+          <div className="relative">
+            {/* Botones de navegación - ocultos en móvil */}
             <button
               onClick={scrollCategoryLeft}
-              style={{
-                position: "absolute",
-                left: "-10px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                backgroundColor: "white",
-                border: "2px solid #e5e7eb",
-                borderRadius: "50%",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                zIndex: 10,
-                color: "#0f2161"
-              }}
+              className="hidden md:flex absolute left-0 top-1/2 transform -translate-y-1/2 bg-white border-2 border-gray-200 rounded-full w-10 h-10 items-center justify-center cursor-pointer shadow-lg z-10 text-[#0f2161] hover:bg-gray-50"
             >
               ‹
             </button>
 
             <button
               onClick={scrollCategoryRight}
-              style={{
-                position: "absolute",
-                right: "-10px",
-                top: "50%",
-                transform: "translateY(-50%)",
-                backgroundColor: "white",
-                border: "2px solid #e5e7eb",
-                borderRadius: "50%",
-                width: "40px",
-                height: "40px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                zIndex: 10,
-                color: "#0f2161"
-              }}
+              className="hidden md:flex absolute right-0 top-1/2 transform -translate-y-1/2 bg-white border-2 border-gray-200 rounded-full w-10 h-10 items-center justify-center cursor-pointer shadow-lg z-10 text-[#0f2161] hover:bg-gray-50"
             >
               ›
             </button>
 
             <div 
               ref={categorySliderRef}
+              className="flex gap-4 md:gap-8 overflow-x-auto scroll-smooth pb-4 px-0 md:px-5"
               style={{
-                display: "flex",
-                gap: "2rem",
-                overflowX: "auto",
-                scrollBehavior: "smooth",
-                paddingBottom: "1rem",
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
-                padding: "0 20px",
                 WebkitOverflowScrolling: "touch"
               }}>
               {categories.map((category: any) => {
@@ -644,19 +605,8 @@ export default function HomeClean() {
                 if (!categoryCompany) return null;
                 
                 return (
-                  <div key={category.id} style={{ 
-                    minWidth: "600px", 
-                    maxWidth: "600px",
-                    flexShrink: 0 
-                  }}>
-                    <div style={{
-                      backgroundColor: "white",
-                      borderRadius: "12px",
-                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                      overflow: "hidden",
-                      display: "flex",
-                      height: "300px"
-                    }}>
+                  <div key={category.id} className="min-w-[320px] md:min-w-[500px] lg:min-w-[600px] max-w-[320px] md:max-w-[500px] lg:max-w-[600px] flex-shrink-0">
+                    <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row h-auto md:h-72">
                       {/* Imagen del producto */}
                       <div style={{
                         width: "50%",

@@ -127,6 +127,93 @@
   display: none;
 }
 
+/* Responsive utilities */
+@media (max-width: 640px) {
+  .text-responsive {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .heading-responsive {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .subheading-responsive {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .text-responsive {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  
+  .heading-responsive {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+  
+  .subheading-responsive {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* Mobile-first card layouts */
+.card-grid-responsive {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .card-grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .card-grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Touch-friendly buttons */
+@media (max-width: 768px) {
+  .btn-touch {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem 1rem;
+  }
+  
+  .nav-touch {
+    padding: 1rem 0.75rem;
+  }
+}
+
+/* Responsive table wrapper */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .table-responsive table {
+    min-width: 600px;
+  }
+}
+
 
 
 
