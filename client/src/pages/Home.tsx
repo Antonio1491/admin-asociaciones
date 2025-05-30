@@ -111,14 +111,25 @@ function CategoryCard({ category }: { category: Category }) {
     setLocation(`/directorio?categoryId=${category.id}`);
   };
   
+  // Si tiene iconoUrl (icono personalizado), mostrarlo en lugar del icono de Lucide
+  const hasCustomIcon = category.iconoUrl && category.iconoUrl.trim() !== '';
+  
   return (
     <Card 
       className="hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer group" 
       onClick={handleClick}
     >
       <CardContent className="p-6 text-center">
-        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300">
-          <IconComponent className="h-8 w-8 text-white" />
+        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center group-hover:from-indigo-600 group-hover:to-blue-700 transition-all duration-300 overflow-hidden">
+          {hasCustomIcon ? (
+            <img 
+              src={category.iconoUrl} 
+              alt={category.nombreCategoria}
+              className="w-10 h-10 object-contain"
+            />
+          ) : (
+            <IconComponent className="h-8 w-8 text-white" />
+          )}
         </div>
         <h3 className="font-semibold text-lg mb-2 text-gray-800 group-hover:text-blue-600 transition-colors">
           {category.nombreCategoria}
