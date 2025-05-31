@@ -438,11 +438,9 @@ export default function HomeClean() {
                 msOverflowStyle: "none",
                 WebkitOverflowScrolling: "touch"
               }}>
-              {categories.map((category: any) => {
-                // Buscar una empresa de esta categoría
-                const categoryCompany = companies.find((company: any) => 
-                  company.categoriesIds && company.categoriesIds.includes(category.id)
-                );
+              {categories.slice(0, 6).map((category: any, index: number) => {
+                // Asignar una empresa aleatoria de la lista para mostrar variedad
+                const categoryCompany = companies[index % companies.length];
                 
                 if (!categoryCompany) return null;
                 
