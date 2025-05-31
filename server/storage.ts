@@ -6,6 +6,7 @@ import {
   certificates,
   roles,
   opinions,
+  membershipPayments,
   type User, 
   type Company, 
   type Category, 
@@ -20,6 +21,8 @@ import {
   type InsertCertificate,
   type InsertRole,
   type InsertOpinion,
+  type MembershipPayment,
+  type InsertMembershipPayment,
   type CompanyWithDetails
 } from "@shared/schema";
 import { db } from "./db";
@@ -555,13 +558,59 @@ export class DatabaseStorage implements IStorage {
   }> {
     const [companiesCount] = await db.select({ count: sql<number>`count(*)` }).from(companies);
     const [usersCount] = await db.select({ count: sql<number>`count(*)` }).from(users);
+    const [revenueResult] = await db.select({ total: sql<number>`COALESCE(SUM(amount), 0)` }).from(membershipPayments)
+      .where(eq(membershipPayments.status, 'succeeded'));
     
     return {
       totalCompanies: companiesCount?.count || 0,
       activeUsers: usersCount?.count || 0,
       newRegistrations: 0, // This would need additional logic based on date ranges
-      totalRevenue: 0, // This would need additional revenue tracking
+      totalRevenue: revenueResult?.total || 0,
     };
+  }
+
+  // Membership Payments methods
+  async createMembershipPayment(insertPayment: InsertMembershipPayment): Promise<MembershipPayment> {
+    const [payment] = await db
+      .insert(membershipPayments)
+      .values(insertPayment)
+      .returning();
+    return payment;
+  }
+
+  async getMembershipPayment(id: number): Promise<MembershipPayment | undefined> {
+    const [payment] = await db.select().from(membershipPayments).where(eq(membershipPayments.id, id));
+    return payment || undefined;
+  }
+
+  async getMembershipPaymentByStripeId(stripePaymentIntentId: string): Promise<MembershipPayment | undefined> {
+    const [payment] = await db.select().from(membershipPayments)
+      .where(eq(membershipPayments.stripePaymentIntentId, stripePaymentIntentId));
+    return payment || undefined;
+  }
+
+  async updateMembershipPaymentStatus(id: number, status: string): Promise<MembershipPayment | undefined> {
+    const [payment] = await db
+      .update(membershipPayments)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(membershipPayments.id, id))
+      .returning();
+    return payment || undefined;
+  }
+
+  async getUserPayments(userId: number): Promise<MembershipPayment[]> {
+    return await db.select().from(membershipPayments)
+      .where(eq(membershipPayments.userId, userId))
+      .orderBy(sql`created_at DESC`);
+  }
+
+  async updateUserStripeCustomerId(userId: number, stripeCustomerId: string): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ stripeCustomerId, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return user || undefined;
   }
 }
 

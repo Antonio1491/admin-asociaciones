@@ -1,8 +1,16 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import Stripe from "stripe";
 import { storage } from "./storage";
-import { insertUserSchema, insertCompanySchema, insertCategorySchema, insertMembershipTypeSchema, insertCertificateSchema, insertRoleSchema, insertOpinionSchema } from "@shared/schema";
+import { insertUserSchema, insertCompanySchema, insertCategorySchema, insertMembershipTypeSchema, insertCertificateSchema, insertRoleSchema, insertOpinionSchema, insertMembershipPaymentSchema } from "@shared/schema";
 import { z } from "zod";
+
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+}
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2024-06-20",
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Users API
@@ -560,6 +568,166 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(statistics);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch statistics" });
+    }
+  });
+
+  // Stripe Payment Routes for Memberships
+  app.post("/api/create-payment-intent", async (req, res) => {
+    try {
+      const { membershipTypeId, companyId } = req.body;
+      
+      if (!membershipTypeId || !companyId) {
+        return res.status(400).json({ error: "Missing membershipTypeId or companyId" });
+      }
+
+      // Get membership type to get the price
+      const membershipType = await storage.getMembershipType(membershipTypeId);
+      if (!membershipType) {
+        return res.status(404).json({ error: "Membership type not found" });
+      }
+
+      // Get company to verify it exists
+      const company = await storage.getCompany(companyId);
+      if (!company) {
+        return res.status(404).json({ error: "Company not found" });
+      }
+
+      // Parse the cost string to extract numeric value
+      const costString = membershipType.costo || "0";
+      const amount = parseFloat(costString.replace(/[^0-9.]/g, '')) || 0;
+
+      if (amount <= 0) {
+        return res.status(400).json({ error: "Invalid membership cost" });
+      }
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: "mxn",
+        metadata: {
+          membershipTypeId: membershipTypeId.toString(),
+          companyId: companyId.toString(),
+          userId: company.userId.toString(),
+        },
+      });
+
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id 
+      });
+    } catch (error: any) {
+      console.error("Error creating payment intent:", error);
+      res.status(500).json({ error: "Failed to create payment intent" });
+    }
+  });
+
+  // Webhook endpoint for Stripe events
+  app.post("/api/stripe-webhook", async (req, res) => {
+    try {
+      const sig = req.headers['stripe-signature'];
+      let event;
+
+      try {
+        event = stripe.webhooks.constructEvent(req.body, sig!, process.env.STRIPE_WEBHOOK_SECRET!);
+      } catch (err) {
+        console.error('Webhook signature verification failed.');
+        return res.status(400).send('Webhook signature verification failed.');
+      }
+
+      // Handle the event
+      switch (event.type) {
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object as Stripe.PaymentIntent;
+          
+          // Record the payment in database
+          const membershipTypeId = parseInt(paymentIntent.metadata.membershipTypeId);
+          const companyId = parseInt(paymentIntent.metadata.companyId);
+          const userId = parseInt(paymentIntent.metadata.userId);
+
+          await storage.createMembershipPayment({
+            userId,
+            companyId,
+            membershipTypeId,
+            stripePaymentIntentId: paymentIntent.id,
+            amount: (paymentIntent.amount / 100).toString(),
+            currency: paymentIntent.currency,
+            status: 'succeeded',
+          });
+
+          // Update company's membership type
+          await storage.updateCompany(companyId, {
+            membershipTypeId,
+          });
+
+          console.log('PaymentIntent was successful!');
+          break;
+        case 'payment_intent.payment_failed':
+          const failedPayment = event.data.object as Stripe.PaymentIntent;
+          
+          // Update payment status to failed
+          const existingPayment = await storage.getMembershipPaymentByStripeId(failedPayment.id);
+          if (existingPayment) {
+            await storage.updateMembershipPaymentStatus(existingPayment.id, 'failed');
+          }
+          
+          console.log('PaymentIntent failed.');
+          break;
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+      }
+
+      res.json({ received: true });
+    } catch (error: any) {
+      console.error("Webhook error:", error);
+      res.status(500).json({ error: "Webhook handler failed" });
+    }
+  });
+
+  // Get user's payment history
+  app.get("/api/users/:userId/payments", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const payments = await storage.getUserPayments(userId);
+      res.json(payments);
+    } catch (error) {
+      console.error("Error fetching user payments:", error);
+      res.status(500).json({ error: "Failed to fetch payments" });
+    }
+  });
+
+  // Create or get Stripe customer
+  app.post("/api/create-stripe-customer", async (req, res) => {
+    try {
+      const { userId, email, name } = req.body;
+      
+      if (!userId || !email) {
+        return res.status(400).json({ error: "Missing userId or email" });
+      }
+
+      // Check if user already has a Stripe customer ID
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (user.stripeCustomerId) {
+        // Return existing customer
+        const customer = await stripe.customers.retrieve(user.stripeCustomerId);
+        return res.json({ customerId: customer.id });
+      }
+
+      // Create new Stripe customer
+      const customer = await stripe.customers.create({
+        email,
+        name: name || user.displayName || email,
+      });
+
+      // Update user with Stripe customer ID
+      await storage.updateUserStripeCustomerId(userId, customer.id);
+
+      res.json({ customerId: customer.id });
+    } catch (error: any) {
+      console.error("Error creating Stripe customer:", error);
+      res.status(500).json({ error: "Failed to create customer" });
     }
   });
 
