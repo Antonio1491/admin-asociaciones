@@ -96,6 +96,8 @@ export default function MembershipCheckout() {
   const { companyId, membershipTypeId } = useParams();
   const [clientSecret, setClientSecret] = useState("");
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
   
   // Detectar si es una compra nueva de membresía (desde /planes) o actualización de empresa
   const isNewMembership = !companyId;

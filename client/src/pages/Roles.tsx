@@ -69,7 +69,6 @@ export default function Roles() {
 
   const { data: roles, isLoading } = useQuery({
     queryKey: ["/api/roles"],
-    queryFn: () => apiRequest("/api/roles"),
   });
 
   const createMutation = useMutation({
