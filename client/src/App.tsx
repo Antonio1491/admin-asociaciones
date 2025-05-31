@@ -19,6 +19,7 @@ import HomeClean from "@/pages/HomeClean";
 import CompanyDetails from "@/pages/CompanyDetails";
 import PublicMemberships from "@/pages/PublicMemberships";
 import Directory from "@/pages/Directory";
+import MembershipCheckout from "@/pages/MembershipCheckout";
 import MainNavigation from "@/components/MainNavigation";
 import TestHome from "@/TestHome";
 import NotFound from "@/pages/not-found";
@@ -121,6 +122,12 @@ function Router() {
       <Route path="/empresa/:id">
         <PublicLayout>
           <CompanyDetails />
+        </PublicLayout>
+      </Route>
+      
+      <Route path="/checkout/:companyId/:membershipTypeId">
+        <PublicLayout>
+          <MembershipCheckout />
         </PublicLayout>
       </Route>
       

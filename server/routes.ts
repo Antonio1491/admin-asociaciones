@@ -9,7 +9,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-06-20",
+  apiVersion: "2023-10-16",
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -606,7 +606,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         metadata: {
           membershipTypeId: membershipTypeId.toString(),
           companyId: companyId.toString(),
-          userId: company.userId.toString(),
+          userId: (company.userId || 0).toString(),
         },
       });
 
