@@ -327,7 +327,7 @@ export default function HomeClean() {
           
           <div className="overflow-x-auto pb-4">
             <div className="flex space-x-6 justify-center min-w-max px-4">
-              {categories.map((category: any) => (
+              {categories.slice().sort(() => 0.5 - Math.random()).slice(0, 8).map((category: any) => (
                 <div
                   key={category.id}
                   className="group cursor-pointer transition-all duration-300 transform hover:scale-110 flex-shrink-0"
