@@ -206,8 +206,15 @@ export default function MembershipCheckout() {
               Volver
             </Button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Actualizar Membresía</h1>
-              <p className="text-sm text-gray-600">Procesar pago para {company.nombreEmpresa}</p>
+              <h1 className="text-xl font-bold text-gray-900">
+                {isNewMembership ? "Comprar Membresía" : "Actualizar Membresía"}
+              </h1>
+              <p className="text-sm text-gray-600">
+                {isNewMembership 
+                  ? `Procesar pago para plan ${membershipType.nombrePlan}`
+                  : `Procesar pago para ${company?.nombreEmpresa}`
+                }
+              </p>
             </div>
           </div>
         </div>
@@ -225,19 +232,33 @@ export default function MembershipCheckout() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center space-x-4">
-                  {company.logotipoUrl && (
-                    <img
-                      src={company.logotipoUrl}
-                      alt={company.nombreEmpresa}
-                      className="w-12 h-12 object-contain rounded-lg border"
-                    />
-                  )}
-                  <div>
-                    <h3 className="font-semibold">{company.nombreEmpresa}</h3>
-                    <p className="text-sm text-gray-600">Empresa</p>
+                {!isNewMembership && company && (
+                  <div className="flex items-center space-x-4">
+                    {company.logotipoUrl && (
+                      <img
+                        src={company.logotipoUrl}
+                        alt={company.nombreEmpresa}
+                        className="w-12 h-12 object-contain rounded-lg border"
+                      />
+                    )}
+                    <div>
+                      <h3 className="font-semibold">{company.nombreEmpresa}</h3>
+                      <p className="text-sm text-gray-600">Empresa</p>
+                    </div>
                   </div>
-                </div>
+                )}
+                
+                {isNewMembership && (
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <CreditCard className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Nueva Membresía</h3>
+                      <p className="text-sm text-gray-600">Compra de plan</p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-start">
