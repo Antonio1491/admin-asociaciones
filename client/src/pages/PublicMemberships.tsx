@@ -240,7 +240,7 @@ export default function PublicMemberships() {
                     
                     <Button 
                       className={`w-full ${colorScheme.bg} hover:opacity-90 text-white font-semibold py-3`}
-                      onClick={() => setLocation(`/checkout/membership/${membership.id}`)}
+                      onClick={() => setLocation(`/checkout-plan/${membership.id}`)}
                     >
                       Elegir Plan
                     </Button>
