@@ -20,6 +20,9 @@ import CompanyDetails from "@/pages/CompanyDetails";
 import PublicMemberships from "@/pages/PublicMemberships";
 import Directory from "@/pages/Directory";
 import MembershipCheckout from "@/pages/MembershipCheckout";
+import RepresentativeRegister from "@/pages/RepresentativeRegister";
+import RepresentativeLogin from "@/pages/RepresentativeLogin";
+import RepresentativeDashboard from "@/pages/RepresentativeDashboard";
 import MainNavigation from "@/components/MainNavigation";
 import TestHome from "@/TestHome";
 import NotFound from "@/pages/not-found";
@@ -135,6 +138,26 @@ function Router() {
         <PublicLayout>
           <MembershipCheckout />
         </PublicLayout>
+      </Route>
+      
+      <Route path="/registro-representante">
+        <PublicLayout>
+          <RepresentativeRegister />
+        </PublicLayout>
+      </Route>
+      
+      <Route path="/login-representante">
+        <PublicLayout>
+          <RepresentativeLogin />
+        </PublicLayout>
+      </Route>
+      
+      <Route path="/dashboard-representante">
+        <ProtectedRoute>
+          <AppLayout>
+            <RepresentativeDashboard />
+          </AppLayout>
+        </ProtectedRoute>
       </Route>
       
       <Route path="/directorio">

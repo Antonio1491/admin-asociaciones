@@ -84,3 +84,20 @@ export const getOrCreateUser = async (firebaseUser: FirebaseUser) => {
     throw error;
   }
 };
+
+// Combined function for representative authentication
+export const signInWithFirebase = async (email: string, password: string, isRegistration: boolean = false): Promise<FirebaseUser> => {
+  if (isRegistration) {
+    return await createUserWithEmail(email, password);
+  } else {
+    return await signInWithEmail(email, password, true);
+  }
+};
+
+// Hook for authentication (simplified)
+export const useAuth = () => {
+  return {
+    signInWithFirebase,
+    signOut: signOutUser,
+  };
+};
