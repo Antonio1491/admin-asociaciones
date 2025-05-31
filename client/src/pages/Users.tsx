@@ -53,6 +53,16 @@ const userSchema = z.object({
   displayName: z.string().min(1, "El nombre es requerido"),
   email: z.string().email("Email inválido"),
   role: z.enum(["admin", "user", "representante"]),
+  companyId: z.number().optional(),
+}).refine((data) => {
+  // Si el rol es representante, debe tener una empresa asignada
+  if (data.role === "representante") {
+    return data.companyId !== undefined && data.companyId > 0;
+  }
+  return true;
+}, {
+  message: "Los representantes deben tener una empresa asignada",
+  path: ["companyId"],
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -70,6 +80,7 @@ export default function Users() {
       displayName: "",
       email: "",
       role: "user",
+      companyId: undefined,
     },
   });
 
@@ -99,6 +110,19 @@ export default function Users() {
       }
       
       return filteredUsers;
+    },
+  });
+
+  // Fetch companies for representative assignment
+  const { data: companies = [] } = useQuery({
+    queryKey: ["/api/companies"],
+    queryFn: async () => {
+      const response = await fetch("/api/companies", {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to fetch companies");
+      const data = await response.json();
+      return data.companies || [];
     },
   });
 
@@ -158,7 +182,8 @@ export default function Users() {
     editForm.reset({
       displayName: user.displayName || "",
       email: user.email,
-      role: user.role as "admin" | "user",
+      role: user.role as "admin" | "user" | "representante",
+      companyId: (user as any).companyId || undefined,
     });
     setIsEditModalOpen(true);
   };
@@ -398,6 +423,39 @@ export default function Users() {
                   </FormItem>
                 )}
               />
+
+              {editForm.watch("role") === "representante" && (
+                <FormField
+                  control={editForm.control}
+                  name="companyId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Empresa Asignada *</FormLabel>
+                      <Select 
+                        onValueChange={(value) => field.onChange(parseInt(value))} 
+                        value={field.value?.toString() || ""}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar empresa" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {companies.map((company: any) => (
+                            <SelectItem key={company.id} value={company.id.toString()}>
+                              {company.nombreEmpresa}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                      <p className="text-xs text-gray-500">
+                        El representante podrá gestionar únicamente esta empresa
+                      </p>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <div className="flex items-center justify-end space-x-2 pt-4">
                 <Button 
