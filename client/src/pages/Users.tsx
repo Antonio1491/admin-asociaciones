@@ -52,7 +52,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 const userSchema = z.object({
   displayName: z.string().min(1, "El nombre es requerido"),
   email: z.string().email("Email inválido"),
-  role: z.enum(["admin", "user"]),
+  role: z.enum(["admin", "user", "representante"]),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -226,6 +226,7 @@ export default function Users() {
                 <SelectItem value="all">Todos los roles</SelectItem>
                 <SelectItem value="admin">Administrador</SelectItem>
                 <SelectItem value="user">Usuario</SelectItem>
+                <SelectItem value="representante">Representante</SelectItem>
               </SelectContent>
             </Select>
 
@@ -385,11 +386,14 @@ export default function Users() {
                       <SelectContent>
                         <SelectItem value="user">Usuario</SelectItem>
                         <SelectItem value="admin">Administrador</SelectItem>
+                        <SelectItem value="representante">Representante</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
                     <p className="text-xs text-gray-500">
-                      Los administradores tienen acceso completo al sistema
+                      Administradores: Acceso completo al sistema<br/>
+                      Representantes: Pueden gestionar empresas y comentarios<br/>
+                      Usuarios: Acceso básico de lectura
                     </p>
                   </FormItem>
                 )}
