@@ -576,8 +576,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { membershipTypeId, companyId } = req.body;
       
-      if (!membershipTypeId || !companyId) {
-        return res.status(400).json({ error: "Missing membershipTypeId or companyId" });
+      if (!membershipTypeId) {
+        return res.status(400).json({ error: "Missing membershipTypeId" });
       }
 
       // Get membership type to get the price
@@ -586,10 +586,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Membership type not found" });
       }
 
-      // Get company to verify it exists
-      const company = await storage.getCompany(companyId);
-      if (!company) {
-        return res.status(404).json({ error: "Company not found" });
+      // Get company to verify it exists (only if companyId is provided)
+      let company = null;
+      if (companyId) {
+        company = await storage.getCompany(companyId);
+        if (!company) {
+          return res.status(404).json({ error: "Company not found" });
+        }
       }
 
       // Parse the cost string to extract numeric value
@@ -600,14 +603,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Invalid membership cost" });
       }
 
+      // Prepare metadata
+      const metadata: any = {
+        membershipTypeId: membershipTypeId.toString(),
+        isNewMembership: companyId ? "false" : "true",
+      };
+      
+      if (companyId && company) {
+        metadata.companyId = companyId.toString();
+        metadata.userId = (company.userId || 0).toString();
+      }
+
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(amount * 100), // Convert to cents
         currency: "mxn",
-        metadata: {
-          membershipTypeId: membershipTypeId.toString(),
-          companyId: companyId.toString(),
-          userId: (company.userId || 0).toString(),
-        },
+        metadata,
       });
 
       res.json({ 
@@ -640,23 +650,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Record the payment in database
           const membershipTypeId = parseInt(paymentIntent.metadata.membershipTypeId);
-          const companyId = parseInt(paymentIntent.metadata.companyId);
-          const userId = parseInt(paymentIntent.metadata.userId);
+          const isNewMembership = paymentIntent.metadata.isNewMembership === "true";
+          
+          if (isNewMembership) {
+            // Handle new membership payment (without specific company)
+            await storage.createMembershipPayment({
+              userId: 0, // For new memberships, we don't have a user yet
+              companyId: 0, // For new memberships, we don't have a company yet
+              membershipTypeId,
+              stripePaymentIntentId: paymentIntent.id,
+              amount: (paymentIntent.amount / 100).toString(),
+              currency: paymentIntent.currency,
+              status: 'succeeded',
+            });
+          } else {
+            // Handle company membership update
+            const companyId = parseInt(paymentIntent.metadata.companyId);
+            const userId = parseInt(paymentIntent.metadata.userId);
 
-          await storage.createMembershipPayment({
-            userId,
-            companyId,
-            membershipTypeId,
-            stripePaymentIntentId: paymentIntent.id,
-            amount: (paymentIntent.amount / 100).toString(),
-            currency: paymentIntent.currency,
-            status: 'succeeded',
-          });
+            await storage.createMembershipPayment({
+              userId,
+              companyId,
+              membershipTypeId,
+              stripePaymentIntentId: paymentIntent.id,
+              amount: (paymentIntent.amount / 100).toString(),
+              currency: paymentIntent.currency,
+              status: 'succeeded',
+            });
 
-          // Update company's membership type
-          await storage.updateCompany(companyId, {
-            membershipTypeId,
-          });
+            // Update company's membership type
+            await storage.updateCompany(companyId, {
+              membershipTypeId,
+            });
+          }
 
           console.log('PaymentIntent was successful!');
           break;

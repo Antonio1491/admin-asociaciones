@@ -31,10 +31,15 @@ const CheckoutForm = ({ company, membershipType }: { company: any; membershipTyp
 
     setIsLoading(true);
 
+    // URL de retorno según el tipo de checkout
+    const returnUrl = company 
+      ? `${window.location.origin}/empresa/${company.id}?payment=success`
+      : `${window.location.origin}/planes?payment=success`;
+
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
-        return_url: `${window.location.origin}/empresa/${company.id}?payment=success`,
+        return_url: returnUrl,
       },
     });
 
@@ -116,12 +121,13 @@ export default function MembershipCheckout() {
   });
 
   useEffect(() => {
-    if (companyId && membershipTypeId && !clientSecret) {
-      // Create PaymentIntent as soon as we have the required data
-      apiRequest("POST", "/api/create-payment-intent", { 
-        companyId: parseInt(companyId), 
-        membershipTypeId: parseInt(membershipTypeId) 
-      })
+    if (membershipTypeId && !clientSecret) {
+      // Create PaymentIntent - diferentes datos según el tipo de checkout
+      const paymentData = isNewMembership 
+        ? { membershipTypeId: parseInt(membershipTypeId) }
+        : { companyId: parseInt(companyId), membershipTypeId: parseInt(membershipTypeId) };
+      
+      apiRequest("POST", "/api/create-payment-intent", paymentData)
         .then((res) => res.json())
         .then((data) => {
           setClientSecret(data.clientSecret);
@@ -135,9 +141,9 @@ export default function MembershipCheckout() {
           });
         });
     }
-  }, [companyId, membershipTypeId, clientSecret, toast]);
+  }, [companyId, membershipTypeId, clientSecret, toast, isNewMembership]);
 
-  if (companyLoading || membershipLoading) {
+  if ((companyId && companyLoading) || membershipLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -148,12 +154,14 @@ export default function MembershipCheckout() {
     );
   }
 
-  if (!company || !membershipType) {
+  if (!membershipType || (companyId && !company)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">Error al cargar datos</h1>
-          <p className="text-gray-600 mb-4">No se pudo encontrar la información requerida.</p>
+          <p className="text-gray-600 mb-4">
+            {!membershipType ? "El tipo de membresía no fue encontrado." : "La empresa no fue encontrada."}
+          </p>
           <Button onClick={() => window.history.back()}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Volver
