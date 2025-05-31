@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,8 @@ import { Check, Star, Crown, Zap } from "lucide-react";
 import type { MembershipType } from "@/../../shared/schema";
 
 export default function PublicMemberships() {
+  const [, setLocation] = useLocation();
+  
   const { data: memberships, isLoading } = useQuery({
     queryKey: ["/api/membership-types"],
     queryFn: async () => {
@@ -237,6 +240,7 @@ export default function PublicMemberships() {
                     
                     <Button 
                       className={`w-full ${colorScheme.bg} hover:opacity-90 text-white font-semibold py-3`}
+                      onClick={() => setLocation(`/checkout/membership/${membership.id}`)}
                     >
                       Elegir Plan
                     </Button>

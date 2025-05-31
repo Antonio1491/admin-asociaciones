@@ -90,8 +90,11 @@ export default function MembershipCheckout() {
   const { companyId, membershipTypeId } = useParams();
   const [clientSecret, setClientSecret] = useState("");
   const { toast } = useToast();
+  
+  // Detectar si es una compra nueva de membresía (desde /planes) o actualización de empresa
+  const isNewMembership = !companyId;
 
-  // Fetch company details
+  // Fetch company details (solo si hay companyId)
   const { data: company, isLoading: companyLoading } = useQuery({
     queryKey: ["/api/companies", companyId],
     queryFn: async () => {
@@ -99,6 +102,7 @@ export default function MembershipCheckout() {
       if (!response.ok) throw new Error("Company not found");
       return response.json();
     },
+    enabled: !!companyId, // Solo ejecutar si hay companyId
   });
 
   // Fetch membership type details

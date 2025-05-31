@@ -131,6 +131,12 @@ function Router() {
         </PublicLayout>
       </Route>
       
+      <Route path="/checkout/membership/:membershipTypeId">
+        <PublicLayout>
+          <MembershipCheckout />
+        </PublicLayout>
+      </Route>
+      
       <Route path="/directorio">
         <PublicLayout>
           <Directory />
