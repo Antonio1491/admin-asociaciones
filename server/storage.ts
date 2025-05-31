@@ -99,6 +99,14 @@ export interface IStorage {
     newRegistrations: number;
     totalRevenue: number;
   }>;
+
+  // Membership Payments
+  createMembershipPayment(payment: InsertMembershipPayment): Promise<MembershipPayment>;
+  getMembershipPayment(id: number): Promise<MembershipPayment | undefined>;
+  getMembershipPaymentByStripeId(stripePaymentIntentId: string): Promise<MembershipPayment | undefined>;
+  updateMembershipPaymentStatus(id: number, status: string): Promise<MembershipPayment | undefined>;
+  getUserPayments(userId: number): Promise<MembershipPayment[]>;
+  updateUserStripeCustomerId(userId: number, stripeCustomerId: string): Promise<User | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {

@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   displayName: text("display_name"),
   photoURL: text("photo_url"),
   role: text("role").notNull().default("user"), // "admin" or "user"
+  stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -105,6 +106,19 @@ export const opinions = pgTable("opinions", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const membershipPayments = pgTable("membership_payments", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id, { onDelete: "cascade" }).notNull(),
+  companyId: integer("company_id").references(() => companies.id, { onDelete: "cascade" }).notNull(),
+  membershipTypeId: integer("membership_type_id").references(() => membershipTypes.id).notNull(),
+  stripePaymentIntentId: text("stripe_payment_intent_id").notNull().unique(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("mxn"),
+  status: text("status").notNull().default("pending"), // pending, succeeded, failed, canceled
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -151,6 +165,12 @@ export const insertOpinionSchema = createInsertSchema(opinions).omit({
   aprobadoPor: true,
 });
 
+export const insertMembershipPaymentSchema = createInsertSchema(membershipPayments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -172,6 +192,9 @@ export type InsertRole = z.infer<typeof insertRoleSchema>;
 
 export type Opinion = typeof opinions.$inferSelect;
 export type InsertOpinion = z.infer<typeof insertOpinionSchema>;
+
+export type MembershipPayment = typeof membershipPayments.$inferSelect;
+export type InsertMembershipPayment = z.infer<typeof insertMembershipPaymentSchema>;
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
