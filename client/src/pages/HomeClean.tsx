@@ -318,44 +318,7 @@ export default function HomeClean() {
         </div>
       </div>
 
-      {/* Sección de iconos de categorías */}
-      <div className="py-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <h3 className="text-xl md:text-2xl font-bold text-center text-gray-800 mb-8 font-['Montserrat']">
-            Explorar por Categorías
-          </h3>
-          
-          <div className="overflow-x-auto pb-4">
-            <div className="flex space-x-6 justify-center min-w-max px-4">
-              {categories.slice().sort(() => 0.5 - Math.random()).slice(0, 8).map((category: any) => (
-                <div
-                  key={category.id}
-                  className="group cursor-pointer transition-all duration-300 transform hover:scale-110 flex-shrink-0"
-                  onClick={() => {
-                    window.location.href = `/directorio?categoryId=${category.id}`;
-                  }}
-                >
-                  <div className="relative">
-                    <div className="w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center group-hover:bg-blue-500 group-hover:shadow-xl transition-all duration-300">
-                      <span className="text-2xl group-hover:filter group-hover:brightness-0 group-hover:invert transition-all duration-300">
-                        {getCategoryIcon(category.nombreCategoria)}
-                      </span>
-                    </div>
-                    
-                    {/* Tooltip con el nombre de la categoría */}
-                    <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
-                      <div className="bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
-                        {category.nombreCategoria}
-                      </div>
-                      <div className="w-2 h-2 bg-gray-800 transform rotate-45 absolute -top-1 left-1/2 -translate-x-1/2"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <div className="py-8 md:py-16 px-4 max-w-6xl mx-auto">
         {isLoading && (
