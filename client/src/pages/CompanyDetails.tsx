@@ -114,28 +114,7 @@ export default function CompanyDetails() {
               dangerouslySetInnerHTML={{ __html: company.descripcionEmpresa || '' }}
             />
 
-            {/* Categorías a las que pertenece la empresa (iconos pequeños) */}
-            {company.categories && company.categories.length > 0 && (
-              <div className="flex justify-center items-center gap-4 mb-6">
-                <span className="text-blue-200 text-sm">Categorías:</span>
-                <div className="flex gap-3 flex-wrap justify-center">
-                  {company.categories.map((category: any) => (
-                    <div key={category.id} className="flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
-                      {category.icono ? (
-                        <span className="text-lg">{category.icono}</span>
-                      ) : (
-                        <div className="w-4 h-4 bg-white/20 rounded-full flex items-center justify-center">
-                          <span className="text-xs text-white font-bold">
-                            {category.nombreCategoria.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                      <span className="text-sm text-white">{category.nombreCategoria}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+
 
             {/* Plan de membresía */}
             {company.membershipType && (
@@ -526,31 +505,7 @@ export default function CompanyDetails() {
               </Card>
             )}
 
-            {/* Información de Membresía */}
-            {company.membershipType && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Información de la Membresía</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="mb-2">
-                      {company.membershipType.nombrePlan}
-                    </Badge>
-                    {company.membershipType.descripcionPlan && (
-                      <p className="text-sm text-gray-600">
-                        {company.membershipType.descripcionPlan}
-                      </p>
-                    )}
-                    {company.membershipType.costo && (
-                      <p className="text-lg font-semibold text-green-600">
-                        {company.membershipType.costo}
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+
           </div>
         </div>
 
