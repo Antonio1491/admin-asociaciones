@@ -56,15 +56,23 @@ export default function Directory() {
   const filteredCompanies = companies.filter((company: CompanyWithDetails) => {
     const matchesSearch = company.nombreEmpresa.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (company.descripcionEmpresa && company.descripcionEmpresa.toLowerCase().includes(searchTerm.toLowerCase()));
+    
     const matchesCategory = !selectedCategory || selectedCategory === "all" || 
-                           (company.categories && company.categories.some((cat: Category) => cat.id.toString() === selectedCategory));
-    const matchesState = !selectedState || selectedState === "all" || company.estado === selectedState;
+                           (company.categoriesIds && Array.isArray(company.categoriesIds) && 
+                            company.categoriesIds.includes(parseInt(selectedCategory)));
+    
+    const matchesState = !selectedState || selectedState === "all" || 
+                        (company.estadosPresencia && Array.isArray(company.estadosPresencia) && 
+                         company.estadosPresencia.includes(selectedState));
     
     return matchesSearch && matchesCategory && matchesState;
   });
 
-  // Unique states from companies
-  const states = Array.from(new Set(companies.map((company: CompanyWithDetails) => company.estado))).filter(Boolean);
+  // Unique states from companies (extract from estadosPresencia)
+  const allStates = companies.flatMap((company: CompanyWithDetails) => 
+    Array.isArray(company.estadosPresencia) ? company.estadosPresencia : []
+  );
+  const states = Array.from(new Set(allStates)).filter(Boolean).sort();
 
   if (companiesLoading) {
     return (
@@ -150,14 +158,14 @@ export default function Directory() {
             <p className="text-sm text-gray-600">
               {filteredCompanies.length} empresa{filteredCompanies.length !== 1 ? 's' : ''} encontrada{filteredCompanies.length !== 1 ? 's' : ''}
             </p>
-            {(searchTerm || selectedCategory || selectedState) && (
+            {(searchTerm || (selectedCategory && selectedCategory !== "all") || (selectedState && selectedState !== "all")) && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
                   setSearchTerm("");
-                  setSelectedCategory("all");
-                  setSelectedState("all");
+                  setSelectedCategory("");
+                  setSelectedState("");
                 }}
               >
                 Limpiar filtros
