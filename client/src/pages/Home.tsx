@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Search, MapPin, Phone, Mail, ChevronLeft, ChevronRight, Tag, Building, Truck, Zap, TreePine, Wrench, Shield, Home as HomeIcon, Users, Package, Settings } from "lucide-react";
+import { MapPin, Phone, Mail, ChevronLeft, ChevronRight, Tag, Building, Truck, Zap, TreePine, Wrench, Shield, Home as HomeIcon, Users, Package, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
