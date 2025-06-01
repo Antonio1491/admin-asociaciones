@@ -15,7 +15,7 @@ import Certificates from "@/pages/Certificates";
 import Roles from "@/pages/Roles";
 import OpinionsAdmin from "@/pages/OpinionsAdmin";
 import Login from "@/pages/Login";
-import HomeClean from "@/pages/HomeClean";
+import Home from "@/pages/Home";
 import CompanyDetails from "@/pages/CompanyDetails";
 import PublicMemberships from "@/pages/PublicMemberships";
 import Directory from "@/pages/Directory";
@@ -174,7 +174,7 @@ function Router() {
       
       <Route path="/">
         <PublicLayout>
-          <HomeClean />
+          <Home />
         </PublicLayout>
       </Route>
     </div>
