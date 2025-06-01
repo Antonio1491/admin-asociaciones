@@ -16,7 +16,7 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 py-24">
           <div className="text-center">
             <h1 className="text-5xl font-bold mb-6">
-              Directorio de la Industria del Equipamiento Urbano
+              🏗️ Directorio de la Industria del Equipamiento Urbano
             </h1>
             <p className="text-xl mb-8 text-blue-100">
               Encuentra las mejores empresas especializadas en equipamiento urbano
