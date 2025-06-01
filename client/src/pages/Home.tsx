@@ -24,21 +24,102 @@ export default function Home() {
             </p>
             
             <div className="max-w-2xl mx-auto">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-6 w-6" />
+              <div className="flex gap-4">
                 <Input
                   type="text"
                   placeholder="Buscar empresas, servicios o categorías..."
-                  className="pl-12 pr-4 py-4 text-lg rounded-full border-0 shadow-lg focus:ring-4 focus:ring-blue-300 text-gray-800"
+                  className="flex-1 py-4 text-lg rounded-lg border-0 shadow-lg focus:ring-4 focus:ring-blue-300 text-gray-800"
                 />
+                <select className="px-4 py-4 text-lg rounded-lg border-0 shadow-lg text-gray-800 bg-white min-w-[150px]">
+                  <option value="">Todas las ubicaciones</option>
+                  <option value="cdmx">Ciudad de México</option>
+                  <option value="jalisco">Jalisco</option>
+                  <option value="nuevo-leon">Nuevo León</option>
+                  <option value="estado-mexico">Estado de México</option>
+                  <option value="puebla">Puebla</option>
+                  <option value="hidalgo">Hidalgo</option>
+                  <option value="michoacan">Michoacán</option>
+                  <option value="colima">Colima</option>
+                  <option value="coahuila">Coahuila</option>
+                  <option value="tamaulipas">Tamaulipas</option>
+                  <option value="queretaro">Querétaro</option>
+                  <option value="guanajuato">Guanajuato</option>
+                </select>
+                <Button className="px-8 py-4 text-lg rounded-lg shadow-lg">
+                  Buscar
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <CategoriesSection />
+      <CategoriesBarSection />
       <CompaniesSection />
+    </div>
+  );
+}
+
+function CategoriesBarSection() {
+  const { data: categories, isLoading, error } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
+
+  if (isLoading) {
+    return (
+      <div className="bg-white border-b shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-center">
+            <div className="animate-pulse flex space-x-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-12 w-32 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !categories) {
+    return null;
+  }
+
+  return (
+    <div className="bg-white border-b shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="overflow-x-auto">
+          <div className="flex space-x-4 min-w-max">
+            <Link href="/directorio">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 whitespace-nowrap px-6 py-3 rounded-lg border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all"
+              >
+                <Building />
+                Todas las empresas
+              </Button>
+            </Link>
+            {categories.map((category) => (
+              <Link 
+                key={category.id} 
+                href={`/directorio?categoryId=${category.id}`}
+              >
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-2 whitespace-nowrap px-6 py-3 rounded-lg border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all"
+                >
+                  <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">
+                      {category.nombreCategoria.charAt(0)}
+                    </span>
+                  </div>
+                  {category.nombreCategoria}
+                </Button>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
