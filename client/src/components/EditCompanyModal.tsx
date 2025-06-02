@@ -230,7 +230,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       for (let i = 0; i < Math.min(files.length, 10 - galeriaFiles.length); i++) {
         const file = files[i];
         
-        // Validaciones básicas sin promesas complicadas
+        // Validaciones básicas
         if (!file.type.startsWith('image/')) {
           toast({
             title: "Advertencia",
@@ -250,8 +250,15 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         }
 
         validFiles.push(file);
-        const imageUrl = URL.createObjectURL(file);
-        imageUrls.push(imageUrl);
+        
+        // Convertir a base64 para guardado permanente
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+        
+        imageUrls.push(base64);
       }
       
       setGaleriaFiles([...galeriaFiles, ...validFiles]);
