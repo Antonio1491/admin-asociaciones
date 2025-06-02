@@ -1,7 +1,12 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import Stripe from "stripe";
 import { storage } from "./storage";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 import { insertUserSchema, insertCompanySchema, insertCategorySchema, insertMembershipTypeSchema, insertCertificateSchema, insertRoleSchema, insertOpinionSchema, insertMembershipPaymentSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -12,7 +17,99 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
 });
 
+// Configuración de multer para manejo de archivos
+const storage_config = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(process.cwd(), 'uploads', 'images');
+    // Crear directorio si no existe
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = `${uuidv4()}_${Date.now()}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({
+  storage: storage_config,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten archivos de imagen'));
+    }
+  }
+});
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Servir archivos estáticos desde la carpeta uploads
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
+  // Ruta para subir una sola imagen
+  app.post("/api/upload-image", upload.single('image'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No se recibió ningún archivo" });
+      }
+      
+      const imageUrl = `/uploads/images/${req.file.filename}`;
+      res.json({ 
+        success: true, 
+        imageUrl,
+        filename: req.file.filename
+      });
+    } catch (error) {
+      console.error("Error al subir imagen:", error);
+      res.status(500).json({ error: "Error al procesar la imagen" });
+    }
+  });
+
+  // Ruta para subir múltiples imágenes
+  app.post("/api/upload-images", upload.array('images', 10), async (req, res) => {
+    try {
+      if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ error: "No se recibieron archivos" });
+      }
+      
+      const imageUrls = req.files.map(file => ({
+        imageUrl: `/uploads/images/${file.filename}`,
+        filename: file.filename
+      }));
+      
+      res.json({ 
+        success: true, 
+        images: imageUrls
+      });
+    } catch (error) {
+      console.error("Error al subir imágenes:", error);
+      res.status(500).json({ error: "Error al procesar las imágenes" });
+    }
+  });
+
+  // Ruta para eliminar imagen
+  app.delete("/api/delete-image/:filename", async (req, res) => {
+    try {
+      const { filename } = req.params;
+      const filePath = path.join(process.cwd(), 'uploads', 'images', filename);
+      
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+        res.json({ success: true, message: "Imagen eliminada correctamente" });
+      } else {
+        res.status(404).json({ error: "Imagen no encontrada" });
+      }
+    } catch (error) {
+      console.error("Error al eliminar imagen:", error);
+      res.status(500).json({ error: "Error al eliminar la imagen" });
+    }
+  });
+
   // Users API
   app.get("/api/users", async (req, res) => {
     try {
