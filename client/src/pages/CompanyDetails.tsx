@@ -257,57 +257,42 @@ export default function CompanyDetails() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {certificates.map((certificate: any) => (
-                      <div key={certificate.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
-                        {/* Imagen del certificado */}
-                        <div className="aspect-video bg-gray-50 flex items-center justify-center">
-                          <img
-                            src={certificate.imagenUrl}
-                            alt={certificate.nombreCertificado}
-                            className="max-w-full max-h-full object-contain p-4"
-                          />
+                      <div key={certificate.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        {/* Header con imagen e icono */}
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <img
+                              src={certificate.imagenUrl}
+                              alt={certificate.nombreCertificado}
+                              className="w-8 h-8 object-contain"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 text-sm leading-tight">
+                              {certificate.nombreCertificado}
+                            </h4>
+                          </div>
                         </div>
                         
-                        {/* Contenido */}
-                        <div className="p-6">
-                          <h4 className="font-bold text-lg text-gray-900 mb-4">{certificate.nombreCertificado}</h4>
+                        {/* Información en formato lista */}
+                        <div className="space-y-3 text-sm">
+                          {certificate.fechaVencimiento && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-500">Válido hasta</span>
+                              <span className="text-gray-900 font-medium">
+                                {certificate.fechaVencimiento}
+                              </span>
+                            </div>
+                          )}
                           
-                          {/* Lista de detalles */}
-                          <dl className="space-y-3">
-                            {certificate.entidadEmisora && (
-                              <div className="flex justify-between">
-                                <dt className="text-sm font-medium text-gray-500">Emitido por:</dt>
-                                <dd className="text-sm text-gray-900 text-right max-w-[60%]">{certificate.entidadEmisora}</dd>
-                              </div>
-                            )}
-                            
-                            {certificate.fechaEmision && (
-                              <div className="flex justify-between">
-                                <dt className="text-sm font-medium text-gray-500">Fecha de emisión:</dt>
-                                <dd className="text-sm text-gray-900">{certificate.fechaEmision}</dd>
-                              </div>
-                            )}
-                            
-                            {certificate.fechaVencimiento && (
-                              <div className="flex justify-between">
-                                <dt className="text-sm font-medium text-gray-500">Válido hasta:</dt>
-                                <dd className="text-sm text-gray-900">{certificate.fechaVencimiento}</dd>
-                              </div>
-                            )}
-                            
-                            {certificate.numeroCredencial && (
-                              <div className="flex justify-between">
-                                <dt className="text-sm font-medium text-gray-500">Número:</dt>
-                                <dd className="text-sm text-gray-900 font-mono">{certificate.numeroCredencial}</dd>
-                              </div>
-                            )}
-                          </dl>
-                          
-                          {/* Descripción */}
-                          {certificate.descripcion && (
-                            <div className="mt-4 pt-4 border-t border-gray-100">
-                              <p className="text-sm text-gray-600 leading-relaxed">{certificate.descripcion}</p>
+                          {certificate.entidadEmisora && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-500">Emitido por</span>
+                              <span className="text-gray-900 font-medium text-right">
+                                {certificate.entidadEmisora}
+                              </span>
                             </div>
                           )}
                         </div>
