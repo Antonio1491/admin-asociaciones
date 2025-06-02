@@ -235,10 +235,13 @@ export default function Directory() {
                       <span className="truncate">{company.email1}</span>
                     </div>
                   )}
-                  {company.estado && (
+                  {company.estadosPresencia && company.estadosPresencia.length > 0 && (
                     <div className="flex items-center text-sm text-gray-500">
                       <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
-                      <span>{company.estado}</span>
+                      <span>
+                        {company.estadosPresencia.slice(0, 2).join(', ')}
+                        {company.estadosPresencia.length > 2 && ` +${company.estadosPresencia.length - 2}`}
+                      </span>
                     </div>
                   )}
                 </div>
