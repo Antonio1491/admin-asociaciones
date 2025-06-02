@@ -14,8 +14,22 @@ export default function DirectoryMap({ companies }: DirectoryMapProps) {
   useEffect(() => {
     const initMap = async () => {
       try {
+        // Verificar que el elemento HTML esté disponible
+        if (!mapRef.current) {
+          console.warn("Map container not ready");
+          return;
+        }
+
+        // Verificar que la API key esté configurada
+        if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+          console.warn("Google Maps API key not configured");
+          setHasError(true);
+          setIsLoading(false);
+          return;
+        }
+
         const loader = new Loader({
-          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
           version: "weekly",
           libraries: ["places"]
         });
@@ -23,7 +37,11 @@ export default function DirectoryMap({ companies }: DirectoryMapProps) {
         const { Map } = await loader.importLibrary("maps");
         const { Marker } = await loader.importLibrary("marker");
 
-        if (!mapRef.current) return;
+        // Verificar nuevamente que el elemento siga disponible
+        if (!mapRef.current) {
+          console.warn("Map container was unmounted during initialization");
+          return;
+        }
 
         // Centro del mapa en México
         const defaultCenter = { lat: 19.4326, lng: -99.1332 };
@@ -106,11 +124,18 @@ export default function DirectoryMap({ companies }: DirectoryMapProps) {
       }
     };
 
-    if (companies.length > 0) {
-      initMap();
-    } else {
-      setIsLoading(false);
-    }
+    // Usar un timeout para asegurar que el DOM esté listo
+    const timeoutId = setTimeout(() => {
+      if (companies.length > 0) {
+        initMap();
+      } else {
+        setIsLoading(false);
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [companies]);
 
   if (isLoading) {
