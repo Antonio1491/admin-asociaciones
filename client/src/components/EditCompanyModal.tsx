@@ -32,7 +32,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Category, MembershipType, CompanyWithDetails, Certificate } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
-import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube, Award } from "lucide-react";
+import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube, Award, Tags, Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag, Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music, Gamepad2, Book, Palette, Plane, Ship, Train, Zap } from "lucide-react";
 import MapLocationPicker from "./MapLocationPicker";
 import RichTextEditor from "./RichTextEditor";
 
@@ -54,16 +54,30 @@ const companySchema = z.object({
   descripcionEmpresa: z.string().optional(),
   categoriesIds: z.array(z.number()).min(1, "Selecciona al menos una categoría"),
   certificateIds: z.array(z.number()).optional(),
-  membershipTypeId: z.number({ required_error: "El tipo de membresía es requerido" }),
+  membershipTypeId: z.number().optional().nullable(),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
+
+// Map of icon names to components
+const iconMap = {
+  Tags, Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag,
+  Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
+  Gamepad2, Book, Palette, MapPin, Plane, Ship, Train, Zap
+};
 
 interface EditCompanyModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   company: CompanyWithDetails | null;
 }
+
+// Function to render category icon
+const renderCategoryIcon = (category: Category) => {
+  const iconName = category.icono as keyof typeof iconMap;
+  const IconComponent = iconMap[iconName] || Tags;
+  return <IconComponent className="h-4 w-4 mr-2" />;
+};
 
 export default function EditCompanyModal({ open, onOpenChange, company }: EditCompanyModalProps) {
   const [selectedEstados, setSelectedEstados] = useState<string[]>([]);
@@ -326,24 +340,32 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   // Mutación para actualizar empresa
   const updateMutation = useMutation({
     mutationFn: async (data: CompanyFormData) => {
-      if (!company) throw new Error("No company selected");
-      
-      const updateData = {
-        ...data,
-        // Convertir membershipTypeId a null si es undefined o string vacío
-        membershipTypeId: data.membershipTypeId && data.membershipTypeId !== "" ? Number(data.membershipTypeId) : null,
-        redesSociales,
-        representantesVentas: representantes.filter(r => r.trim() !== ""),
-        galeriaProductosUrls: galeriaImagenes.filter(img => img.trim() !== ""),
-      };
+      try {
+        if (!company) throw new Error("No company selected");
+        
+        const updateData = {
+          ...data,
+          // Convertir membershipTypeId a null si es undefined o string vacío
+          membershipTypeId: data.membershipTypeId && data.membershipTypeId !== "" ? Number(data.membershipTypeId) : null,
+          redesSociales,
+          representantesVentas: representantes.filter(r => r.trim() !== ""),
+          galeriaProductosUrls: galeriaImagenes.filter(img => img.trim() !== ""),
+        };
 
-      const response = await apiRequest(`/api/companies/${company.id}`, "PUT", updateData);
+        console.log("Datos a enviar:", updateData);
 
-      if (!response.ok) {
-        throw new Error("Error al actualizar la empresa");
+        const response = await apiRequest(`/api/companies/${company.id}`, "PUT", updateData);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Error al actualizar la empresa");
+        }
+
+        return response.json();
+      } catch (error) {
+        console.error("Error en mutationFn:", error);
+        throw error;
       }
-
-      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
@@ -909,8 +931,9 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                             />
                             <label
                               htmlFor={`category-${category.id}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center"
                             >
+                              {renderCategoryIcon(category)}
                               {category.nombreCategoria}
                             </label>
                           </div>
