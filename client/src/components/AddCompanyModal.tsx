@@ -32,7 +32,12 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { insertCompanySchema, Category, MembershipType, Certificate } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
-import { Upload, X, Building, Phone, Mail, Plus, FileText, Trash2, Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, MapPin } from "lucide-react";
+import { 
+  Upload, X, Building, Phone, Mail, Plus, FileText, Trash2, Facebook, Instagram, Linkedin, Twitter, Youtube, Globe, MapPin,
+  Tags, Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag,
+  Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
+  Gamepad2, Book, Palette, Plane, Ship, Train, Zap
+} from "lucide-react";
 import MapLocationPicker from "./MapLocationPicker";
 import RichTextEditor from "./RichTextEditor";
 
@@ -54,6 +59,13 @@ const companySchema = insertCompanySchema.extend({
 
 type CompanyFormData = z.infer<typeof companySchema>;
 
+// Map of icon names to components
+const iconMap = {
+  Tags, Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag,
+  Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
+  Gamepad2, Book, Palette, MapPin, Plane, Ship, Train, Zap
+};
+
 interface AddCompanyModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -74,6 +86,25 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<{[ciudad: string]: string}>({});
   const [ubicacionesPorCiudad, setUbicacionesPorCiudad] = useState<{[ciudad: string]: { lat: number; lng: number; address: string }}>({});
   const { toast } = useToast();
+
+  // Function to render the correct icon for categories
+  const renderCategoryIcon = (category: Category) => {
+    // If custom icon URL exists, use it
+    if (category.iconoUrl) {
+      return (
+        <img
+          src={category.iconoUrl}
+          alt={category.nombreCategoria}
+          className="w-5 h-5 object-cover rounded"
+        />
+      );
+    }
+
+    // Otherwise use Lucide icon
+    const iconName = category.icono || "Tags";
+    const IconComponent = iconMap[iconName as keyof typeof iconMap] || Tags;
+    return <IconComponent className="w-5 h-5 text-primary" />;
+  };
 
   // Plataformas de redes sociales disponibles
   const socialPlatforms = [
@@ -575,8 +606,9 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                             />
                             <label
                               htmlFor={`category-${category.id}`}
-                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex items-center gap-2"
                             >
+                              {renderCategoryIcon(category)}
                               {category.nombreCategoria}
                             </label>
                           </div>
