@@ -128,42 +128,54 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   };
 
   const processImageToSquare = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      
-      img.onload = () => {
-        const size = Math.min(img.width, img.height);
-        canvas.width = size;
-        canvas.height = size;
-        
-        const offsetX = (img.width - size) / 2;
-        const offsetY = (img.height - size) / 2;
-        
-        ctx?.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
-        
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target?.result as string);
-            reader.readAsDataURL(blob);
+    return new Promise((resolve, reject) => {
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          if (result) {
+            resolve(result);
+          } else {
+            reject(new Error("No se pudo leer el archivo"));
           }
-        }, 'image/jpeg', 0.8);
-      };
-      
-      img.src = URL.createObjectURL(file);
+        };
+        reader.onerror = () => reject(new Error("Error al leer el archivo"));
+        reader.readAsDataURL(file);
+      } catch (error) {
+        reject(error);
+      }
     });
   };
 
   const handleLogoChange = async (file: File) => {
     try {
-      const isValid = await validateImage(file);
-      if (isValid) {
-        setLogoFile(file);
-        const imageUrl = await processImageToSquare(file);
-        form.setValue("logotipoUrl", imageUrl);
+      // Validaciones básicas sin promesas complicadas
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Solo se permiten archivos de imagen",
+          variant: "destructive",
+        });
+        return;
       }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Error",
+          description: "La imagen no debe pesar más de 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setLogoFile(file);
+      const imageUrl = await processImageToSquare(file);
+      form.setValue("logotipoUrl", imageUrl);
+      
+      toast({
+        title: "Éxito",
+        description: "Logotipo actualizado correctamente",
+      });
     } catch (error) {
       console.error("Error procesando imagen:", error);
       toast({
@@ -181,17 +193,41 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       
       for (let i = 0; i < Math.min(files.length, 10 - galeriaFiles.length); i++) {
         const file = files[i];
-        const isValid = await validateImage(file);
-        if (isValid) {
-          validFiles.push(file);
-          const imageUrl = URL.createObjectURL(file);
-          imageUrls.push(imageUrl);
+        
+        // Validaciones básicas sin promesas complicadas
+        if (!file.type.startsWith('image/')) {
+          toast({
+            title: "Advertencia",
+            description: `El archivo ${file.name} no es una imagen válida`,
+            variant: "destructive",
+          });
+          continue;
         }
+
+        if (file.size > 5 * 1024 * 1024) {
+          toast({
+            title: "Advertencia",
+            description: `El archivo ${file.name} supera los 5MB permitidos`,
+            variant: "destructive",
+          });
+          continue;
+        }
+
+        validFiles.push(file);
+        const imageUrl = URL.createObjectURL(file);
+        imageUrls.push(imageUrl);
       }
       
       setGaleriaFiles([...galeriaFiles, ...validFiles]);
       setGaleriaImagenes([...galeriaImagenes, ...imageUrls]);
       form.setValue("galeriaProductosUrls", [...galeriaImagenes, ...imageUrls]);
+      
+      if (validFiles.length > 0) {
+        toast({
+          title: "Éxito",
+          description: `Se agregaron ${validFiles.length} imágenes a la galería`,
+        });
+      }
     } catch (error) {
       console.error("Error procesando galería:", error);
       toast({
