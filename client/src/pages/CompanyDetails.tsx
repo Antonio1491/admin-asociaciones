@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link, useLocation } from "wouter";
-import { ArrowLeft, MapPin, Phone, Mail, Globe, Video, FileText, Award, Star, MessageSquare, Calculator, Building, Grid3x3, Facebook, Linkedin, Twitter, Instagram, Heart, CreditCard, Crown } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Mail, Globe, Video, FileText, Award, Star, MessageSquare, Calculator, Building, Grid3x3, Facebook, Linkedin, Twitter, Instagram, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,10 +40,7 @@ export default function CompanyDetails() {
     },
   });
 
-  // Query para tipos de membresía
-  const { data: membershipTypes = [] } = useQuery({
-    queryKey: ["/api/membership-types"],
-  });
+
 
   if (isLoading) {
     return (
@@ -122,14 +119,7 @@ export default function CompanyDetails() {
 
 
 
-            {/* Plan de membresía */}
-            {company.membershipType && (
-              <div className="flex justify-center mb-8">
-                <Badge variant="outline" className="bg-white/10 text-white border-white/30 text-sm px-4 py-1">
-                  {company.membershipType.nombrePlan}
-                </Badge>
-              </div>
-            )}
+
 
             {/* Datos importantes de contacto */}
             <div className="border-t border-white/20 pt-8">
@@ -489,63 +479,7 @@ export default function CompanyDetails() {
               </Card>
             )}
 
-            {/* Actualizar Membresía */}
-            {membershipTypes.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Crown className="h-5 w-5 mr-2" />
-                    Actualizar Membresía
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="text-sm text-gray-600 mb-4">
-                    {company.membershipType ? (
-                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                        <div>
-                          <p className="font-medium">Plan Actual</p>
-                          <p className="text-blue-600">{company.membershipType.nombrePlan}</p>
-                        </div>
-                        <Badge variant="secondary">{company.membershipType.costo}</Badge>
-                      </div>
-                    ) : (
-                      <p>Esta empresa no tiene membresía activa</p>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {membershipTypes
-                      .filter((type: any) => type.id !== company.membershipTypeId)
-                      .map((type: any) => (
-                        <div key={type.id} className="border rounded-lg p-4">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h4 className="font-medium">{type.nombrePlan}</h4>
-                              <p className="text-sm text-gray-600">{type.descripcionPlan}</p>
-                            </div>
-                            <Badge variant="outline">{type.costo}</Badge>
-                          </div>
-                          <Button 
-                            size="sm" 
-                            className="w-full mt-2"
-                            onClick={() => setLocation(`/checkout/${company.id}/${type.id}`)}
-                          >
-                            <CreditCard className="h-4 w-4 mr-2" />
-                            Actualizar a {type.nombrePlan}
-                          </Button>
-                        </div>
-                      ))
-                    }
-                  </div>
-                  
-                  {membershipTypes.filter((type: any) => type.id !== company.membershipTypeId).length === 0 && (
-                    <p className="text-sm text-gray-500 text-center py-4">
-                      Esta empresa ya tiene la membresía más avanzada disponible.
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+
 
             {/* Catálogo Digital */}
             {company.catalogoDigitalUrl && (
