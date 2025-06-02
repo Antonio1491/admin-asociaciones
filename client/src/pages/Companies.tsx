@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Filter, Download, Upload } from "lucide-react";
+import { Plus, Search, Filter, Download, Upload, FileDown } from "lucide-react";
 import CompanyTable from "@/components/CompanyTable";
 import AddCompanyModal from "@/components/AddCompanyModal";
 import EditCompanyModal from "@/components/EditCompanyModal";
@@ -142,6 +142,52 @@ export default function Companies() {
     toast({
       title: "Exportación exitosa",
       description: "El archivo CSV ha sido descargado",
+    });
+  };
+
+  const handleDownloadTemplate = () => {
+    const templateHeaders = [
+      'id', 'nombre', 'direccion', 'email', 'telefono', 'direccion_web', 
+      'informacion', 'whatsapp', 'logo_url', 'video_url', 'catalogo_url', 
+      'pais', 'ciudad', 'miembro', 'codigo_activacion', 'fecha_registro', 'fecha_activacion'
+    ];
+
+    const templateData = [
+      templateHeaders,
+      [
+        '1', 'Empresa Ejemplo SA', 'Av. Principal 123, Col. Centro, CP 12345, Ciudad, Estado',
+        'contacto@empresaejemplo.com', '55 1234 5678', 'https://www.empresaejemplo.com',
+        'Descripción de la empresa y sus servicios principales', '55 1234 5679',
+        'logo-empresa.png', 'https://youtube.com/watch?v=ejemplo', 'catalogo-productos.pdf',
+        'México', 'Ciudad de México', '1', 'ABC123-DEF456', '2024-01-15', '2024-01-20'
+      ]
+    ];
+
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(templateData);
+    
+    // Ajustar ancho de columnas
+    const columnWidths = templateHeaders.map(() => ({ wch: 20 }));
+    worksheet['!cols'] = columnWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Plantilla Empresas');
+    
+    // Crear archivo Excel
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'plantilla_importacion_empresas.xlsx');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Plantilla descargada",
+      description: "La plantilla de Excel ha sido descargada exitosamente",
     });
   };
 
@@ -433,25 +479,19 @@ export default function Companies() {
           <p className="text-gray-600 mt-1">Gestiona y visualiza todas las empresas registradas</p>
         </div>
         <div className="flex items-center gap-2">
+          {/* Botón Plantilla */}
+          <Button
+            onClick={handleDownloadTemplate}
+            variant="outline"
+            className="flex items-center space-x-2 text-green-600 border-green-600 hover:bg-green-50"
+          >
+            <FileDown className="w-4 h-4" />
+            <span>Plantilla</span>
+          </Button>
+
           {/* Botón Exportar */}
           <Button 
-            onClick={() => {
-              const csvContent = generateCSV();
-              const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-              const link = document.createElement('a');
-              const url = URL.createObjectURL(blob);
-              link.setAttribute('href', url);
-              link.setAttribute('download', `empresas_${new Date().toISOString().split('T')[0]}.csv`);
-              link.style.visibility = 'hidden';
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              
-              toast({
-                title: "Exportación exitosa",
-                description: "El archivo CSV ha sido descargado",
-              });
-            }}
+            onClick={handleExport}
             variant="outline" 
             className="flex items-center space-x-2"
           >
