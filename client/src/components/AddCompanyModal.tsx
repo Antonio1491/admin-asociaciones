@@ -292,81 +292,47 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   };
 
   // Funciones para galería de fotografías
-  const validateImage = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      // Validar tamaño del archivo (máx 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "Error",
-          description: "La imagen no debe pesar más de 5MB",
-          variant: "destructive",
-        });
-        resolve(false);
-        return;
-      }
+  const validateImage = (file: File): boolean => {
+    // Validar tamaño del archivo (máx 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "La imagen no debe pesar más de 5MB",
+        variant: "destructive",
+      });
+      return false;
+    }
 
-      // Validar tipo de archivo
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Error",
-          description: "Solo se permiten archivos de imagen",
-          variant: "destructive",
-        });
-        resolve(false);
-        return;
-      }
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Solo se permiten archivos de imagen",
+        variant: "destructive",
+      });
+      return false;
+    }
 
-      // Validar resolución mínima
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        if (img.width < 800 || img.height < 800) {
-          toast({
-            title: "Error",
-            description: "Las imágenes deben tener una resolución mínima de 800x800px",
-            variant: "destructive",
-          });
-          resolve(false);
-        } else {
-          resolve(true);
-        }
-      };
-
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        toast({
-          title: "Error",
-          description: "Error al cargar la imagen",
-          variant: "destructive",
-        });
-        resolve(false);
-      };
-
-      img.src = url;
-    });
+    return true;
   };
 
   const processImageToSquare = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      
-      img.onload = () => {
-        const size = Math.min(img.width, img.height);
-        canvas.width = size;
-        canvas.height = size;
-        
-        const offsetX = (img.width - size) / 2;
-        const offsetY = (img.height - size) / 2;
-        
-        ctx?.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
-        resolve(canvas.toDataURL('image/jpeg', 0.8));
-      };
-      
-      img.src = URL.createObjectURL(file);
+    return new Promise((resolve, reject) => {
+      try {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const result = e.target?.result as string;
+          if (result) {
+            resolve(result);
+          } else {
+            reject(new Error("No se pudo leer el archivo"));
+          }
+        };
+        reader.onerror = () => reject(new Error("Error al leer el archivo"));
+        reader.readAsDataURL(file);
+      } catch (error) {
+        reject(error);
+      }
     });
   };
 
@@ -387,11 +353,20 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     const newPreviews: string[] = [];
 
     for (const file of files) {
-      const isValid = await validateImage(file);
+      const isValid = validateImage(file);
       if (isValid) {
-        validFiles.push(file);
-        const preview = await processImageToSquare(file);
-        newPreviews.push(preview);
+        try {
+          validFiles.push(file);
+          const preview = await processImageToSquare(file);
+          newPreviews.push(preview);
+        } catch (error) {
+          console.error('Error procesando archivo:', error);
+          toast({
+            title: "Error",
+            description: `No se pudo procesar el archivo ${file.name}`,
+            variant: "destructive",
+          });
+        }
       }
     }
 
@@ -415,11 +390,20 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     const newPreviews: string[] = [];
 
     for (const file of files) {
-      const isValid = await validateImage(file);
+      const isValid = validateImage(file);
       if (isValid) {
-        validFiles.push(file);
-        const preview = await processImageToSquare(file);
-        newPreviews.push(preview);
+        try {
+          validFiles.push(file);
+          const preview = await processImageToSquare(file);
+          newPreviews.push(preview);
+        } catch (error) {
+          console.error('Error procesando archivo:', error);
+          toast({
+            title: "Error",
+            description: `No se pudo procesar el archivo ${file.name}`,
+            variant: "destructive",
+          });
+        }
       }
     }
 
