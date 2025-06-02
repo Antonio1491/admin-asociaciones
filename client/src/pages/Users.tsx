@@ -48,6 +48,7 @@ import { UserPlus, MoreHorizontal, Edit, Trash2, Users as UsersIcon, User, Searc
 import { User as UserType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import Swal from 'sweetalert2';
 
 const userSchema = z.object({
   displayName: z.string().min(1, "El nombre es requerido"),
@@ -188,8 +189,20 @@ export default function Users() {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (userId: number) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este usuario?")) {
+  const handleDelete = async (userId: number) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar usuario?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
       deleteUserMutation.mutate(userId);
     }
   };

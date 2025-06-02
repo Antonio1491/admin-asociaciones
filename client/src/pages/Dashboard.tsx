@@ -26,6 +26,7 @@ import { CompanyWithDetails, Category, MembershipType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useMutation } from "@tanstack/react-query";
+import Swal from 'sweetalert2';
 
 ChartJS.register(
   CategoryScale,
@@ -113,8 +114,20 @@ export default function Dashboard() {
     setIsEditModalOpen(true);
   };
 
-  const handleDelete = (companyId: number) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta empresa?")) {
+  const handleDelete = async (companyId: number) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar empresa?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
       deleteCompanyMutation.mutate(companyId);
     }
   };

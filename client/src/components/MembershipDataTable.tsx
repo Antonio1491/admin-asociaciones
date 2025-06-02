@@ -21,6 +21,7 @@ import { MoreHorizontal, Edit, Trash2, Eye, Crown } from "lucide-react";
 import { MembershipType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import Swal from 'sweetalert2';
 
 interface MembershipDataTableProps {
   memberships: MembershipType[];
@@ -52,8 +53,20 @@ export default function MembershipDataTable({ memberships, onEdit, onView }: Mem
     },
   });
 
-  const handleDelete = (membershipId: number) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este tipo de membresía?")) {
+  const handleDelete = async (membershipId: number) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar membresía?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
       deleteMembershipMutation.mutate(membershipId);
     }
   };

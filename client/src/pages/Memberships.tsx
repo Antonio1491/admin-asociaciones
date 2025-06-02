@@ -49,6 +49,7 @@ import { Plus, MoreHorizontal, Edit, Trash2, Crown, Check, Grid, Table as TableI
 import { MembershipType } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import Swal from 'sweetalert2';
 import MembershipDataTable from "@/components/MembershipDataTable";
 
 const membershipSchema = z.object({
@@ -204,8 +205,20 @@ export default function Memberships() {
     setIsViewModalOpen(true);
   };
 
-  const handleDelete = (membershipId: number) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar este tipo de membresía?")) {
+  const handleDelete = async (membershipId: number) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar membresía?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
       deleteMembershipMutation.mutate(membershipId);
     }
   };
