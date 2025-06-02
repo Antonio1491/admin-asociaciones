@@ -47,13 +47,11 @@ function CompanyCard({ company }: { company: any }) {
         <div
           style={{
             height: "75%",
-            background: company.galeriaProductosUrls && company.galeriaProductosUrls.length > 0
-              ? `url(${company.galeriaProductosUrls[0]}) center/cover`
+            background: company.logotipoUrl
+              ? `url(${company.logotipoUrl}) center/contain no-repeat #f8fafc`
               : company.imagenPortada
               ? `url(${company.imagenPortada}) center/cover`
-              : company.logotipoUrl
-                ? `url(${company.logotipoUrl}) center/contain no-repeat #f8fafc`
-                : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

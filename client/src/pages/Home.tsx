@@ -23,14 +23,6 @@ function CategoryIcon({ category, className = "w-5 h-5" }: { category: any; clas
 }
 
 function CompanyCard({ company }: { company: any }) {
-  // Debug para ver los datos de la empresa
-  console.log("CompanyCard data:", {
-    nombreEmpresa: company.nombreEmpresa,
-    galeriaProductosUrls: company.galeriaProductosUrls,
-    logotipoUrl: company.logotipoUrl,
-    imagenPortada: company.imagenPortada
-  });
-  
   return (
     <Link href={`/empresa/${company.id}`}>
       <div
@@ -57,12 +49,10 @@ function CompanyCard({ company }: { company: any }) {
         <div
           style={{
             height: "75%",
-            background: company.galeriaProductosUrls && company.galeriaProductosUrls.length > 0
-              ? `url(${company.galeriaProductosUrls[0]}) center/cover`
+            background: company.logotipoUrl
+              ? `url(${company.logotipoUrl}) center/contain no-repeat #f8fafc`
               : company.imagenPortada
               ? `url(${company.imagenPortada}) center/cover`
-              : company.logotipoUrl
-              ? `url(${company.logotipoUrl}) center/contain no-repeat #f8fafc`
               : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             position: "relative",
           }}
