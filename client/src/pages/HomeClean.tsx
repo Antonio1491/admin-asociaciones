@@ -81,7 +81,7 @@ function CompanyCard({ company }: { company: any }) {
             </div>
           )}
 
-          {!company.imagenPortada && !company.logotipoUrl && (
+          {!company.galeriaProductosUrls?.length && !company.imagenPortada && !company.logotipoUrl && (
             <div
               style={{
                 width: "60px",

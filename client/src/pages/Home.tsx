@@ -59,7 +59,7 @@ function CompanyCard({ company }: { company: any }) {
             position: "relative",
           }}
         >
-          {!company.imagenPortada && !company.logotipoUrl && (
+          {!company.galeriaProductosUrls?.length && !company.imagenPortada && !company.logotipoUrl && (
             <div
               style={{
                 position: "absolute",
