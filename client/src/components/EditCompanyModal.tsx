@@ -201,52 +201,27 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   const handleGaleriaChange = async (files: FileList) => {
     try {
       const validFiles: File[] = [];
-      const imageUrls: string[] = [];
       
       for (let i = 0; i < Math.min(files.length, 10 - galeriaFiles.length); i++) {
         const file = files[i];
         
-        // Validaciones básicas
-        if (!file.type.startsWith('image/')) {
-          toast({
-            title: "Advertencia",
-            description: `El archivo ${file.name} no es una imagen válida`,
-            variant: "destructive",
-          });
-          continue;
+        if (validateImage(file)) {
+          validFiles.push(file);
         }
-
-        if (file.size > 5 * 1024 * 1024) {
-          toast({
-            title: "Advertencia",
-            description: `El archivo ${file.name} supera los 5MB permitidos`,
-            variant: "destructive",
-          });
-          continue;
-        }
-
-        validFiles.push(file);
-        
-        // Convertir a base64 para guardado permanente
-        const base64 = await new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
-        
-        imageUrls.push(base64);
       }
+
+      if (validFiles.length === 0) return;
+
+      const imageUrls = await uploadMultipleImages(validFiles);
       
       setGaleriaFiles([...galeriaFiles, ...validFiles]);
       setGaleriaImagenes([...galeriaImagenes, ...imageUrls]);
       form.setValue("galeriaProductosUrls", [...galeriaImagenes, ...imageUrls]);
       
-      if (validFiles.length > 0) {
-        toast({
-          title: "Éxito",
-          description: `Se agregaron ${validFiles.length} imágenes a la galería`,
-        });
-      }
+      toast({
+        title: "Éxito",
+        description: `Se agregaron ${validFiles.length} imágenes a la galería`,
+      });
     } catch (error) {
       console.error("Error procesando galería:", error);
       toast({
