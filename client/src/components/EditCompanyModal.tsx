@@ -118,94 +118,70 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   const { toast } = useToast();
 
   // Funciones de validación de imágenes
-  const validateImage = (file: File): Promise<boolean> => {
-    return new Promise((resolve) => {
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "Error",
-          description: "La imagen no debe pesar más de 5MB",
-          variant: "destructive",
-        });
-        resolve(false);
-        return;
-      }
+  const validateImage = (file: File): boolean => {
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "La imagen no debe pesar más de 10MB",
+        variant: "destructive",
+      });
+      return false;
+    }
 
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Error",
-          description: "Solo se permiten archivos de imagen",
-          variant: "destructive",
-        });
-        resolve(false);
-        return;
-      }
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Solo se permiten archivos de imagen (JPG, PNG, GIF, WebP)",
+        variant: "destructive",
+      });
+      return false;
+    }
 
-      const img = new Image();
-      img.onload = () => {
-        if (img.width < 800 || img.height < 800) {
-          toast({
-            title: "Advertencia",
-            description: "Se recomienda que la imagen tenga al menos 800x800 píxeles para mejor calidad",
-            variant: "default",
-          });
-        }
-        resolve(true);
-      };
-      img.onerror = () => {
-        toast({
-          title: "Error",
-          description: "El archivo no es una imagen válida",
-          variant: "destructive",
-        });
-        resolve(false);
-      };
-      img.src = URL.createObjectURL(file);
-    });
+    return true;
   };
 
-  const processImageToSquare = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      try {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          if (result) {
-            resolve(result);
-          } else {
-            reject(new Error("No se pudo leer el archivo"));
-          }
-        };
-        reader.onerror = () => reject(new Error("Error al leer el archivo"));
-        reader.readAsDataURL(file);
-      } catch (error) {
-        reject(error);
-      }
+  const uploadImageToServer = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch('/api/upload-image', {
+      method: 'POST',
+      body: formData,
     });
+
+    if (!response.ok) {
+      throw new Error('Error al subir la imagen');
+    }
+
+    const result = await response.json();
+    return result.imageUrl;
+  };
+
+  const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    const response = await fetch('/api/upload-images', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al subir las imágenes');
+    }
+
+    const result = await response.json();
+    return result.images.map((img: any) => img.imageUrl);
   };
 
   const handleLogoChange = async (file: File) => {
     try {
-      // Validaciones básicas sin promesas complicadas
-      if (!file.type.startsWith('image/')) {
-        toast({
-          title: "Error",
-          description: "Solo se permiten archivos de imagen",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "Error",
-          description: "La imagen no debe pesar más de 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (!validateImage(file)) return;
 
       setLogoFile(file);
-      const imageUrl = await processImageToSquare(file);
+      const imageUrl = await uploadImageToServer(file);
       form.setValue("logotipoUrl", imageUrl);
       
       toast({

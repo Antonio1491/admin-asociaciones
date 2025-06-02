@@ -212,24 +212,42 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   };
 
   // Manejo del logo con drag and drop
-  const handleLogoDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+  const handleLogoDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('image/')) {
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onload = () => setLogoPreview(reader.result as string);
-      reader.readAsDataURL(file);
+      if (!validateImage(file)) return;
+      
+      try {
+        const imageUrl = await uploadImageToServer(file);
+        setLogoFile(file);
+        setLogoPreview(imageUrl);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Error al subir el logo al servidor",
+          variant: "destructive",
+        });
+      }
     }
-  }, []);
+  }, [toast]);
 
-  const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onload = () => setLogoPreview(reader.result as string);
-      reader.readAsDataURL(file);
+      if (!validateImage(file)) return;
+      
+      try {
+        const imageUrl = await uploadImageToServer(file);
+        setLogoFile(file);
+        setLogoPreview(imageUrl);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Error al subir el logo al servidor",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -367,29 +385,21 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       return;
     }
 
-    const validFiles: File[] = [];
-    const newPreviews: string[] = [];
+    const validFiles = files.filter(validateImage);
+    if (validFiles.length === 0) return;
 
-    for (const file of files) {
-      const isValid = validateImage(file);
-      if (isValid) {
-        try {
-          validFiles.push(file);
-          const preview = await processImageToSquare(file);
-          newPreviews.push(preview);
-        } catch (error) {
-          console.error('Error procesando archivo:', error);
-          toast({
-            title: "Error",
-            description: `No se pudo procesar el archivo ${file.name}`,
-            variant: "destructive",
-          });
-        }
-      }
+    try {
+      const imageUrls = await uploadMultipleImages(validFiles);
+      
+      setGaleriaFiles([...galeriaFiles, ...validFiles]);
+      setGaleriaPreviews([...galeriaPreviews, ...imageUrls]);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error al subir las imágenes al servidor",
+        variant: "destructive",
+      });
     }
-
-    setGaleriaFiles([...galeriaFiles, ...validFiles]);
-    setGaleriaPreviews([...galeriaPreviews, ...newPreviews]);
   }, [galeriaFiles, galeriaPreviews, toast]);
 
   const handleGaleriaSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -404,29 +414,26 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       return;
     }
 
-    const validFiles: File[] = [];
-    const newPreviews: string[] = [];
+    const validFiles = files.filter(validateImage);
+    if (validFiles.length === 0) return;
 
-    for (const file of files) {
-      const isValid = validateImage(file);
-      if (isValid) {
-        try {
-          validFiles.push(file);
-          const preview = await processImageToSquare(file);
-          newPreviews.push(preview);
-        } catch (error) {
-          console.error('Error procesando archivo:', error);
-          toast({
-            title: "Error",
-            description: `No se pudo procesar el archivo ${file.name}`,
-            variant: "destructive",
-          });
-        }
-      }
+    try {
+      const imageUrls = await uploadMultipleImages(validFiles);
+      
+      setGaleriaFiles([...galeriaFiles, ...validFiles]);
+      setGaleriaPreviews([...galeriaPreviews, ...imageUrls]);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error al subir las imágenes al servidor",
+        variant: "destructive",
+      });
     }
 
-    setGaleriaFiles([...galeriaFiles, ...validFiles]);
-    setGaleriaPreviews([...galeriaPreviews, ...newPreviews]);
+    // Limpiar el input
+    if (e.target) {
+      e.target.value = '';
+    }
   };
 
   const removeGaleriaImage = (index: number) => {
