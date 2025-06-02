@@ -157,31 +157,49 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   };
 
   const handleLogoChange = async (file: File) => {
-    const isValid = await validateImage(file);
-    if (isValid) {
-      setLogoFile(file);
-      const imageUrl = await processImageToSquare(file);
-      form.setValue("logotipoUrl", imageUrl);
+    try {
+      const isValid = await validateImage(file);
+      if (isValid) {
+        setLogoFile(file);
+        const imageUrl = await processImageToSquare(file);
+        form.setValue("logotipoUrl", imageUrl);
+      }
+    } catch (error) {
+      console.error("Error procesando imagen:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo procesar la imagen seleccionada",
+        variant: "destructive",
+      });
     }
   };
 
   const handleGaleriaChange = async (files: FileList) => {
-    const validFiles: File[] = [];
-    const imageUrls: string[] = [];
-    
-    for (let i = 0; i < Math.min(files.length, 10 - galeriaFiles.length); i++) {
-      const file = files[i];
-      const isValid = await validateImage(file);
-      if (isValid) {
-        validFiles.push(file);
-        const imageUrl = URL.createObjectURL(file);
-        imageUrls.push(imageUrl);
+    try {
+      const validFiles: File[] = [];
+      const imageUrls: string[] = [];
+      
+      for (let i = 0; i < Math.min(files.length, 10 - galeriaFiles.length); i++) {
+        const file = files[i];
+        const isValid = await validateImage(file);
+        if (isValid) {
+          validFiles.push(file);
+          const imageUrl = URL.createObjectURL(file);
+          imageUrls.push(imageUrl);
+        }
       }
+      
+      setGaleriaFiles([...galeriaFiles, ...validFiles]);
+      setGaleriaImagenes([...galeriaImagenes, ...imageUrls]);
+      form.setValue("galeriaProductosUrls", [...galeriaImagenes, ...imageUrls]);
+    } catch (error) {
+      console.error("Error procesando galería:", error);
+      toast({
+        title: "Error",
+        description: "No se pudieron procesar todas las imágenes seleccionadas",
+        variant: "destructive",
+      });
     }
-    
-    setGaleriaFiles([...galeriaFiles, ...validFiles]);
-    setGaleriaImagenes([...galeriaImagenes, ...imageUrls]);
-    form.setValue("galeriaProductosUrls", [...galeriaImagenes, ...imageUrls]);
   };
 
   // Plataformas de redes sociales disponibles
