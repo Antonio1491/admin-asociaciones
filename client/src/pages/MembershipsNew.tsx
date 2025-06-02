@@ -426,6 +426,160 @@ export default function MembershipsNew() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Editar Tipo de Membresía</DialogTitle>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-4">
+              <FormField
+                control={editForm.control}
+                name="nombrePlan"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre del Plan *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ej. Básico, Premium, Enterprise..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={editForm.control}
+                name="descripcionPlan"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Descripción del Plan</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Descripción breve del plan de membresía..."
+                        className="min-h-[120px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Opciones de Precios - Edit */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <FormLabel>Opciones de Precios *</FormLabel>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => editAppend({ periodicidad: "", costo: 0 })}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Opción
+                  </Button>
+                </div>
+                
+                {editFields.map((field, index) => (
+                  <div key={field.id} className="flex items-end space-x-2 p-4 border rounded-lg">
+                    <FormField
+                      control={editForm.control}
+                      name={`opcionesPrecios.${index}.periodicidad`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormLabel>Periodicidad</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Seleccionar" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="monthly">Mensual</SelectItem>
+                              <SelectItem value="quarterly">Trimestral</SelectItem>
+                              <SelectItem value="biannual">Semestral</SelectItem>
+                              <SelectItem value="yearly">Anual</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={editForm.control}
+                      name={`opcionesPrecios.${index}.costo`}
+                      render={({ field }) => (
+                        <FormItem className="flex-1">
+                          <FormLabel>Costo</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              {...field}
+                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {editFields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => editRemove(index)}
+                        className="mb-2"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <FormField
+                control={editForm.control}
+                name="beneficios"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Beneficios</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe los beneficios del plan de membresía (cada línea será un beneficio)..."
+                        className="min-h-[150px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-center justify-end space-x-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    setSelectedMembership(null);
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={updateMembershipMutation.isPending}>
+                  {updateMembershipMutation.isPending ? "Actualizando..." : "Actualizar Membresía"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
       {/* Content Area */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
