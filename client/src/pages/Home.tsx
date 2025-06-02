@@ -3,23 +3,23 @@ import { useState, useRef } from "react";
 import { Link } from "wouter";
 import * as LucideIcons from "lucide-react";
 
-function CategoryIcon({ category }: { category: any }) {
+function CategoryIcon({ category, className = "w-5 h-5" }: { category: any; className?: string }) {
   // Si hay una URL de icono personalizado, usarla
   if (category.iconoUrl) {
-    return <img src={category.iconoUrl} alt={category.nombreCategoria} className="w-5 h-5" />;
+    return <img src={category.iconoUrl} alt={category.nombreCategoria} className={className} />;
   }
   
   // Si hay un nombre de icono de Lucide, usarlo
   if (category.icono) {
     const IconComponent = (LucideIcons as any)[category.icono];
     if (IconComponent) {
-      return <IconComponent className="w-5 h-5" />;
+      return <IconComponent className={className} />;
     }
   }
   
   // Fallback a icono genérico
   const Building = LucideIcons.Building;
-  return <Building className="w-5 h-5" />;
+  return <Building className={className} />;
 }
 
 function CompanyCard({ company }: { company: any }) {
@@ -316,24 +316,74 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Barra de categorías deslizable */}
-      <div className="bg-white border-b shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="overflow-x-auto">
-            <div className="flex space-x-4 min-w-max pb-2">
+      {/* Slider de categorías moderno */}
+      <div className="bg-gradient-to-r from-slate-50 to-gray-100 py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Explora por Categorías</h3>
+            <p className="text-gray-600">Encuentra empresas especializadas en cada sector</p>
+          </div>
+          
+          <div className="relative">
+            {/* Botón izquierdo */}
+            <button
+              onClick={() => {
+                const slider = document.getElementById('categorySlider');
+                if (slider) slider.scrollBy({ left: -300, behavior: 'smooth' });
+              }}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border border-gray-200"
+            >
+              <LucideIcons.ChevronLeft className="w-6 h-6 text-gray-600" />
+            </button>
+
+            {/* Botón derecho */}
+            <button
+              onClick={() => {
+                const slider = document.getElementById('categorySlider');
+                if (slider) slider.scrollBy({ left: 300, behavior: 'smooth' });
+              }}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border border-gray-200"
+            >
+              <LucideIcons.ChevronRight className="w-6 h-6 text-gray-600" />
+            </button>
+
+            {/* Contenedor del slider */}
+            <div 
+              id="categorySlider"
+              className="flex gap-6 overflow-x-auto scroll-smooth px-12 py-4 scrollbar-hide"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none'
+              }}
+            >
+              {/* Todas las empresas */}
               <Link href="/directorio">
-                <button className="flex items-center gap-2 whitespace-nowrap px-6 py-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all flex-shrink-0 bg-white text-gray-700">
-                  <LucideIcons.Building className="w-5 h-5" /> Todas las empresas
-                </button>
+                <div className="flex-shrink-0 group cursor-pointer">
+                  <div className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 min-w-[140px] text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                      <LucideIcons.Building className="w-8 h-8 text-white" />
+                    </div>
+                    <h4 className="font-semibold text-gray-800 text-sm">Todas</h4>
+                    <p className="text-xs text-gray-500 mt-1">Ver todo</p>
+                  </div>
+                </div>
               </Link>
+
+              {/* Categorías individuales */}
               {categories.map((category: any) => (
                 <Link 
                   key={category.id} 
                   href={`/directorio?categoryId=${category.id}`}
                 >
-                  <button className="flex items-center gap-2 whitespace-nowrap px-6 py-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all flex-shrink-0 bg-white text-gray-700">
-                    <CategoryIcon category={category} /> {category.nombreCategoria}
-                  </button>
+                  <div className="flex-shrink-0 group cursor-pointer">
+                    <div className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 min-w-[140px] text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+                        <CategoryIcon category={category} className="w-8 h-8 text-white" />
+                      </div>
+                      <h4 className="font-semibold text-gray-800 text-sm leading-tight">{category.nombreCategoria}</h4>
+                      <p className="text-xs text-gray-500 mt-1">Explorar</p>
+                    </div>
+                  </div>
                 </Link>
               ))}
             </div>
