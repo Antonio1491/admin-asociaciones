@@ -68,10 +68,10 @@ export default function CompanyDetails() {
 
   const telefonos = [company.telefono1, company.telefono2].filter(Boolean);
   const emails = [company.email1, company.email2].filter(Boolean);
-  const galeria = company.galeriaProductosUrls as string[] || [];
-  const videos = [company.videoUrl1, company.videoUrl2, company.videoUrl3].filter(Boolean);
-  const representantes = company.representantesVentas as string[] || [];
-  const redesSociales = company.redesSociales as Record<string, string> || {};
+  const galeria = company.galeriaProductosUrls || [];
+  const videos = company.videosUrls || [];
+  const representantes = company.representantesVentas || [];
+  const redesSociales = company.redesSociales || [];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -248,7 +248,7 @@ export default function CompanyDetails() {
             )}
 
             {/* Certificados y Reconocimientos */}
-            {certificates.length > 0 && (
+            {company.certificates && company.certificates.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
@@ -258,7 +258,7 @@ export default function CompanyDetails() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {certificates.map((certificate: any) => (
+                    {company.certificates.map((certificate: any) => (
                       <div key={certificate.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                         {/* Header con imagen e icono */}
                         <div className="flex items-center gap-3 mb-4">
