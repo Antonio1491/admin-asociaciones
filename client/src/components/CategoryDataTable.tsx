@@ -26,6 +26,7 @@ import {
 import { Category } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import Swal from 'sweetalert2';
 
 interface CategoryDataTableProps {
   categories: Category[];
@@ -82,8 +83,20 @@ export default function CategoryDataTable({ categories, onEdit }: CategoryDataTa
     },
   });
 
-  const handleDelete = (categoryId: number) => {
-    if (window.confirm("¿Estás seguro de que quieres eliminar esta categoría?")) {
+  const handleDelete = async (categoryId: number) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar categoría?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (result.isConfirmed) {
       deleteCategoryMutation.mutate(categoryId);
     }
   };
