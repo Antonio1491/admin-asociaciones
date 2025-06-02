@@ -318,24 +318,40 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     return true;
   };
 
-  const processImageToSquare = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      try {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result as string;
-          if (result) {
-            resolve(result);
-          } else {
-            reject(new Error("No se pudo leer el archivo"));
-          }
-        };
-        reader.onerror = () => reject(new Error("Error al leer el archivo"));
-        reader.readAsDataURL(file);
-      } catch (error) {
-        reject(error);
-      }
+  const uploadImageToServer = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const response = await fetch('/api/upload-image', {
+      method: 'POST',
+      body: formData,
     });
+    
+    if (!response.ok) {
+      throw new Error('Error al subir la imagen al servidor');
+    }
+    
+    const result = await response.json();
+    return result.imageUrl;
+  };
+
+  const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('images', file);
+    });
+    
+    const response = await fetch('/api/upload-images', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error('Error al subir las imágenes al servidor');
+    }
+    
+    const result = await response.json();
+    return result.images.map((img: any) => img.imageUrl);
   };
 
   const handleGaleriaDrop = useCallback(async (e: React.DragEvent<HTMLDivElement>) => {
