@@ -15,7 +15,8 @@ import {
   ChevronDown,
   ChevronRight,
   Shield,
-  MessageSquare
+  MessageSquare,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -82,6 +83,12 @@ const navigationItems = [
     name: "Reportes",
     href: "/reportes",
     icon: FileText,
+    requireAdmin: true,
+  },
+  {
+    name: "Configuración del Sistema",
+    href: "/configuracion",
+    icon: Settings,
     requireAdmin: true,
   },
 ];

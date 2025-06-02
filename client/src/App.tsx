@@ -123,6 +123,14 @@ function Router() {
         </ProtectedRoute>
       </Route>
       
+      <Route path="/configuracion">
+        <ProtectedRoute requireAdmin>
+          <AppLayout>
+            <SystemSettings />
+          </AppLayout>
+        </ProtectedRoute>
+      </Route>
+      
       <Route path="/empresa/:id">
         <PublicLayout>
           <CompanyDetails />
