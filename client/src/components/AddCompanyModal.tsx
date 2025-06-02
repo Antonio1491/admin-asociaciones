@@ -200,6 +200,8 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
 
       const companyData = {
         ...data,
+        // Convertir membershipTypeId a null si es undefined o string vacío
+        membershipTypeId: data.membershipTypeId && data.membershipTypeId !== "" ? Number(data.membershipTypeId) : null,
         videosUrls: videosValidos
       };
       

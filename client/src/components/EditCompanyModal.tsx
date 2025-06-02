@@ -330,6 +330,8 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       
       const updateData = {
         ...data,
+        // Convertir membershipTypeId a null si es undefined o string vacío
+        membershipTypeId: data.membershipTypeId && data.membershipTypeId !== "" ? Number(data.membershipTypeId) : null,
         redesSociales,
         representantesVentas: representantes.filter(r => r.trim() !== ""),
         galeriaProductosUrls: galeriaImagenes.filter(img => img.trim() !== ""),
