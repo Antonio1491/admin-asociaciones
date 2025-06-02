@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { Loader } from "@googlemaps/js-api-loader";
+import { MapPin, ExternalLink } from "lucide-react";
 
 interface CompanyLocationMapProps {
   ubicacionGeografica?: { lat: number; lng: number } | null;
@@ -12,93 +11,56 @@ export default function CompanyLocationMap({
   direccionFisica, 
   nombreEmpresa 
 }: CompanyLocationMapProps) {
-  const mapRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    const initMap = async () => {
-      try {
-        const loader = new Loader({
-          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
-          version: "weekly",
-          libraries: ["places"]
-        });
-
-        const { Map } = await loader.importLibrary("maps");
-        const { Marker } = await loader.importLibrary("marker");
-
-        if (!mapRef.current) return;
-
-        // Usar ubicación específica o coordenadas por defecto de México
-        const defaultLocation = { lat: 19.4326, lng: -99.1332 }; // Ciudad de México
-        const mapLocation = ubicacionGeografica || defaultLocation;
-
-        const mapInstance = new Map(mapRef.current, {
-          center: mapLocation,
-          zoom: ubicacionGeografica ? 15 : 6,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true,
-        });
-
-        // Solo agregar marcador si hay ubicación específica
-        if (ubicacionGeografica) {
-          new Marker({
-            position: mapLocation,
-            map: mapInstance,
-            title: nombreEmpresa,
-          });
-        }
-
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error initializing map:", error);
-        setHasError(true);
-        setIsLoading(false);
-      }
-    };
-
-    initMap();
-  }, [ubicacionGeografica, nombreEmpresa]);
-
-  if (isLoading) {
-    return (
-      <div className="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-gray-600">Cargando mapa...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (hasError) {
-    return (
-      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-        <div className="text-center text-gray-500">
-          <p>Error al cargar el mapa</p>
-          <p className="text-sm">Verifique la configuración de Google Maps</p>
-        </div>
-      </div>
-    );
-  }
+  const googleMapsUrl = ubicacionGeografica
+    ? `https://www.google.com/maps/search/?api=1&query=${ubicacionGeografica.lat},${ubicacionGeografica.lng}`
+    : direccionFisica
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionFisica)}`
+    : null;
 
   return (
-    <div className="space-y-4">
-      <div ref={mapRef} className="w-full h-64 rounded-lg border" />
-      {direccionFisica && ubicacionGeografica && (
-        <div className="flex justify-center">
-          <a
-            href={`https://www.google.com/maps?q=${ubicacionGeografica.lat},${ubicacionGeografica.lng}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-          >
-            Ver en Google Maps
-          </a>
+    <div className="w-full space-y-4">
+      {/* Información de ubicación */}
+      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <div className="flex items-start gap-3">
+          <MapPin className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
+          <div className="flex-1">
+            <h3 className="font-medium text-gray-900 mb-1">Ubicación</h3>
+            {direccionFisica && (
+              <p className="text-gray-700 mb-2">{direccionFisica}</p>
+            )}
+            {ubicacionGeografica && (
+              <p className="text-sm text-gray-500">
+                Coordenadas: {ubicacionGeografica.lat.toFixed(6)}, {ubicacionGeografica.lng.toFixed(6)}
+              </p>
+            )}
+            {googleMapsUrl && (
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 mt-3 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Ver en Google Maps
+              </a>
+            )}
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Placeholder para mapa visual */}
+      <div className="bg-gradient-to-br from-blue-100 to-green-100 rounded-lg h-64 flex items-center justify-center border border-gray-200">
+        <div className="text-center">
+          <MapPin className="h-12 w-12 text-blue-600 mx-auto mb-3" />
+          <h3 className="text-lg font-medium text-gray-900 mb-1">{nombreEmpresa}</h3>
+          <p className="text-gray-600 text-sm">Ubicación de la empresa</p>
+          {ubicacionGeografica && (
+            <div className="mt-2 text-xs text-gray-500">
+              Lat: {ubicacionGeografica.lat.toFixed(4)}, Lng: {ubicacionGeografica.lng.toFixed(4)}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
