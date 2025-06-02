@@ -55,6 +55,16 @@ const companySchema = z.object({
   categoriesIds: z.array(z.number()).min(1, "Selecciona al menos una categoría"),
   certificateIds: z.array(z.number()).optional(),
   membershipTypeId: z.number().optional().nullable(),
+  redesSociales: z.array(z.object({
+    plataforma: z.string(),
+    url: z.string().url()
+  })).optional(),
+  representantesVentas: z.array(z.string()).optional(),
+  ubicacionGeografica: z.object({
+    lat: z.number(),
+    lng: z.number(),
+    address: z.string()
+  }).optional().nullable(),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
@@ -74,6 +84,18 @@ interface EditCompanyModalProps {
 
 // Function to render category icon
 const renderCategoryIcon = (category: Category) => {
+  // If category has iconoUrl, use it as an image
+  if (category.iconoUrl) {
+    return (
+      <img 
+        src={category.iconoUrl} 
+        alt={category.nombreCategoria}
+        className="h-4 w-4 mr-2 object-contain"
+      />
+    );
+  }
+  
+  // Otherwise use the icon name from the iconMap
   const iconName = category.icono as keyof typeof iconMap;
   const IconComponent = iconMap[iconName] || Tags;
   return <IconComponent className="h-4 w-4 mr-2" />;
