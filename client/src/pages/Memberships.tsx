@@ -340,11 +340,10 @@ export default function Memberships() {
                     <FormItem>
                       <FormLabel>Descripción del Plan</FormLabel>
                       <FormControl>
-                        <RichTextEditor
-                          value={field.value || ""}
-                          onChange={field.onChange}
+                        <Textarea
                           placeholder="Descripción breve del plan de membresía..."
-                          height={120}
+                          className="min-h-[120px]"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -359,11 +358,10 @@ export default function Memberships() {
                     <FormItem>
                       <FormLabel>Beneficios</FormLabel>
                       <FormControl>
-                        <RichTextEditor
-                          value={field.value || ""}
-                          onChange={field.onChange}
-                          placeholder="Describe los beneficios del plan de membresía..."
-                          height={150}
+                        <Textarea
+                          placeholder="Describe los beneficios del plan de membresía (cada línea será un beneficio)..."
+                          className="min-h-[150px]"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -594,11 +592,10 @@ export default function Memberships() {
                   <FormItem>
                     <FormLabel>Descripción del Plan</FormLabel>
                     <FormControl>
-                      <RichTextEditor
-                        value={field.value || ""}
-                        onChange={field.onChange}
+                      <Textarea
                         placeholder="Descripción breve del plan de membresía..."
-                        height={120}
+                        className="min-h-[120px]"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -613,11 +610,10 @@ export default function Memberships() {
                   <FormItem>
                     <FormLabel>Beneficios</FormLabel>
                     <FormControl>
-                      <RichTextEditor
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                        placeholder="Describe los beneficios del plan de membresía..."
-                        height={150}
+                      <Textarea
+                        placeholder="Describe los beneficios del plan de membresía (cada línea será un beneficio)..."
+                        className="min-h-[150px]"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
