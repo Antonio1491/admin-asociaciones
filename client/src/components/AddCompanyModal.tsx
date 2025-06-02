@@ -152,7 +152,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     mutationFn: async (data: CompanyFormData) => {
       try {
         console.log("Datos a enviar:", data);
-        const result = await apiRequest("/api/companies", "POST", data);
+        const result = await apiRequest("POST", "/api/companies", data);
         console.log("Respuesta del servidor:", result);
         return result;
       } catch (error) {
