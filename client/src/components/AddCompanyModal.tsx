@@ -150,7 +150,15 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: CompanyFormData) => {
-      return await apiRequest("/api/companies", "POST", data);
+      try {
+        console.log("Datos a enviar:", data);
+        const result = await apiRequest("/api/companies", "POST", data);
+        console.log("Respuesta del servidor:", result);
+        return result;
+      } catch (error) {
+        console.error("Error en mutación:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
@@ -174,9 +182,10 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       setUbicacionesPorCiudad({});
     },
     onError: (error) => {
+      console.error("Error en onError:", error);
       toast({
         title: "Error",
-        description: "No se pudo registrar la empresa",
+        description: `No se pudo registrar la empresa: ${error.message || 'Error desconocido'}`,
         variant: "destructive",
       });
     },
