@@ -387,7 +387,17 @@ export default function CompanyDetails() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {representantes.map((rep, index) => (
                       <div key={index} className="p-4 border rounded-lg">
-                        <h4 className="font-semibold">{rep}</h4>
+                        {typeof rep === 'object' && rep.telefono ? (
+                          <div>
+                            <h4 className="font-semibold">Representante {index + 1}</h4>
+                            <p className="text-gray-600">{rep.telefono}</p>
+                          </div>
+                        ) : (
+                          <div>
+                            <h4 className="font-semibold">Representante {index + 1}</h4>
+                            <p className="text-gray-600">{String(rep)}</p>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
