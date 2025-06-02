@@ -258,8 +258,9 @@ export default function Home() {
                   placeholder="empresas, servicios o categorías..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-6 py-3 md:py-4 text-sm md:text-lg rounded-lg border-none outline-none text-gray-700"
+                  className="w-full px-4 text-sm md:text-lg rounded-lg border-none outline-none text-gray-700"
                   style={{
+                    height: "52px",
                     boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     backgroundColor: "rgba(255,255,255,0.95)",
                     backdropFilter: "blur(10px)",
@@ -273,8 +274,9 @@ export default function Home() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-4 py-3 md:py-4 text-sm md:text-lg rounded-lg border-none outline-none text-gray-700 cursor-pointer"
+                  className="w-full px-4 text-sm md:text-lg rounded-lg border-none outline-none text-gray-700 cursor-pointer"
                   style={{
+                    height: "52px",
                     boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     backgroundColor: "rgba(255,255,255,0.95)",
                     backdropFilter: "blur(10px)",
@@ -295,8 +297,9 @@ export default function Home() {
                 <select
                   value={selectedLocation}
                   onChange={(e) => setSelectedLocation(e.target.value)}
-                  className="w-full px-4 py-3 md:py-4 text-sm md:text-lg rounded-lg border-none outline-none text-gray-700 cursor-pointer"
+                  className="w-full px-4 text-sm md:text-lg rounded-lg border-none outline-none text-gray-700 cursor-pointer"
                   style={{
+                    height: "52px",
                     boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
                     backgroundColor: "rgba(255,255,255,0.95)",
                     backdropFilter: "blur(10px)",
