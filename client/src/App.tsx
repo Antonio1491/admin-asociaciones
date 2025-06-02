@@ -23,6 +23,7 @@ import MembershipCheckout from "@/pages/MembershipCheckout";
 import RepresentativeRegister from "@/pages/RepresentativeRegister";
 import RepresentativeLogin from "@/pages/RepresentativeLogin";
 import RepresentativeDashboard from "@/pages/RepresentativeDashboard";
+import SystemSettings from "@/pages/SystemSettings";
 import MainNavigation from "@/components/MainNavigation";
 import TestHome from "@/TestHome";
 import NotFound from "@/pages/not-found";

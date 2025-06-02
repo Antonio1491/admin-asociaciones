@@ -23,7 +23,10 @@ import {
   type InsertOpinion,
   type MembershipPayment,
   type InsertMembershipPayment,
-  type CompanyWithDetails
+  type CompanyWithDetails,
+  systemSettings,
+  type SystemSettings,
+  type InsertSystemSettings
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, sql, and, or } from "drizzle-orm";
@@ -615,6 +618,34 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, userId))
       .returning();
     return user || undefined;
+  }
+
+  // System Settings
+  async getSystemSettings(): Promise<SystemSettings> {
+    const [settings] = await db.select().from(systemSettings).limit(1);
+    
+    if (!settings) {
+      // Crear configuración por defecto si no existe
+      const [defaultSettings] = await db
+        .insert(systemSettings)
+        .values({})
+        .returning();
+      return defaultSettings;
+    }
+    
+    return settings;
+  }
+
+  async updateSystemSettings(settingsData: Partial<InsertSystemSettings>): Promise<SystemSettings> {
+    const currentSettings = await this.getSystemSettings();
+    
+    const [updatedSettings] = await db
+      .update(systemSettings)
+      .set({ ...settingsData, updatedAt: new Date() })
+      .where(eq(systemSettings.id, currentSettings.id))
+      .returning();
+    
+    return updatedSettings;
   }
 }
 
