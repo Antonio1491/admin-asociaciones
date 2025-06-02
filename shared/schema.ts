@@ -54,9 +54,7 @@ export const companies = pgTable("companies", {
   categoriesIds: jsonb("categories_ids"), // Array of category IDs
   redesSociales: jsonb("redes_sociales"), // Object with social media URLs
   catalogoDigitalUrl: text("catalogo_digital_url"),
-  videoUrl1: text("video_url1"),
-  videoUrl2: text("video_url2"),
-  videoUrl3: text("video_url3"),
+  videosUrls: jsonb("videos_urls"), // Array of video URLs
   membershipTypeId: integer("membership_type_id").references(() => membershipTypes.id),
   sitioWeb: text("sitio_web"),
   certificateIds: jsonb("certificate_ids"), // Array of certificate IDs
