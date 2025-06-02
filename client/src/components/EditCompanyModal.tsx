@@ -44,9 +44,7 @@ const companySchema = z.object({
   email2: z.string().email("Email inválido").optional().or(z.literal("")),
   logotipoUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
-  videoUrl1: z.string().url("URL inválida").optional().or(z.literal("")),
-  videoUrl2: z.string().url("URL inválida").optional().or(z.literal("")),
-  videoUrl3: z.string().url("URL inválida").optional().or(z.literal("")),
+  videosUrls: z.array(z.string().url("URL inválida")).optional(),
   catalogoDigitalUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   direccionFisica: z.string().optional(),
   galeriaProductosUrls: z.array(z.string().url()).optional(),
@@ -80,6 +78,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [catalogoFile, setCatalogoFile] = useState<File | null>(null);
   const [galeriaFiles, setGaleriaFiles] = useState<File[]>([]);
+  const [videosUrls, setVideosUrls] = useState<string[]>([]);
   const { toast } = useToast();
 
   // Funciones de validación de imágenes
@@ -385,6 +384,24 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     const newRepresentantes = [...representantes];
     newRepresentantes[index] = value;
     setRepresentantes(newRepresentantes);
+  };
+
+  // Funciones para manejar videos
+  const addVideo = () => {
+    if (videosUrls.length < 5) {
+      setVideosUrls([...videosUrls, ""]);
+    }
+  };
+
+  const removeVideo = (index: number) => {
+    const newVideos = videosUrls.filter((_, i) => i !== index);
+    setVideosUrls(newVideos);
+  };
+
+  const updateVideo = (index: number, value: string) => {
+    const newVideos = [...videosUrls];
+    newVideos[index] = value;
+    setVideosUrls(newVideos);
   };
 
   // Función para direcciones por ciudad
