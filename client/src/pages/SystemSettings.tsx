@@ -25,6 +25,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { 
   Settings, 
   Palette, 
@@ -52,6 +59,21 @@ const systemSettingsSchema = z.object({
 });
 
 type SystemSettingsFormData = z.infer<typeof systemSettingsSchema>;
+
+const currencies = [
+  { value: "USD", label: "USD - Dólar Estadounidense", symbol: "$" },
+  { value: "EUR", label: "EUR - Euro", symbol: "€" },
+  { value: "MXN", label: "MXN - Peso Mexicano", symbol: "$" },
+  { value: "COP", label: "COP - Peso Colombiano", symbol: "$" },
+  { value: "ARS", label: "ARS - Peso Argentino", symbol: "$" },
+  { value: "CLP", label: "CLP - Peso Chileno", symbol: "$" },
+  { value: "PEN", label: "PEN - Sol Peruano", symbol: "S/." },
+  { value: "BRL", label: "BRL - Real Brasileño", symbol: "R$" },
+  { value: "CAD", label: "CAD - Dólar Canadiense", symbol: "C$" },
+  { value: "GBP", label: "GBP - Libra Esterlina", symbol: "£" },
+  { value: "JPY", label: "JPY - Yen Japonés", symbol: "¥" },
+  { value: "CNY", label: "CNY - Yuan Chino", symbol: "¥" },
+];
 
 export default function SystemSettings() {
   const { toast } = useToast();
@@ -339,9 +361,23 @@ export default function SystemSettings() {
                         <DollarSign className="h-4 w-4" />
                         Moneda
                       </FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="USD" />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona una moneda" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {currencies.map((currency) => (
+                            <SelectItem key={currency.value} value={currency.value}>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-sm">{currency.symbol}</span>
+                                <span>{currency.label}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
