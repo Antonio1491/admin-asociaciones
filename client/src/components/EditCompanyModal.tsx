@@ -44,7 +44,7 @@ const companySchema = z.object({
   email2: z.string().email("Email inválido").optional().or(z.literal("")),
   logotipoUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
-  videosUrls: z.array(z.string().url("URL inválida").or(z.literal(""))).optional(),
+  videosUrls: z.array(z.string()).optional(),
   catalogoDigitalUrl: z.string().url("URL inválida").optional().or(z.literal("")),
   direccionFisica: z.string().optional(),
   galeriaProductosUrls: z.array(z.string().url()).optional(),
@@ -307,8 +307,29 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     },
   });
 
-  const onSubmit = (data: CompanyFormData) => {
-    updateMutation.mutate(data);
+  const onSubmit = async (data: CompanyFormData) => {
+    try {
+      // Filtrar y validar videos
+      const videosValidos = videosUrls
+        .filter(video => video && video.trim() !== "")
+        .filter(video => {
+          try {
+            new URL(video);
+            return true;
+          } catch {
+            return false;
+          }
+        });
+
+      const companyData = {
+        ...data,
+        videosUrls: videosValidos
+      };
+      
+      updateMutation.mutate(companyData);
+    } catch (error) {
+      console.error("Error al procesar datos de la empresa:", error);
+    }
   };
 
   // Funciones para redes sociales

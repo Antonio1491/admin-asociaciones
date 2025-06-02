@@ -45,7 +45,7 @@ const companySchema = insertCompanySchema.extend({
   email1: z.string().email("Email inválido"),
   nombreEmpresa: z.string().min(1, "El nombre de la empresa es requerido"),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
-  videosUrls: z.array(z.string().url("URL inválida").or(z.literal(""))).optional(),
+  videosUrls: z.array(z.string()).optional(),
   paisesPresencia: z.array(z.string()).optional(),
   estadosPresencia: z.array(z.string()).optional(),
   ciudadesPresencia: z.array(z.string()).optional(),
@@ -182,12 +182,29 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     },
   });
 
-  const onSubmit = (data: CompanyFormData) => {
-    const companyData = {
-      ...data,
-      videosUrls: videosUrls.filter(video => video.trim() !== "")
-    };
-    createCompanyMutation.mutate(companyData);
+  const onSubmit = async (data: CompanyFormData) => {
+    try {
+      // Filtrar y validar videos
+      const videosValidos = videosUrls
+        .filter(video => video && video.trim() !== "")
+        .filter(video => {
+          try {
+            new URL(video);
+            return true;
+          } catch {
+            return false;
+          }
+        });
+
+      const companyData = {
+        ...data,
+        videosUrls: videosValidos
+      };
+      
+      createCompanyMutation.mutate(companyData);
+    } catch (error) {
+      console.error("Error al procesar datos de la empresa:", error);
+    }
   };
 
   // Manejo del logo con drag and drop
