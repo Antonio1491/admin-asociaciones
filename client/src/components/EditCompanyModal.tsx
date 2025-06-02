@@ -354,7 +354,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
 
         console.log("Datos a enviar:", updateData);
 
-        const response = await apiRequest(`/api/companies/${company.id}`, "PUT", updateData);
+        const response = await apiRequest("PUT", `/api/companies/${company.id}`, updateData);
 
         if (!response.ok) {
           const errorData = await response.json();
