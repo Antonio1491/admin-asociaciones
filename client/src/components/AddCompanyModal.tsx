@@ -45,7 +45,7 @@ const companySchema = insertCompanySchema.extend({
   email1: z.string().email("Email inválido"),
   nombreEmpresa: z.string().min(1, "El nombre de la empresa es requerido"),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
-  videoUrl1: z.string().url("URL inválida").optional().or(z.literal("")),
+  videosUrls: z.array(z.string().url("URL inválida")).optional(),
   paisesPresencia: z.array(z.string()).optional(),
   estadosPresencia: z.array(z.string()).optional(),
   ciudadesPresencia: z.array(z.string()).optional(),
@@ -85,6 +85,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   const [representantes, setRepresentantes] = useState<string[]>([]);
   const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<{[ciudad: string]: string}>({});
   const [ubicacionesPorCiudad, setUbicacionesPorCiudad] = useState<{[ciudad: string]: { lat: number; lng: number; address: string }}>({});
+  const [videosUrls, setVideosUrls] = useState<string[]>([]);
   const { toast } = useToast();
 
   // Function to render the correct icon for categories
@@ -163,6 +164,14 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       setLogoFile(null);
       setLogoPreview("");
       setSelectedEstados([]);
+      setVideosUrls([]);
+      setEmailsAdicionales([]);
+      setTelefonosAdicionales([]);
+      setRepresentantes([]);
+      setGaleriaFiles([]);
+      setGaleriaPreviews([]);
+      setDireccionesPorCiudad({});
+      setUbicacionesPorCiudad({});
     },
     onError: (error) => {
       toast({
@@ -174,7 +183,11 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   });
 
   const onSubmit = (data: CompanyFormData) => {
-    createCompanyMutation.mutate(data);
+    const companyData = {
+      ...data,
+      videosUrls: videosUrls.filter(video => video.trim() !== "")
+    };
+    createCompanyMutation.mutate(companyData);
   };
 
   // Manejo del logo con drag and drop
@@ -456,6 +469,24 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     setRepresentantes(newRepresentantes);
   };
 
+  // Funciones para manejar videos
+  const addVideo = () => {
+    if (videosUrls.length < 5) {
+      setVideosUrls([...videosUrls, ""]);
+    }
+  };
+
+  const removeVideo = (index: number) => {
+    const newVideos = videosUrls.filter((_, i) => i !== index);
+    setVideosUrls(newVideos);
+  };
+
+  const updateVideo = (index: number, value: string) => {
+    const newVideos = [...videosUrls];
+    newVideos[index] = value;
+    setVideosUrls(newVideos);
+  };
+
   // Función para direcciones por ciudad
   const updateDireccionCiudad = (ciudad: string, direccion: string) => {
     setDireccionesPorCiudad(prev => ({
@@ -567,20 +598,49 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
 
 
 
-                {/* Video URL */}
-                <FormField
-                  control={form.control}
-                  name="videoUrl1"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Video de la Empresa</FormLabel>
-                      <FormControl>
-                        <Input placeholder="https://youtube.com/watch?v=..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+                {/* Videos dinámicos */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Videos de la Empresa</FormLabel>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addVideo}
+                      disabled={videosUrls.length >= 5}
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar Video ({videosUrls.length}/5)
+                    </Button>
+                  </div>
+                  
+                  {videosUrls.map((video, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Input
+                        placeholder="https://youtube.com/watch?v=..."
+                        value={video}
+                        onChange={(e) => updateVideo(index, e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeVideo(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  
+                  {videosUrls.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      No hay videos agregados. Haz clic en "Agregar Video" para añadir enlaces de YouTube, Vimeo, etc.
+                    </p>
                   )}
-                />
+                </div>
 
                 {/* Categorías */}
                 <FormField
