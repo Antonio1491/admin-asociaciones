@@ -417,6 +417,467 @@ export default function Home() {
           </>
         )}
       </div>
+
+      {/* Nueva sección: Empresas líderes por categoría */}
+      <div className="py-8 md:py-16 px-4 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-center text-[#0f2161] font-['Montserrat']">
+            Empresas líderes en las que puede confiar
+          </h2>
+          
+          <p className="text-sm md:text-lg text-center text-gray-500 mb-8 md:mb-12 max-w-4xl mx-auto px-4">
+            Descubra empresas mejor valoradas, soluciones innovadoras y proyectos inspiradores. 
+            Haga clic para explorar sus perfiles y conectarse directamente.
+          </p>
+
+          {/* Slider de empresas por categoría */}
+          <div className="relative">
+            {/* Botones de navegación */}
+            <button
+              onClick={scrollCategoryLeft}
+              className="hidden md:flex absolute left-0 top-1/2 transform -translate-y-1/2 bg-white border-2 border-gray-200 rounded-full w-10 h-10 items-center justify-center cursor-pointer shadow-lg z-10 text-[#0f2161] hover:bg-gray-50"
+            >
+              ‹
+            </button>
+
+            <button
+              onClick={scrollCategoryRight}
+              className="hidden md:flex absolute right-0 top-1/2 transform -translate-y-1/2 bg-white border-2 border-gray-200 rounded-full w-10 h-10 items-center justify-center cursor-pointer shadow-lg z-10 text-[#0f2161] hover:bg-gray-50"
+            >
+              ›
+            </button>
+
+            <div 
+              ref={categorySliderRef}
+              className="flex gap-4 md:gap-8 overflow-x-auto scroll-smooth pb-4 px-0 md:px-5"
+              style={{
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                WebkitOverflowScrolling: "touch"
+              }}>
+              {categories.slice(0, 6).map((category: any, index: number) => {
+                // Asignar una empresa aleatoria de la lista para mostrar variedad
+                const categoryCompany = companies[index % companies.length];
+                
+                if (!categoryCompany) return null;
+                
+                return (
+                  <div key={category.id} className="min-w-[320px] md:min-w-[500px] lg:min-w-[600px] max-w-[320px] md:max-w-[500px] lg:max-w-[600px] flex-shrink-0">
+                    <div className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row h-auto md:h-72">
+                      {/* Imagen del producto */}
+                      <div style={{
+                        width: "50%",
+                        background: categoryCompany.imagenPortada
+                          ? `url(${categoryCompany.imagenPortada}) center/cover`
+                          : categoryCompany.logotipoUrl
+                          ? `url(${categoryCompany.logotipoUrl}) center/contain no-repeat #f8fafc`
+                          : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        position: "relative"
+                      }}>
+                        {/* Badge de categoría en la imagen */}
+                        <div style={{
+                          position: "absolute",
+                          top: "1rem",
+                          left: "1rem",
+                          backgroundColor: "#0f2161",
+                          color: "white",
+                          padding: "0.5rem 1rem",
+                          borderRadius: "20px",
+                          fontSize: "0.8rem",
+                          fontWeight: "600",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem"
+                        }}>
+                          {getCategoryIcon(category.nombreCategoria)} {category.nombreCategoria}
+                        </div>
+                        
+                        {!categoryCompany.imagenPortada && !categoryCompany.logotipoUrl && (
+                          <div style={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            width: "80px",
+                            height: "80px",
+                            backgroundColor: "rgba(255,255,255,0.2)",
+                            borderRadius: "50%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "2rem",
+                            fontWeight: "bold",
+                            color: "white"
+                          }}>
+                            {categoryCompany.nombreEmpresa?.charAt(0) || "?"}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Ficha técnica de la empresa */}
+                      <div style={{
+                        width: "50%",
+                        padding: "2rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between"
+                      }}>
+                        <div>
+                          <h3 style={{
+                            fontSize: "1.4rem",
+                            fontWeight: "700",
+                            color: "#0f2161",
+                            marginBottom: "0.5rem",
+                            fontFamily: "'Montserrat', sans-serif"
+                          }}>
+                            {categoryCompany.nombreEmpresa}
+                          </h3>
+                          
+                          <div style={{
+                            color: "#6b7280",
+                            fontSize: "0.9rem",
+                            lineHeight: "1.5",
+                            marginBottom: "1rem",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden"
+                          }}>
+                            {categoryCompany.descripcionEmpresa || "Empresa especializada en soluciones innovadoras"}
+                          </div>
+                          
+                          {/* Información de contacto */}
+                          <div style={{ marginBottom: "1rem" }}>
+                            {categoryCompany.estadosPresencia && categoryCompany.estadosPresencia.length > 0 && (
+                              <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginBottom: "0.5rem",
+                                fontSize: "0.8rem",
+                                color: "#6b7280"
+                              }}>
+                                <span style={{ marginRight: "0.5rem" }}>📍</span>
+                                <span>{categoryCompany.estadosPresencia.slice(0, 2).join(', ')}</span>
+                              </div>
+                            )}
+                            
+                            {categoryCompany.telefono1 && (
+                              <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "0.8rem",
+                                color: "#6b7280"
+                              }}>
+                                <span style={{ marginRight: "0.5rem" }}>📞</span>
+                                <span>{categoryCompany.telefono1}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Botón ver detalles */}
+                        <Link href={`/empresa/${categoryCompany.id}`}>
+                          <button style={{
+                            backgroundColor: "#bcce16",
+                            color: "#0f2161",
+                            border: "none",
+                            borderRadius: "50px",
+                            padding: "0.8rem 1.5rem",
+                            fontSize: "0.9rem",
+                            fontFamily: "'Montserrat', sans-serif",
+                            fontWeight: "700",
+                            cursor: "pointer",
+                            width: "100%",
+                            transition: "background-color 0.2s ease"
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = "#a8b914";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = "#bcce16";
+                          }}>
+                            Ver Detalles
+                          </button>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sección de reseñas */}
+      <div style={{ padding: "4rem 2rem", backgroundColor: "white" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <h2 style={{
+            fontSize: "2rem",
+            fontWeight: "bold",
+            marginBottom: "1rem",
+            textAlign: "center",
+            color: "#0f2161",
+            fontFamily: "'Montserrat', sans-serif"
+          }}>
+            Escuche a Nuestra Comunidad: Proyectos Reales, Experiencias Auténticas
+          </h2>
+          
+          <p style={{
+            fontSize: "1.1rem",
+            textAlign: "center",
+            color: "#6b7280",
+            marginBottom: "3rem",
+            maxWidth: "900px",
+            margin: "0 auto 3rem auto"
+          }}>
+            Lea reseñas auténticas de productos y proveedores, comparta sus opiniones y conéctese con sus pares. 
+            Su retroalimentación da forma a nuestra red de confianza y excelencia.
+          </p>
+
+          {/* Grid de reseñas */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+            gap: "2rem",
+            marginBottom: "3rem"
+          }}>
+            {/* Reseña 1 */}
+            <div style={{
+              backgroundColor: "#f8fafc",
+              borderRadius: "12px",
+              padding: "2rem",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+              border: "1px solid #e5e7eb"
+            }}>
+              <div style={{
+                display: "flex",
+                marginBottom: "1rem"
+              }}>
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} style={{ color: "#bcce16", fontSize: "1.2rem" }}>★</span>
+                ))}
+              </div>
+              
+              <p style={{
+                fontSize: "1rem",
+                lineHeight: "1.6",
+                color: "#374151",
+                marginBottom: "1.5rem",
+                fontStyle: "italic"
+              }}>
+                "Excelente experiencia trabajando con EcoTech Solutions. Su equipo técnico resolvió nuestros problemas de automatización de manera eficiente y profesional. Definitivamente los recomendaría."
+              </p>
+              
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "50%",
+                  backgroundColor: "#0f2161",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "1.2rem",
+                  fontWeight: "bold"
+                }}>
+                  MR
+                </div>
+                <div>
+                  <div style={{
+                    fontWeight: "600",
+                    color: "#0f2161",
+                    fontSize: "0.9rem"
+                  }}>
+                    María Rodríguez
+                  </div>
+                  <div style={{
+                    color: "#6b7280",
+                    fontSize: "0.8rem"
+                  }}>
+                    Gerente de Operaciones - Industrias del Norte
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reseña 2 */}
+            <div style={{
+              backgroundColor: "#f8fafc",
+              borderRadius: "12px",
+              padding: "2rem",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+              border: "1px solid #e5e7eb"
+            }}>
+              <div style={{
+                display: "flex",
+                marginBottom: "1rem"
+              }}>
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} style={{ color: "#bcce16", fontSize: "1.2rem" }}>★</span>
+                ))}
+              </div>
+              
+              <p style={{
+                fontSize: "1rem",
+                lineHeight: "1.6",
+                color: "#374151",
+                marginBottom: "1.5rem",
+                fontStyle: "italic"
+              }}>
+                "La calidad de los productos de MarketPro es excepcional. Hemos trabajado con ellos durante 3 años y siempre superan nuestras expectativas. Su servicio al cliente es de primera clase."
+              </p>
+              
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "50%",
+                  backgroundColor: "#0f2161",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "1.2rem",
+                  fontWeight: "bold"
+                }}>
+                  CL
+                </div>
+                <div>
+                  <div style={{
+                    fontWeight: "600",
+                    color: "#0f2161",
+                    fontSize: "0.9rem"
+                  }}>
+                    Carlos López
+                  </div>
+                  <div style={{
+                    color: "#6b7280",
+                    fontSize: "0.8rem"
+                  }}>
+                    Director de Compras - Comercial Metropolitana
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reseña 3 */}
+            <div style={{
+              backgroundColor: "#f8fafc",
+              borderRadius: "12px",
+              padding: "2rem",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+              border: "1px solid #e5e7eb"
+            }}>
+              <div style={{
+                display: "flex",
+                marginBottom: "1rem"
+              }}>
+                {[...Array(4)].map((_, i) => (
+                  <span key={i} style={{ color: "#bcce16", fontSize: "1.2rem" }}>★</span>
+                ))}
+                <span style={{ color: "#d1d5db", fontSize: "1.2rem" }}>★</span>
+              </div>
+              
+              <p style={{
+                fontSize: "1rem",
+                lineHeight: "1.6",
+                color: "#374151",
+                marginBottom: "1.5rem",
+                fontStyle: "italic"
+              }}>
+                "Muy buena experiencia con TechnoSoft. Sus soluciones de software nos ayudaron a optimizar nuestros procesos internos. El soporte técnico es rápido y efectivo."
+              </p>
+              
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "50%",
+                  backgroundColor: "#0f2161",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "1.2rem",
+                  fontWeight: "bold"
+                }}>
+                  AS
+                </div>
+                <div>
+                  <div style={{
+                    fontWeight: "600",
+                    color: "#0f2161",
+                    fontSize: "0.9rem"
+                  }}>
+                    Ana Silva
+                  </div>
+                  <div style={{
+                    color: "#6b7280",
+                    fontSize: "0.8rem"
+                  }}>
+                    Coordinadora TI - Servicios Integrales
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Sección de registro para proveedores */}
+      <div style={{ 
+        padding: "4rem 2rem", 
+        backgroundColor: "#0f2161",
+        color: "white" 
+      }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
+          <h2 style={{
+            fontSize: "2rem",
+            fontWeight: "bold",
+            marginBottom: "1rem",
+            fontFamily: "'Montserrat', sans-serif",
+            color: "white"
+          }}>
+            ¿Es Usted un Proveedor de Equipamiento Urbano o Parques?
+          </h2>
+          
+          <p style={{
+            fontSize: "1.2rem",
+            lineHeight: "1.6",
+            marginBottom: "2.5rem",
+            color: "#e5e7eb"
+          }}>
+            Regístrese y conecte con miles de proyectos y clientes potenciales en todo América Latina. 
+            Muestre sus soluciones a la audiencia correcta.
+          </p>
+
+          <Link href="/login">
+            <button style={{
+              backgroundColor: "#bcce16",
+              color: "#0f2161",
+              border: "none",
+              borderRadius: "50px",
+              padding: "1.2rem 2.5rem",
+              fontSize: "1.1rem",
+              fontFamily: "'Montserrat', sans-serif",
+              fontWeight: "700",
+              cursor: "pointer",
+              transition: "background-color 0.2s ease",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.2)"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#a8b914";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#bcce16";
+            }}>
+              Regístrate como empresa
+            </button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }
