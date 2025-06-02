@@ -241,18 +241,64 @@ export default function Companies() {
     ].join('\n');
   };
 
-  const processCSV = (csvText: string) => {
+  const processCSV = async (csvText: string) => {
     try {
       const lines = csvText.split('\n').filter(line => line.trim());
-      const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+      const headers = lines[0].split(';').map(h => h.replace(/"/g, '').trim());
       const dataRows = lines.slice(1);
 
-      toast({
-        title: "Importación procesada",
-        description: `Se procesaron ${dataRows.length} filas del archivo CSV`,
+      console.log('CSV data:', { headers, dataRows });
+
+      // Mapear los datos del CSV a la estructura de empresa
+      const companiesToCreate = dataRows.map(row => {
+        const cells = row.split(';').map(cell => cell.replace(/"/g, '').trim());
+        
+        return {
+          nombreEmpresa: cells[1] || '',
+          email1: cells[3] || '',
+          telefono1: cells[4] || '',
+          sitioWeb: cells[5] || '',
+          descripcionEmpresa: cells[6] || '',
+          direccionFisica: cells[2] || '',
+          paisesPresencia: cells[10] ? [cells[10]] : [],
+          estadosPresencia: cells[11] ? [cells[11]] : [],
+          ciudadesPresencia: cells[11] ? [cells[11]] : [],
+          logotipoUrl: cells[8] || '',
+          videoUrl1: cells[9] || '',
+          catalogoDigitalUrl: cells[10] || '',
+          representantesVentas: cells[7] ? [{ telefono: cells[7] }] : [],
+          categoriesIds: [],
+          membershipTypeId: null,
+          certificateIds: [],
+          userId: 1, // Usuario por defecto
+          estado: 'activo'
+        };
       });
 
-      console.log('CSV data:', { headers, dataRows });
+      // Crear las empresas en la base de datos
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const companyData of companiesToCreate) {
+        try {
+          if (companyData.nombreEmpresa && companyData.email1) {
+            await apiRequest("POST", "/api/companies", companyData);
+            successCount++;
+          }
+        } catch (error) {
+          errorCount++;
+          console.error('Error creating company:', error);
+        }
+      }
+
+      // Refrescar la lista de empresas
+      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+
+      toast({
+        title: "Importación completada",
+        description: `${successCount} empresas creadas exitosamente. ${errorCount} errores.`,
+      });
+
     } catch (error) {
       toast({
         title: "Error en importación",
@@ -262,9 +308,9 @@ export default function Companies() {
     }
   };
 
-  const processExcel = (file: File) => {
+  const processExcel = async (file: File) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const workbook = XLSX.read(data, { type: 'array' });
@@ -288,12 +334,56 @@ export default function Companies() {
         const headers = jsonData[0] as string[];
         const dataRows = jsonData.slice(1);
 
-        toast({
-          title: "Importación procesada",
-          description: `Se procesaron ${dataRows.length} filas del archivo Excel`,
+        console.log('Excel data:', { headers, dataRows });
+
+        // Mapear los datos del Excel a la estructura de empresa
+        const companiesToCreate = dataRows.map((row: any[]) => {
+          return {
+            nombreEmpresa: row[1] || '',
+            email1: row[3] || '',
+            telefono1: row[4] || '',
+            sitioWeb: row[5] || '',
+            descripcionEmpresa: row[6] || '',
+            direccionFisica: row[2] || '',
+            paisesPresencia: row[10] ? [row[10]] : [],
+            estadosPresencia: row[11] ? [row[11]] : [],
+            ciudadesPresencia: row[11] ? [row[11]] : [],
+            logotipoUrl: row[8] || '',
+            videoUrl1: row[9] || '',
+            catalogoDigitalUrl: row[10] || '',
+            representantesVentas: row[7] ? [{ telefono: row[7] }] : [],
+            categoriesIds: [],
+            membershipTypeId: null,
+            certificateIds: [],
+            userId: 1, // Usuario por defecto
+            estado: 'activo'
+          };
         });
 
-        console.log('Excel data:', { headers, dataRows });
+        // Crear las empresas en la base de datos
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const companyData of companiesToCreate) {
+          try {
+            if (companyData.nombreEmpresa && companyData.email1) {
+              await apiRequest("POST", "/api/companies", companyData);
+              successCount++;
+            }
+          } catch (error) {
+            errorCount++;
+            console.error('Error creating company:', error);
+          }
+        }
+
+        // Refrescar la lista de empresas
+        queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+
+        toast({
+          title: "Importación completada",
+          description: `${successCount} empresas creadas exitosamente. ${errorCount} errores.`,
+        });
+
       } catch (error) {
         toast({
           title: "Error en importación",
