@@ -45,7 +45,7 @@ const companySchema = insertCompanySchema.extend({
   email1: z.string().email("Email inválido"),
   nombreEmpresa: z.string().min(1, "El nombre de la empresa es requerido"),
   sitioWeb: z.string().url("URL inválida").optional().or(z.literal("")),
-  videosUrls: z.array(z.string().url("URL inválida")).optional(),
+  videosUrls: z.array(z.string().url("URL inválida").or(z.literal(""))).optional(),
   paisesPresencia: z.array(z.string()).optional(),
   estadosPresencia: z.array(z.string()).optional(),
   ciudadesPresencia: z.array(z.string()).optional(),
