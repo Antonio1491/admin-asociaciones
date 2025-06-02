@@ -1,21 +1,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState, useRef } from "react";
 import { Link } from "wouter";
+import * as LucideIcons from "lucide-react";
 
-function getCategoryIcon(categoryName: string): string {
-  const iconMap: { [key: string]: string } = {
-    Comercio: "🛍️",
-    Tecnología: "💻",
-    Servicios: "🔧",
-    Salud: "⚕️",
-    Educación: "📚",
-    Alimentación: "🍽️",
-    Construcción: "🏗️",
-    Transporte: "🚛",
-    Financiero: "💰",
-    Entretenimiento: "🎭",
-  };
-  return iconMap[categoryName] || "🏢";
+function CategoryIcon({ category }: { category: any }) {
+  // Si hay una URL de icono personalizado, usarla
+  if (category.iconoUrl) {
+    return <img src={category.iconoUrl} alt={category.nombreCategoria} className="w-5 h-5" />;
+  }
+  
+  // Si hay un nombre de icono de Lucide, usarlo
+  if (category.icono) {
+    const IconComponent = (LucideIcons as any)[category.icono];
+    if (IconComponent) {
+      return <IconComponent className="w-5 h-5" />;
+    }
+  }
+  
+  // Fallback a icono genérico
+  const Building = LucideIcons.Building;
+  return <Building className="w-5 h-5" />;
 }
 
 function CompanyCard({ company }: { company: any }) {
@@ -319,7 +323,7 @@ export default function Home() {
             <div className="flex space-x-4 min-w-max pb-2">
               <Link href="/directorio">
                 <button className="flex items-center gap-2 whitespace-nowrap px-6 py-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all flex-shrink-0 bg-white text-gray-700">
-                  🏢 Todas las empresas
+                  <LucideIcons.Building className="w-5 h-5" /> Todas las empresas
                 </button>
               </Link>
               {categories.map((category: any) => (
@@ -328,7 +332,7 @@ export default function Home() {
                   href={`/directorio?categoryId=${category.id}`}
                 >
                   <button className="flex items-center gap-2 whitespace-nowrap px-6 py-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all flex-shrink-0 bg-white text-gray-700">
-                    {getCategoryIcon(category.nombreCategoria)} {category.nombreCategoria}
+                    <CategoryIcon category={category} /> {category.nombreCategoria}
                   </button>
                 </Link>
               ))}
@@ -489,7 +493,7 @@ export default function Home() {
                           alignItems: "center",
                           gap: "0.5rem"
                         }}>
-                          {getCategoryIcon(category.nombreCategoria)} {category.nombreCategoria}
+                          <CategoryIcon category={category} /> {category.nombreCategoria}
                         </div>
                         
                         {!categoryCompany.imagenPortada && !categoryCompany.logotipoUrl && (
