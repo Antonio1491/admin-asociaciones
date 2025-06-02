@@ -23,6 +23,14 @@ function CategoryIcon({ category, className = "w-5 h-5" }: { category: any; clas
 }
 
 function CompanyCard({ company }: { company: any }) {
+  // Debug para ver los datos de la empresa
+  console.log("CompanyCard data:", {
+    nombreEmpresa: company.nombreEmpresa,
+    galeriaProductosUrls: company.galeriaProductosUrls,
+    logotipoUrl: company.logotipoUrl,
+    imagenPortada: company.imagenPortada
+  });
+  
   return (
     <Link href={`/empresa/${company.id}`}>
       <div
