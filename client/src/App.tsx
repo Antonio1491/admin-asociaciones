@@ -9,7 +9,7 @@ import Sidebar from "@/components/Sidebar";
 import Dashboard from "@/pages/Dashboard";
 import Companies from "@/pages/Companies";
 import Categories from "@/pages/Categories";
-import Memberships from "@/pages/Memberships";
+import MembershipsNew from "@/pages/MembershipsNew";
 import Users from "@/pages/Users";
 import Certificates from "@/pages/Certificates";
 import Roles from "@/pages/Roles";
@@ -85,7 +85,7 @@ function Router() {
       <Route path="/membresias">
         <ProtectedRoute>
           <AppLayout>
-            <Memberships />
+            <MembershipsNew />
           </AppLayout>
         </ProtectedRoute>
       </Route>
