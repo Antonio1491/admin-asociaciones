@@ -150,15 +150,8 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: CompanyFormData) => {
-      try {
-        console.log("Datos a enviar:", data);
-        const result = await apiRequest("POST", "/api/companies", data);
-        console.log("Respuesta del servidor:", result);
-        return result;
-      } catch (error) {
-        console.error("Error en mutación:", error);
-        throw error;
-      }
+      const result = await apiRequest("POST", "/api/companies", data);
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
