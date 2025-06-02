@@ -66,6 +66,12 @@ export default function CompanyDetails() {
     );
   }
 
+  // Debug: Log company data
+  console.log("Company data:", company);
+  console.log("Gallery data:", company.galeriaProductosUrls);
+  console.log("Videos data:", company.videosUrls);
+  console.log("Location data:", company.ubicacionGeografica);
+
   const telefonos = [company.telefono1, company.telefono2].filter(Boolean);
   const emails = [company.email1, company.email2].filter(Boolean);
   const galeria = company.galeriaProductosUrls || [];
