@@ -118,6 +118,34 @@ export const membershipPayments = pgTable("membership_payments", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const systemSettings = pgTable("system_settings", {
+  id: serial("id").primaryKey(),
+  siteName: text("site_name").default("Directorio Industrial").notNull(),
+  siteDescription: text("site_description").default("Plataforma de administración web para organizaciones"),
+  logoUrl: text("logo_url"),
+  faviconUrl: text("favicon_url"),
+  primaryColor: text("primary_color").default("#2563eb").notNull(),
+  secondaryColor: text("secondary_color").default("#f97316").notNull(),
+  accentColor: text("accent_color").default("#10b981").notNull(),
+  currency: text("currency").default("USD").notNull(),
+  currencySymbol: text("currency_symbol").default("$").notNull(),
+  language: text("language").default("es").notNull(),
+  timezone: text("timezone").default("America/Mexico_City").notNull(),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  address: text("address"),
+  socialMedia: jsonb("social_media"), // {facebook, twitter, linkedin, instagram}
+  seoSettings: jsonb("seo_settings"), // {metaTitle, metaDescription, keywords}
+  emailSettings: jsonb("email_settings"), // {smtpHost, smtpPort, smtpUser, fromEmail}
+  paymentSettings: jsonb("payment_settings"), // {enableStripe, stripeCurrency}
+  maintenanceMode: boolean("maintenance_mode").default(false).notNull(),
+  registrationEnabled: boolean("registration_enabled").default(true).notNull(),
+  maxFileSize: integer("max_file_size").default(10485760).notNull(), // 10MB in bytes
+  allowedFileTypes: jsonb("allowed_file_types").default(['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx']).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -175,6 +203,12 @@ export const insertMembershipPaymentSchema = createInsertSchema(membershipPaymen
   updatedAt: true,
 });
 
+export const insertSystemSettingsSchema = createInsertSchema(systemSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -199,6 +233,9 @@ export type InsertOpinion = z.infer<typeof insertOpinionSchema>;
 
 export type MembershipPayment = typeof membershipPayments.$inferSelect;
 export type InsertMembershipPayment = z.infer<typeof insertMembershipPaymentSchema>;
+
+export type SystemSettings = typeof systemSettings.$inferSelect;
+export type InsertSystemSettings = z.infer<typeof insertSystemSettingsSchema>;
 
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({

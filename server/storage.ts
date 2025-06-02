@@ -110,6 +110,10 @@ export interface IStorage {
   updateMembershipPaymentStatus(id: number, status: string): Promise<MembershipPayment | undefined>;
   getUserPayments(userId: number): Promise<MembershipPayment[]>;
   updateUserStripeCustomerId(userId: number, stripeCustomerId: string): Promise<User | undefined>;
+
+  // System Settings
+  getSystemSettings(): Promise<SystemSettings>;
+  updateSystemSettings(settings: Partial<InsertSystemSettings>): Promise<SystemSettings>;
 }
 
 export class DatabaseStorage implements IStorage {
