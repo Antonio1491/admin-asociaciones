@@ -49,14 +49,32 @@ function CompanyCard({ company }: { company: any }) {
         <div
           style={{
             height: "75%",
-            background: company.logotipoUrl
-              ? `url(${company.logotipoUrl}) center/contain no-repeat #f8fafc`
+            background: company.galeriaProductosUrls && company.galeriaProductosUrls.length > 0
+              ? `url(${company.galeriaProductosUrls[0]}) center/cover`
               : company.imagenPortada
               ? `url(${company.imagenPortada}) center/cover`
               : "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             position: "relative",
           }}
         >
+          {/* Logo sobrepuesto */}
+          {company.logotipoUrl && (
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "60px",
+                height: "60px",
+                background: `url(${company.logotipoUrl}) center/contain no-repeat`,
+                backgroundColor: "rgba(255, 255, 255, 0.9)",
+                borderRadius: "8px",
+                padding: "8px",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
+            />
+          )}
           {!company.galeriaProductosUrls?.length && !company.imagenPortada && !company.logotipoUrl && (
             <div
               style={{
