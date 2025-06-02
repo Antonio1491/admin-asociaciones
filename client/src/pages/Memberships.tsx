@@ -55,8 +55,10 @@ import MembershipDataTable from "@/components/MembershipDataTable";
 const membershipSchema = z.object({
   nombrePlan: z.string().min(1, "El nombre del plan es requerido"),
   descripcionPlan: z.string().optional(),
-  costo: z.string().min(1, "El costo es requerido"),
-  periodicidad: z.string().min(1, "La periodicidad es requerida"),
+  opcionesPrecios: z.array(z.object({
+    periodicidad: z.string().min(1, "La periodicidad es requerida"),
+    costo: z.number().min(0, "El costo debe ser mayor a 0")
+  })).min(1, "Debe agregar al menos una opción de precio"),
   beneficios: z.string().optional(),
 });
 
@@ -75,8 +77,7 @@ export default function Memberships() {
     defaultValues: {
       nombrePlan: "",
       descripcionPlan: "",
-      costo: "",
-      periodicidad: "",
+      opcionesPrecios: [{ periodicidad: "", costo: 0 }],
       beneficios: "",
     },
   });

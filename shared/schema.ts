@@ -29,8 +29,7 @@ export const membershipTypes = pgTable("membership_types", {
   id: serial("id").primaryKey(),
   nombrePlan: text("nombre_plan").notNull(),
   descripcionPlan: text("descripcion_plan"),
-  costo: decimal("costo", { precision: 10, scale: 2 }),
-  periodicidad: text("periodicidad"), // "monthly", "yearly", etc.
+  opcionesPrecios: jsonb("opciones_precios"), // Array of {periodicidad: string, costo: number}
   beneficios: jsonb("beneficios"), // Array of benefits
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -136,6 +135,11 @@ export const insertMembershipTypeSchema = createInsertSchema(membershipTypes).om
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  opcionesPrecios: z.array(z.object({
+    periodicidad: z.string(),
+    costo: z.number()
+  })).optional(),
 });
 
 export const insertCompanySchema = createInsertSchema(companies).omit({
