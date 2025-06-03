@@ -1614,7 +1614,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                       <Select onValueChange={(value) => {
                         field.onChange(value ? parseInt(value) : undefined);
                         // Reset periodicidad when membership type changes
-                        form.setValue("membershipPeriodicidad", undefined);
+                        form.setValue("membershipPeriodicidad", "");
                         form.setValue("fechaFinMembresia", "");
                       }} value={field.value?.toString()}>
                         <FormControl>
@@ -1655,6 +1655,15 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                         opcionesPrecios = [];
                       }
                     }
+
+                    // Auto-select if only one option available
+                    React.useEffect(() => {
+                      if (opcionesPrecios.length === 1 && !field.value) {
+                        const singleOption = opcionesPrecios[0];
+                        field.onChange(singleOption.periodicidad.toLowerCase());
+                        console.log("Auto-selecting single periodicidad option:", singleOption.periodicidad.toLowerCase());
+                      }
+                    }, [opcionesPrecios, field.value, field.onChange]);
 
                     return (
                       <FormItem>
