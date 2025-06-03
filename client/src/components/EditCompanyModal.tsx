@@ -15,11 +15,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -82,6 +84,9 @@ const companySchema = z.object({
   fechaInicioMembresia: z.string().min(1, "La fecha de inicio es requerida"),
   fechaFinMembresia: z.string().min(1, "La fecha de fin es requerida"),
   notasMembresia: z.string().optional(),
+  estado: z.enum(["activo", "inactivo"], {
+    required_error: "El estado es requerido"
+  }),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
@@ -386,6 +391,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         fechaInicioMembresia: company.fechaInicioMembresia || new Date().toISOString().split('T')[0],
         fechaFinMembresia: company.fechaFinMembresia || "",
         notasMembresia: company.notasMembresia || "",
+        estado: (company.estado as "activo" | "inactivo") || "activo",
       });
     }
   }, [company, open, form, membershipTypes]);
@@ -1763,6 +1769,31 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                           {...field} 
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Estado de la Empresa */}
+                <FormField
+                  control={form.control}
+                  name="estado"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Estado de la Empresa</FormLabel>
+                          <FormDescription>
+                            Controla si la empresa aparece activa en el directorio público
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value === "activo"}
+                            onCheckedChange={(checked) => field.onChange(checked ? "activo" : "inactivo")}
+                          />
+                        </FormControl>
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
