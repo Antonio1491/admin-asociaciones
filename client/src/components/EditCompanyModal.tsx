@@ -56,10 +56,6 @@ const companySchema = z.object({
   descripcionEmpresa: z.string().optional(),
   categoriesIds: z.array(z.number()).min(1, "Selecciona al menos una categoría"),
   certificateIds: z.array(z.number()).optional(),
-  membershipTypeId: z.number({
-    required_error: "El tipo de membresía es requerido",
-    invalid_type_error: "Debe seleccionar un tipo de membresía válido"
-  }),
   redesSociales: z.array(z.object({
     plataforma: z.string(),
     url: z.string().url()
@@ -70,20 +66,6 @@ const companySchema = z.object({
     lng: z.number(),
     address: z.string()
   }).optional().nullable(),
-  // Campos de membresía
-  membershipPeriodicidad: z.string({
-    required_error: "La periodicidad es requerida",
-    invalid_type_error: "Debe seleccionar una periodicidad válida"
-  }).refine((val) => ["mensual", "anual", "Mensual", "Anual"].includes(val), {
-    message: "La periodicidad debe ser mensual o anual"
-  }),
-  formaPago: z.enum(["efectivo", "transferencia", "otro"], {
-    required_error: "La forma de pago es requerida",
-    invalid_type_error: "Debe seleccionar una forma de pago válida"
-  }),
-  fechaInicioMembresia: z.string().min(1, "La fecha de inicio es requerida"),
-  fechaFinMembresia: z.string().min(1, "La fecha de fin es requerida"),
-  notasMembresia: z.string().optional(),
   estado: z.enum(["activo", "inactivo"], {
     required_error: "El estado es requerido"
   }),
@@ -350,16 +332,34 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       // Resetear estados
       setSelectedEstados((company.estadosPresencia as string[]) || []);
       setSelectedCiudades((company.ciudadesPresencia as string[]) || []);
-      // Convertir objeto redesSociales a array para el formulario
-      const redesSocialesArray = company.redesSociales ? 
-        Object.entries(company.redesSociales as Record<string, string>).map(([plataforma, url]) => ({ plataforma, url })) : 
-        [];
+      // Convertir redes sociales a array para el formulario
+      let redesSocialesArray = [];
+      if (company.redesSociales) {
+        if (typeof company.redesSociales === 'string') {
+          try {
+            const parsed = JSON.parse(company.redesSociales);
+            if (Array.isArray(parsed)) {
+              redesSocialesArray = parsed;
+            } else if (typeof parsed === 'object') {
+              redesSocialesArray = Object.entries(parsed).map(([plataforma, url]) => ({ plataforma, url }));
+            }
+          } catch (error) {
+            console.error("Error parsing redesSociales:", error);
+            redesSocialesArray = [];
+          }
+        } else if (Array.isArray(company.redesSociales)) {
+          redesSocialesArray = company.redesSociales;
+        } else if (typeof company.redesSociales === 'object') {
+          redesSocialesArray = Object.entries(company.redesSociales as Record<string, string>).map(([plataforma, url]) => ({ plataforma, url }));
+        }
+      }
       setRedesSociales(redesSocialesArray);
       setEmailsAdicionales([]);
       setTelefonosAdicionales([]);
       setRepresentantes((company.representantesVentas as string[]) || []);
       setDireccionesPorCiudad({});
       setGaleriaImagenes((company.galeriaProductosUrls as string[]) || []);
+      setVideosUrls((company.videosUrls as string[]) || []);
       
       // La ubicación se cargará después cuando se actualicen las ciudades
 
@@ -372,9 +372,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         email1: company.email1,
         email2: company.email2 || "",
         sitioWeb: company.sitioWeb || "",
-        videoUrl1: company.videoUrl1 || "",
-        videoUrl2: company.videoUrl2 || "",
-        videoUrl3: company.videoUrl3 || "",
+        videosUrls: (company.videosUrls as string[]) || [],
         paisesPresencia: (company.paisesPresencia as string[]) || [],
         estadosPresencia: (company.estadosPresencia as string[]) || [],
         ciudadesPresencia: (company.ciudadesPresencia as string[]) || [],
@@ -382,15 +380,8 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         descripcionEmpresa: company.descripcionEmpresa || "",
         catalogoDigitalUrl: company.catalogoDigitalUrl || "",
         categoriesIds: (company.categoriesIds as number[]) || [],
-        membershipTypeId: company.membershipTypeId || membershipTypes[0]?.id || 1,
         certificateIds: (company.certificateIds as number[]) || [],
         galeriaProductosUrls: (company.galeriaProductosUrls as string[]) || [],
-        // Campos de membresía
-        membershipPeriodicidad: company.membershipPeriodicidad ? company.membershipPeriodicidad.toLowerCase() : "anual",
-        formaPago: (company.formaPago as "efectivo" | "transferencia" | "otro") || "efectivo",
-        fechaInicioMembresia: company.fechaInicioMembresia || new Date().toISOString().split('T')[0],
-        fechaFinMembresia: company.fechaFinMembresia || "",
-        notasMembresia: company.notasMembresia || "",
         estado: (company.estado as "activo" | "inactivo") || "activo",
       });
     }
