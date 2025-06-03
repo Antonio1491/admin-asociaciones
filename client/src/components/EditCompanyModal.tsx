@@ -651,10 +651,10 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                     Descripción de la Empresa
                   </FormLabel>
                   <FormControl>
-                    <RichTextEditor
-                      value={field.value || ""}
-                      onChange={field.onChange}
+                    <Textarea
                       placeholder="Describe tu empresa, servicios, productos y ventajas competitivas..."
+                      className="min-h-[120px]"
+                      {...field}
                     />
                   </FormControl>
                   <FormMessage />
