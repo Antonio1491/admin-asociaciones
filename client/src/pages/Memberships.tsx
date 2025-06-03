@@ -60,6 +60,7 @@ const membershipSchema = z.object({
     costo: z.number().min(0, "El costo debe ser mayor a 0")
   })).min(1, "Debe agregar al menos una opción de precio"),
   beneficios: z.string().optional(),
+  visibilidad: z.enum(["publica", "privada"]).default("publica"),
 });
 
 type MembershipFormData = z.infer<typeof membershipSchema>;
@@ -79,6 +80,7 @@ export default function Memberships() {
       descripcionPlan: "",
       opcionesPrecios: [{ periodicidad: "", costo: 0 }],
       beneficios: "",
+      visibilidad: "publica",
     },
   });
 
