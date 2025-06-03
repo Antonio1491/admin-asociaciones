@@ -69,9 +69,11 @@ const companySchema = z.object({
     address: z.string()
   }).optional().nullable(),
   // Campos de membresía
-  membershipPeriodicidad: z.enum(["mensual", "anual"], {
+  membershipPeriodicidad: z.string({
     required_error: "La periodicidad es requerida",
     invalid_type_error: "Debe seleccionar una periodicidad válida"
+  }).refine((val) => ["mensual", "anual", "Mensual", "Anual"].includes(val), {
+    message: "La periodicidad debe ser mensual o anual"
   }),
   formaPago: z.enum(["efectivo", "transferencia", "otro"], {
     required_error: "La forma de pago es requerida",
