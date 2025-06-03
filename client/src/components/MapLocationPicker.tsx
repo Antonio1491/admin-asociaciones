@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { MapPin, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,8 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
   const [mapLoaded, setMapLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
-  const markerRef = useRef<any>(null);
+  const mapInstanceRef = useRef<google.maps.Map | null>(null);
+  const markerRef = useRef<google.maps.Marker | null>(null);
 
   useEffect(() => {
     initializeMap();
@@ -53,16 +53,17 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
       const loader = new Loader({
         apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
         version: "weekly",
-        libraries: ["places", "geometry"]
+        libraries: ["places", "geocoding"]
       });
 
-      const google = await loader.load();
-      
-      // Coordenadas por defecto para México
-      const defaultCenter = { lat: 19.4326, lng: -99.1332 };
-      const center = initialLocation || defaultCenter;
+      await loader.load();
 
-      const map = new (window as any).google.maps.Map(mapRef.current, {
+      // Coordenadas por defecto (Ciudad de México)
+      const center = initialLocation 
+        ? { lat: initialLocation.lat, lng: initialLocation.lng }
+        : { lat: 19.4326, lng: -99.1332 };
+
+      const map = new google.maps.Map(mapRef.current, {
         zoom: 12,
         center: center,
         mapTypeControl: false,
@@ -80,60 +81,99 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
       }
 
       // Agregar listener para clics en el mapa
-      map.addListener("click", (event: any) => {
-        const lat = event.latLng.lat();
-        const lng = event.latLng.lng();
-        
-        const location = {
-          lat,
-          lng,
-          address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-        };
+      map.addListener("click", (event: google.maps.MapMouseEvent) => {
+        if (event.latLng) {
+          const lat = event.latLng.lat();
+          const lng = event.latLng.lng();
+          
+          // Buscar dirección usando geocoding
+          const geocoder = new google.maps.Geocoder();
+          geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+            let address = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            if (status === "OK" && results && results[0]) {
+              address = results[0].formatted_address;
+            }
 
-        setSelectedLocation(location);
-        setManualCoords({
-          lat: lat.toString(),
-          lng: lng.toString(),
-          address: location.address
-        });
-        
-        addMarker(location, map);
-        onLocationSelect(location);
+            const location = { lat, lng, address };
+
+            setSelectedLocation(location);
+            setManualCoords({
+              lat: lat.toString(),
+              lng: lng.toString(),
+              address: address
+            });
+            
+            addMarker(location, map);
+            onLocationSelect(location);
+          });
+        }
       });
 
       setMapLoaded(true);
+      setIsLoading(false);
+      
     } catch (error) {
       console.error("Error loading Google Maps:", error);
       setMapLoaded(false);
-    } finally {
       setIsLoading(false);
     }
   };
 
-  const addMarker = (location: { lat: number; lng: number; address: string }, map: any) => {
-    // Eliminar marcador anterior
+  const addMarker = (location: { lat: number; lng: number; address: string }, map: google.maps.Map) => {
+    // Remover marcador anterior si existe
     if (markerRef.current) {
       markerRef.current.setMap(null);
     }
 
     // Crear nuevo marcador
-    const marker = new (window as any).google.maps.Marker({
+    markerRef.current = new google.maps.Marker({
       position: { lat: location.lat, lng: location.lng },
       map: map,
-      title: location.address,
-      icon: {
-        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-          <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="16" cy="16" r="10" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
-            <circle cx="16" cy="16" r="4" fill="#ffffff"/>
-          </svg>
-        `),
-        scaledSize: new (window as any).google.maps.Size(32, 32),
-        anchor: new (window as any).google.maps.Point(16, 16)
-      }
+      title: location.address
     });
 
-    markerRef.current = marker;
+    // Centrar el mapa en la nueva ubicación
+    map.setCenter({ lat: location.lat, lng: location.lng });
+  };
+
+  const handleSearch = async () => {
+    if (!searchValue.trim() || !mapInstanceRef.current) return;
+
+    try {
+      const service = new google.maps.places.PlacesService(mapInstanceRef.current);
+      const request = {
+        query: `${searchValue}, ${ciudad}`,
+        fields: ['name', 'geometry', 'formatted_address'],
+      };
+
+      service.textSearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
+          const place = results[0];
+          if (place.geometry?.location) {
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+            const address = place.formatted_address || place.name || "";
+
+            const location = { lat, lng, address };
+            
+            setSelectedLocation(location);
+            setManualCoords({
+              lat: lat.toString(),
+              lng: lng.toString(),
+              address: address
+            });
+            
+            if (mapInstanceRef.current) {
+              addMarker(location, mapInstanceRef.current);
+            }
+            onLocationSelect(location);
+          }
+        }
+      });
+    } catch (error) {
+      console.error("Error searching location:", error);
+    }
   };
 
   const handleManualLocationSubmit = () => {
@@ -144,115 +184,68 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
       alert("Por favor ingresa coordenadas válidas");
       return;
     }
-
-    if (lat < -90 || lat > 90) {
-      alert("La latitud debe estar entre -90 y 90");
-      return;
-    }
-
-    if (lng < -180 || lng > 180) {
-      alert("La longitud debe estar entre -180 y 180");
-      return;
-    }
-
-    const location = {
-      lat,
-      lng,
-      address: manualCoords.address || `${lat}, ${lng}`
-    };
-
-    setSelectedLocation(location);
     
-    // Actualizar mapa si está cargado
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      alert("Las coordenadas deben estar en el rango válido (lat: -90 a 90, lng: -180 a 180)");
+      return;
+    }
+    
+    const address = manualCoords.address || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    const location = { lat, lng, address };
+    
+    setSelectedLocation(location);
+    onLocationSelect(location);
+    
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.setCenter({ lat, lng });
       addMarker(location, mapInstanceRef.current);
     }
-    
-    onLocationSelect(location);
   };
 
-  const suggestedLocations = [
-    { name: "Ciudad de México, CDMX", lat: 19.4326, lng: -99.1332, state: "Ciudad de México" },
-    { name: "Guadalajara, Jalisco", lat: 20.6597, lng: -103.3496, state: "Jalisco" },
-    { name: "Monterrey, Nuevo León", lat: 25.6866, lng: -100.3161, state: "Nuevo León" },
-    { name: "Puebla, Puebla", lat: 19.0414, lng: -98.2063, state: "Puebla" },
-    { name: "Tijuana, Baja California", lat: 32.5149, lng: -117.0382, state: "Baja California" },
-    { name: "León, Guanajuato", lat: 21.1619, lng: -101.6921, state: "Guanajuato" },
-    { name: "Mérida, Yucatán", lat: 20.9674, lng: -89.5926, state: "Yucatán" },
-    { name: "Cancún, Quintana Roo", lat: 21.1619, lng: -86.8515, state: "Quintana Roo" }
-  ];
-
-  const handleSuggestedLocation = (location: { name: string; lat: number; lng: number; state?: string }) => {
-    const locationData = {
-      lat: location.lat,
-      lng: location.lng,
-      address: location.name
-    };
-    setSelectedLocation(locationData);
-    setManualCoords({
-      lat: location.lat.toString(),
-      lng: location.lng.toString(),
-      address: location.name
-    });
-
-    // Actualizar mapa si está cargado
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setCenter({ lat: location.lat, lng: location.lng });
-      addMarker(locationData, mapInstanceRef.current);
-    }
-    
-    onLocationSelect(locationData);
-  };
+  if (isLoading) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center space-x-2">
+            <div className="animate-spin w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+            <span>Cargando mapa...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MapPin className="h-5 w-5" />
-          Seleccionar Ubicación
+          Seleccionar Ubicación para {ciudad}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Búsqueda por dirección */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Buscar dirección</label>
-          <div className="flex gap-2">
-            <Input
-              placeholder={`Buscar en ${ciudad}...`}
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-            />
-            <Button variant="outline" size="icon">
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-          <p className="text-xs text-gray-500 mt-1">
-            Puedes buscar una dirección o usar las coordenadas manuales abajo
-          </p>
+        {/* Búsqueda */}
+        <div className="flex gap-2">
+          <Input
+            placeholder="Buscar dirección o lugar..."
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          <Button onClick={handleSearch} disabled={!mapLoaded}>
+            <Search className="h-4 w-4" />
+          </Button>
         </div>
 
-        {/* Ubicaciones sugeridas */}
-        <div>
-          <label className="block text-sm font-medium mb-2">Ubicaciones sugeridas</label>
-          <div className="grid grid-cols-2 gap-2">
-            {suggestedLocations.map((location) => (
-              <Button
-                key={location.name}
-                variant="outline"
-                size="sm"
-                onClick={() => handleSuggestedLocation(location)}
-                className="text-left justify-start"
-              >
-                {location.name}
-              </Button>
-            ))}
-          </div>
-        </div>
+        {/* Mapa */}
+        <div 
+          ref={mapRef} 
+          className="w-full h-64 bg-gray-200 rounded-lg"
+          style={{ minHeight: '256px' }}
+        />
 
         {/* Coordenadas manuales */}
         <div>
-          <label className="block text-sm font-medium mb-2">Coordenadas manuales</label>
+          <label className="block text-sm font-medium mb-2">Coordenadas manuales (opcional)</label>
           <div className="grid grid-cols-2 gap-2 mb-2">
             <Input
               placeholder="Latitud (ej: 19.4326)"
@@ -272,7 +265,7 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
             className="mb-2"
           />
           <Button onClick={handleManualLocationSubmit} className="w-full">
-            Establecer Ubicación
+            Establecer Ubicación Manual
           </Button>
         </div>
 
@@ -288,41 +281,12 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
             </p>
           </div>
         )}
-
-        {/* Mapa de Google Maps */}
-        <div className="relative">
-          {isLoading && (
-            <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center z-10">
-              <div className="text-center">
-                <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-gray-600 text-sm">Cargando mapa...</p>
-              </div>
-            </div>
-          )}
-          <div 
-            ref={mapRef}
-            className="w-full h-64 rounded-lg border border-gray-200"
-            style={{ minHeight: '256px' }}
-          />
-          {!mapLoaded && !isLoading && (
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-gray-600 text-sm">
-                  {selectedLocation 
-                    ? `Ubicación seleccionada: ${selectedLocation.address}`
-                    : "Selecciona una ubicación usando las opciones superiores"
-                  }
-                </p>
-                {selectedLocation && (
-                  <div className="mt-2 text-xs text-gray-500">
-                    Lat: {selectedLocation.lat.toFixed(6)}, Lng: {selectedLocation.lng.toFixed(6)}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
+        
+        {!mapLoaded && (
+          <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+            Error al cargar Google Maps. Verifica que la API key esté configurada correctamente.
+          </div>
+        )}
       </CardContent>
     </Card>
   );

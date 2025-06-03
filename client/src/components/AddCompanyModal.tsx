@@ -38,7 +38,7 @@ import {
   Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
   Gamepad2, Book, Palette, Plane, Ship, Train, Zap
 } from "lucide-react";
-import SimpleLocationPicker from "./SimpleLocationPicker";
+import MapLocationPicker from "./MapLocationPicker";
 import RichTextEditor from "./RichTextEditor";
 
 const companySchema = insertCompanySchema.extend({
@@ -1404,8 +1404,8 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                           Ubicación en {ciudad}
                         </h4>
                         
-                        {/* Componente de ubicación */}
-                        <SimpleLocationPicker
+                        {/* Componente de mapa */}
+                        <MapLocationPicker
                           ciudad={ciudad}
                           onLocationSelect={(location) => updateUbicacionCiudad(ciudad, location)}
                           initialLocation={ubicacionesPorCiudad[ciudad] || null}
