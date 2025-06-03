@@ -364,6 +364,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint para obtener solo membresías públicas (para usuarios no administradores)
+  app.get("/api/membership-types/public", async (req, res) => {
+    try {
+      const membershipTypes = await storage.getAllMembershipTypes();
+      // Filtrar solo las membresías públicas
+      const publicMemberships = membershipTypes.filter((membership: any) => 
+        !membership.visibilidad || membership.visibilidad === "publica"
+      );
+      res.json(publicMemberships);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch public membership types" });
+    }
+  });
+
   app.get("/api/membership-types/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);

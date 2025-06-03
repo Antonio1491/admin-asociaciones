@@ -10,9 +10,9 @@ export default function PublicMemberships() {
   const [, setLocation] = useLocation();
   
   const { data: memberships, isLoading } = useQuery({
-    queryKey: ["/api/membership-types"],
+    queryKey: ["/api/membership-types/public"],
     queryFn: async () => {
-      const response = await fetch("/api/membership-types");
+      const response = await fetch("/api/membership-types/public");
       if (!response.ok) throw new Error("Failed to fetch memberships");
       return response.json();
     },
