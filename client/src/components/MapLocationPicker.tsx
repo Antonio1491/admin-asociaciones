@@ -34,6 +34,7 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
   const initializeMap = async () => {
     if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
       console.error("Google Maps API key not found");
+      setIsLoading(false);
       return;
     }
 
@@ -41,7 +42,7 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
       setIsLoading(true);
       
       // Wait for container to be ready
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
       if (!mapRef.current) {
         console.warn("Map container not available");
@@ -52,10 +53,10 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
       const loader = new Loader({
         apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
         version: "weekly",
-        libraries: ["maps", "places"]
+        libraries: ["places", "geometry"]
       });
 
-      await loader.load();
+      const google = await loader.load();
       
       // Coordenadas por defecto para México
       const defaultCenter = { lat: 19.4326, lng: -99.1332 };
