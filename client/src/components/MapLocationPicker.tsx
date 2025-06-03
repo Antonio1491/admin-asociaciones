@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapPin, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader } from "@googlemaps/js-api-loader";
 
 interface MapLocationPickerProps {
   ciudad: string;
@@ -20,6 +21,112 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
     lng: initialLocation?.lng?.toString() || "",
     address: initialLocation?.address || ""
   });
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+
+  useEffect(() => {
+    initializeMap();
+  }, []);
+
+  const initializeMap = async () => {
+    if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+      console.error("Google Maps API key not found");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const loader = new Loader({
+        apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+        version: "weekly",
+        libraries: ["maps", "places"]
+      });
+
+      const { Map } = await loader.importLibrary("maps") as google.maps.MapsLibrary;
+
+      if (!mapRef.current) {
+        console.warn("Map container not available");
+        return;
+      }
+
+      // Coordenadas por defecto para México
+      const defaultCenter = { lat: 19.4326, lng: -99.1332 };
+      const center = initialLocation || defaultCenter;
+
+      const map = new Map(mapRef.current, {
+        zoom: 12,
+        center: center,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        zoomControl: true,
+      });
+
+      mapInstanceRef.current = map;
+
+      // Agregar marcador inicial si hay ubicación
+      if (initialLocation) {
+        addMarker(initialLocation, map);
+      }
+
+      // Agregar listener para clics en el mapa
+      map.addListener("click", (event: any) => {
+        const lat = event.latLng.lat();
+        const lng = event.latLng.lng();
+        
+        const location = {
+          lat,
+          lng,
+          address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+        };
+
+        setSelectedLocation(location);
+        setManualCoords({
+          lat: lat.toString(),
+          lng: lng.toString(),
+          address: location.address
+        });
+        
+        addMarker(location, map);
+        onLocationSelect(location);
+      });
+
+      setMapLoaded(true);
+    } catch (error) {
+      console.error("Error loading Google Maps:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addMarker = (location: { lat: number; lng: number; address: string }, map: any) => {
+    // Eliminar marcador anterior
+    if (markerRef.current) {
+      markerRef.current.setMap(null);
+    }
+
+    // Crear nuevo marcador
+    const marker = new (window as any).google.maps.Marker({
+      position: { lat: location.lat, lng: location.lng },
+      map: map,
+      title: location.address,
+      icon: {
+        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+          <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="16" r="10" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
+            <circle cx="16" cy="16" r="4" fill="#ffffff"/>
+          </svg>
+        `),
+        scaledSize: new (window as any).google.maps.Size(32, 32),
+        anchor: new (window as any).google.maps.Point(16, 16)
+      }
+    });
+
+    markerRef.current = marker;
+  };
 
   const handleManualLocationSubmit = () => {
     const lat = parseFloat(manualCoords.lat);
@@ -47,6 +154,13 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
     };
 
     setSelectedLocation(location);
+    
+    // Actualizar mapa si está cargado
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setCenter({ lat, lng });
+      addMarker(location, mapInstanceRef.current);
+    }
+    
     onLocationSelect(location);
   };
 
@@ -71,6 +185,13 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
       lng: location.lng.toString(),
       address: location.name
     });
+
+    // Actualizar mapa si está cargado
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setCenter({ lat: location.lat, lng: location.lng });
+      addMarker(locationData, mapInstanceRef.current);
+    }
+    
     onLocationSelect(locationData);
   };
 
@@ -158,17 +279,29 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
           </div>
         )}
 
-        {/* Placeholder visual para mapa */}
-        <div className="bg-gradient-to-br from-blue-100 to-green-100 rounded-lg h-48 flex items-center justify-center border border-gray-200">
-          <div className="text-center">
-            <MapPin className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-            <p className="text-gray-600 text-sm">Vista previa del mapa</p>
-            {selectedLocation && (
-              <p className="text-xs text-gray-500 mt-1">
-                {selectedLocation.address}
-              </p>
-            )}
-          </div>
+        {/* Mapa de Google Maps */}
+        <div className="relative">
+          {isLoading && (
+            <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center z-10">
+              <div className="text-center">
+                <div className="animate-spin w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2"></div>
+                <p className="text-gray-600 text-sm">Cargando mapa...</p>
+              </div>
+            </div>
+          )}
+          <div 
+            ref={mapRef}
+            className="w-full h-64 rounded-lg border border-gray-200"
+            style={{ minHeight: '256px' }}
+          />
+          {!mapLoaded && !isLoading && (
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <MapPin className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-gray-600 text-sm">Haz clic en "Establecer Ubicación" para cargar el mapa</p>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
