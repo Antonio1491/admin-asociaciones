@@ -34,8 +34,8 @@ export default function DirectoryMap({ companies }: DirectoryMapProps) {
           libraries: ["places"]
         });
 
-        const { Map } = await loader.importLibrary("maps");
-        const { Marker } = await loader.importLibrary("marker");
+        const { Map } = await loader.importLibrary("maps") as google.maps.MapsLibrary;
+        const { Marker } = await loader.importLibrary("marker") as google.maps.MarkerLibrary;
 
         // Verificar nuevamente que el elemento siga disponible
         if (!mapRef.current) {
@@ -66,13 +66,23 @@ export default function DirectoryMap({ companies }: DirectoryMapProps) {
         companiesWithLocation.forEach((company) => {
           const ubicacion = company.ubicacionGeografica as { lat: number; lng: number };
           if (ubicacion) {
-            const marker = new Marker({
+            const marker = new (window as any).google.maps.Marker({
               position: {
                 lat: ubicacion.lat,
                 lng: ubicacion.lng
               },
               map: mapInstance,
               title: company.nombreEmpresa,
+              icon: {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                  <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="8" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="3" fill="#ffffff"/>
+                  </svg>
+                `),
+                scaledSize: new (window as any).google.maps.Size(24, 24),
+                anchor: new (window as any).google.maps.Point(12, 12)
+              }
             });
 
             // InfoWindow para mostrar información de la empresa

@@ -41,8 +41,7 @@ export default function CompanyLocationMap({
           libraries: ["maps"]
         });
 
-        const { Map } = await loader.importLibrary("maps");
-        const { AdvancedMarkerElement } = await loader.importLibrary("marker");
+        const { Map } = await loader.importLibrary("maps") as google.maps.MapsLibrary;
 
         const map = new Map(mapRef.current, {
           zoom: 15,
@@ -60,10 +59,21 @@ export default function CompanyLocationMap({
           ]
         });
 
-        new AdvancedMarkerElement({
+        // Usar Marker estándar en lugar de AdvancedMarkerElement
+        new (window as any).google.maps.Marker({
           map: map,
           position: ubicacionGeografica,
           title: nombreEmpresa,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="10" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
+                <circle cx="16" cy="16" r="4" fill="#ffffff"/>
+              </svg>
+            `),
+            scaledSize: new (window as any).google.maps.Size(32, 32),
+            anchor: new (window as any).google.maps.Point(16, 16)
+          }
         });
 
         setMapLoaded(true);
