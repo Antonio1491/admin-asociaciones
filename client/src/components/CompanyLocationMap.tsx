@@ -30,53 +30,75 @@ export default function CompanyLocationMap({
       const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
       
       if (!apiKey) {
+        console.warn("Google Maps API key not found");
         setMapError(true);
         return;
       }
 
       try {
+        // Verificar si Google Maps ya está cargado
+        if (typeof window !== 'undefined' && (window as any).google && (window as any).google.maps) {
+          // Google Maps ya está disponible
+          const map = new (window as any).google.maps.Map(mapRef.current, {
+            zoom: 15,
+            center: ubicacionGeografica,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
+            zoomControl: true,
+            styles: [
+              {
+                featureType: "poi",
+                elementType: "labels",
+                stylers: [{ visibility: "off" }]
+              }
+            ]
+          });
+
+          new (window as any).google.maps.Marker({
+            map: map,
+            position: ubicacionGeografica,
+            title: nombreEmpresa
+          });
+
+          setMapLoaded(true);
+          return;
+        }
+
+        // Cargar Google Maps si no está disponible
         const loader = new Loader({
           apiKey: apiKey,
           version: "weekly",
           libraries: ["maps"]
         });
 
-        const { Map } = await loader.importLibrary("maps") as any;
+        await loader.load();
 
-        const map = new Map(mapRef.current, {
-          zoom: 15,
-          center: ubicacionGeografica,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true,
-          zoomControl: true,
-          styles: [
-            {
-              featureType: "poi",
-              elementType: "labels",
-              stylers: [{ visibility: "off" }]
-            }
-          ]
-        });
+        if (mapRef.current) {
+          const map = new (window as any).google.maps.Map(mapRef.current, {
+            zoom: 15,
+            center: ubicacionGeografica,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
+            zoomControl: true,
+            styles: [
+              {
+                featureType: "poi",
+                elementType: "labels",
+                stylers: [{ visibility: "off" }]
+              }
+            ]
+          });
 
-        // Usar Marker estándar en lugar de AdvancedMarkerElement
-        new (window as any).google.maps.Marker({
-          map: map,
-          position: ubicacionGeografica,
-          title: nombreEmpresa,
-          icon: {
-            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-              <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="16" cy="16" r="10" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
-                <circle cx="16" cy="16" r="4" fill="#ffffff"/>
-              </svg>
-            `),
-            scaledSize: new (window as any).google.maps.Size(32, 32),
-            anchor: new (window as any).google.maps.Point(16, 16)
-          }
-        });
+          new (window as any).google.maps.Marker({
+            map: map,
+            position: ubicacionGeografica,
+            title: nombreEmpresa
+          });
 
-        setMapLoaded(true);
+          setMapLoaded(true);
+        }
       } catch (error) {
         console.error("Error loading Google Maps:", error);
         setMapError(true);
