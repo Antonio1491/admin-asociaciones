@@ -27,9 +27,9 @@ export default function Companies() {
   const { toast } = useToast();
   const { isAdmin, user } = useAuth();
 
-  // Fetch companies with filters
+  // Fetch companies with filters - use admin route to see all companies including inactive ones
   const { data: companiesData, isLoading: companiesLoading } = useQuery({
-    queryKey: ["/api/companies", { 
+    queryKey: ["/api/admin/companies", { 
       search: searchTerm, 
       categoryId: selectedCategory,
       membershipTypeId: selectedMembership,
@@ -47,7 +47,7 @@ export default function Companies() {
       if (selectedMembership && selectedMembership !== "all") params.append("membershipTypeId", selectedMembership);
       if (selectedStatus && selectedStatus !== "all") params.append("estado", selectedStatus);
       
-      const response = await fetch(`/api/companies?${params}`, {
+      const response = await fetch(`/api/admin/companies?${params}`, {
         credentials: "include",
       });
       

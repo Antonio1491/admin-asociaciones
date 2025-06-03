@@ -246,6 +246,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin route to get all companies including inactive ones
+  app.get("/api/admin/companies", async (req, res) => {
+    try {
+      const { search, categoryId, membershipTypeId, estado, page = "1", limit = "10" } = req.query;
+      
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const offset = (pageNum - 1) * limitNum;
+
+      // For admin route, we don't filter by default - show all companies
+      const result = await storage.getAllCompanies({
+        search: search as string,
+        categoryId: categoryId ? parseInt(categoryId as string) : undefined,
+        membershipTypeId: membershipTypeId ? parseInt(membershipTypeId as string) : undefined,
+        estado: estado as string, // This will include inactive if specified
+        limit: limitNum,
+        offset,
+        includeInactive: true // Add this flag to the storage method
+      });
+
+      res.json({
+        companies: result.companies,
+        total: result.total,
+        page: pageNum,
+        totalPages: Math.ceil(result.total / limitNum)
+      });
+    } catch (error) {
+      console.error("Error fetching admin companies:", error);
+      res.status(500).json({ error: "Failed to fetch companies", details: error.message });
+    }
+  });
+
   app.get("/api/companies/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);

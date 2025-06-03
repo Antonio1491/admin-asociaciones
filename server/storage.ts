@@ -50,6 +50,7 @@ export interface IStorage {
     estado?: string;
     limit?: number;
     offset?: number;
+    includeInactive?: boolean;
   }): Promise<{ companies: CompanyWithDetails[]; total: number }>;
   createCompany(company: InsertCompany): Promise<Company>;
   updateCompany(id: number, company: Partial<InsertCompany>): Promise<Company | undefined>;
@@ -207,8 +208,21 @@ export class DatabaseStorage implements IStorage {
     estado?: string;
     limit?: number;
     offset?: number;
+    includeInactive?: boolean;
   } = {}): Promise<{ companies: CompanyWithDetails[]; total: number }> {
-    const { search, categoryId, membershipTypeId, estado, limit = 10, offset = 0 } = options;
+    const { search, categoryId, membershipTypeId, estado, limit = 10, offset = 0, includeInactive = false } = options;
+    
+    // Primero actualizar automáticamente las empresas con membresías vencidas
+    const today = new Date().toISOString().split('T')[0];
+    await db
+      .update(companies)
+      .set({ estado: 'inactivo' })
+      .where(
+        and(
+          eq(companies.estado, 'activo'),
+          sql`${companies.fechaFinMembresia} < ${today}`
+        )
+      );
     
     let whereConditions = [];
 
@@ -227,6 +241,12 @@ export class DatabaseStorage implements IStorage {
 
     if (estado) {
       whereConditions.push(eq(companies.estado, estado));
+    }
+
+    // Por defecto, solo mostrar empresas activas en el frontend público
+    // Si no se especifica un estado y no se incluyen inactivas, mostrar solo activas
+    if (!estado && !includeInactive) {
+      whereConditions.push(eq(companies.estado, 'activo'));
     }
 
     const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
