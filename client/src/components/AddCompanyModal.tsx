@@ -55,6 +55,8 @@ const companySchema = insertCompanySchema.extend({
     plataforma: z.string(),
     url: z.string().url("URL inválida"),
   })).optional(),
+  direccionFisica: z.string().optional(),
+  ubicacionGeografica: z.any().optional(),
   // Campos de membresía
   membershipTypeId: z.number().optional().nullable(),
   membershipPeriodicidad: z.enum(["mensual", "anual"]).optional(),
@@ -282,11 +284,51 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
           }
         });
 
+      // Preparar ubicación geográfica - usar la primera ubicación válida
+      let ubicacionGeografica = null;
+      const primeraUbicacion = Object.values(ubicacionesPorCiudad)[0];
+      if (primeraUbicacion) {
+        ubicacionGeografica = {
+          lat: primeraUbicacion.lat,
+          lng: primeraUbicacion.lng
+        };
+      }
+
+      // Combinar direcciones adicionales si existen
+      let direccionCompleta = data.direccionFisica || "";
+      const direccionesAdicionales = Object.entries(direccionesPorCiudad)
+        .filter(([_, direccion]) => direccion && direccion.trim())
+        .map(([ciudad, direccion]) => `${ciudad}: ${direccion}`)
+        .join("; ");
+      
+      if (direccionesAdicionales) {
+        direccionCompleta = direccionCompleta 
+          ? `${direccionCompleta}; ${direccionesAdicionales}`
+          : direccionesAdicionales;
+      }
+
       const companyData = {
         ...data,
         // Convertir membershipTypeId a null si es undefined o string vacío
         membershipTypeId: data.membershipTypeId && data.membershipTypeId !== "" ? Number(data.membershipTypeId) : null,
-        videosUrls: videosValidos
+        videosUrls: videosValidos,
+        ubicacionGeografica,
+        direccionFisica: direccionCompleta,
+        // Agregar emails y teléfonos adicionales
+        email2: emailsAdicionales[0] || null,
+        email3: emailsAdicionales[1] || null,
+        telefono2: telefonosAdicionales[0] || null,
+        telefono3: telefonosAdicionales[1] || null,
+        // Agregar representantes
+        representante1: representantes[0] || null,
+        representante2: representantes[1] || null,
+        representante3: representantes[2] || null,
+        // Agregar galería de imágenes
+        galeriaImagenes: galeriaPreviews,
+        // Agregar redes sociales
+        redesSociales: redesSociales.length > 0 ? JSON.stringify(redesSociales) : null,
+        // Agregar logo si existe
+        logotipoUrl: logoPreview || null,
       };
       
       createCompanyMutation.mutate(companyData);
@@ -1288,6 +1330,29 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                     </Button>
                   )}
                 </div>
+
+                {/* Dirección Física Principal */}
+                <FormField
+                  control={form.control}
+                  name="direccionFisica"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4" />
+                        Dirección Física Principal
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Calle, número, colonia, código postal, ciudad, estado, país"
+                          rows={3}
+                          {...field} 
+                          value={field.value || ""}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
 
 
