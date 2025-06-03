@@ -3,7 +3,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { MapPin, ExternalLink, Map } from "lucide-react";
 
 interface CompanyLocationMapProps {
-  ubicacionGeografica?: { lat: number; lng: number } | null;
+  ubicacionGeografica?: { lat: number; lng: number; address?: string } | null;
   direccionFisica?: string;
   nombreEmpresa: string;
 }
@@ -41,7 +41,7 @@ export default function CompanyLocationMap({
           libraries: ["maps"]
         });
 
-        const { Map } = await loader.importLibrary("maps") as google.maps.MapsLibrary;
+        const { Map } = await loader.importLibrary("maps") as any;
 
         const map = new Map(mapRef.current, {
           zoom: 15,

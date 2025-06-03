@@ -284,15 +284,11 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
           }
         });
 
-      // Preparar ubicación geográfica - usar la primera ubicación válida
-      let ubicacionGeografica = null;
-      const primeraUbicacion = Object.values(ubicacionesPorCiudad)[0];
-      if (primeraUbicacion) {
-        ubicacionGeografica = {
-          lat: primeraUbicacion.lat,
-          lng: primeraUbicacion.lng
-        };
-      }
+      // Determinar la ubicación principal
+      // Si hay ubicaciones por ciudad, usar la primera como ubicación principal
+      const ubicacionPrincipal = Object.keys(ubicacionesPorCiudad).length > 0 
+        ? Object.values(ubicacionesPorCiudad)[0] 
+        : data.ubicacionGeografica;
 
       // Combinar direcciones adicionales si existen
       let direccionCompleta = data.direccionFisica || "";
@@ -312,7 +308,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
         // Convertir membershipTypeId a null si es undefined o string vacío
         membershipTypeId: data.membershipTypeId && data.membershipTypeId !== "" ? Number(data.membershipTypeId) : null,
         videosUrls: videosValidos,
-        ubicacionGeografica,
+        ubicacionGeografica: ubicacionPrincipal,
         direccionFisica: direccionCompleta,
         // Agregar emails y teléfonos adicionales
         email2: emailsAdicionales[0] || null,
