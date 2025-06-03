@@ -435,11 +435,19 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       try {
         if (!company) throw new Error("No company selected");
         
+        // Limpiar y validar redes sociales
+        const redesSocialesLimpias = redesSociales
+          .filter(social => social.plataforma && social.url && social.url.trim() !== "")
+          .map(social => ({
+            plataforma: social.plataforma,
+            url: social.url
+          }));
+
         const updateData = {
           ...data,
           // Convertir membershipTypeId a null si es undefined o string vacío
           membershipTypeId: data.membershipTypeId && data.membershipTypeId !== "" ? Number(data.membershipTypeId) : null,
-          redesSociales,
+          redesSociales: redesSocialesLimpias,
           representantesVentas: representantes.filter(r => r.trim() !== ""),
           galeriaProductosUrls: galeriaImagenes.filter(img => img.trim() !== ""),
         };
