@@ -602,6 +602,7 @@ export default function CompanyDetails() {
                   ubicacionGeografica={company.ubicacionGeografica}
                   direccionFisica={company.direccionFisica}
                   nombreEmpresa={company.nombreEmpresa}
+                  ciudadesPresencia={company.ciudadesPresencia}
                 />
               </div>
             </CardContent>
