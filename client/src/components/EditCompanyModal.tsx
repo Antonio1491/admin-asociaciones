@@ -1657,7 +1657,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                     }
 
                     // Auto-select if only one option available
-                    React.useEffect(() => {
+                    useEffect(() => {
                       if (opcionesPrecios.length === 1 && !field.value) {
                         const singleOption = opcionesPrecios[0];
                         field.onChange(singleOption.periodicidad.toLowerCase());
