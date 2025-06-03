@@ -57,6 +57,7 @@ const companySchema = insertCompanySchema.extend({
   })).optional(),
   // Campos de membresía
   membershipTypeId: z.number().optional().nullable(),
+  membershipPeriodicidad: z.enum(["mensual", "anual"]).optional(),
   formaPago: z.enum(["efectivo", "transferencia", "otro"]).optional(),
   fechaInicioMembresia: z.string().optional(),
   fechaFinMembresia: z.string().optional(),
@@ -140,8 +141,9 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       certificateIds: [],
       redesSociales: [],
       membershipTypeId: undefined,
+      membershipPeriodicidad: undefined,
       formaPago: undefined,
-      fechaInicioMembresia: "",
+      fechaInicioMembresia: new Date().toISOString().split('T')[0], // Fecha actual
       fechaFinMembresia: "",
       notasMembresia: "",
     },
@@ -1334,35 +1336,84 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tipo de Membresía</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)} value={field.value?.toString()}>
+                      <Select onValueChange={(value) => {
+                        field.onChange(value ? parseInt(value) : undefined);
+                        // Reset periodicidad when membership type changes
+                        form.setValue("membershipPeriodicidad", undefined);
+                        form.setValue("fechaFinMembresia", "");
+                      }} value={field.value?.toString()}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un tipo de membresía (opcional)" />
+                            <SelectValue placeholder="Selecciona un tipo de membresía" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {membershipTypes.map((type) => {
-                            // Parse the pricing options from JSON
-                            const opcionesPrecios = Array.isArray(type.opcionesPrecios) 
-                              ? type.opcionesPrecios 
-                              : JSON.parse(type.opcionesPrecios || '[]');
-                            
-                            // Create display text with all pricing options
-                            const preciosText = opcionesPrecios.map((opcion: any) => 
-                              `$${opcion.costo} ${opcion.periodicidad}`
-                            ).join(' / ');
-                            
-                            return (
-                              <SelectItem key={type.id} value={type.id.toString()}>
-                                {type.nombrePlan} - {preciosText}
-                              </SelectItem>
-                            );
-                          })}
+                          {membershipTypes.map((type) => (
+                            <SelectItem key={type.id} value={type.id.toString()}>
+                              {type.nombrePlan}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+
+                {/* Periodicidad de Membresía */}
+                <FormField
+                  control={form.control}
+                  name="membershipPeriodicidad"
+                  render={({ field }) => {
+                    const selectedMembershipId = form.watch("membershipTypeId");
+                    const selectedMembership = membershipTypes.find(m => m.id === selectedMembershipId);
+                    const opcionesPrecios = selectedMembership 
+                      ? (Array.isArray(selectedMembership.opcionesPrecios) 
+                          ? selectedMembership.opcionesPrecios 
+                          : JSON.parse(selectedMembership.opcionesPrecios || '[]'))
+                      : [];
+
+                    return (
+                      <FormItem>
+                        <FormLabel>Periodicidad</FormLabel>
+                        <Select 
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            // Calculate end date automatically
+                            const startDate = form.getValues("fechaInicioMembresia");
+                            if (startDate && value) {
+                              const start = new Date(startDate);
+                              const end = new Date(start);
+                              
+                              if (value === "mensual") {
+                                end.setMonth(end.getMonth() + 1);
+                              } else if (value === "anual") {
+                                end.setFullYear(end.getFullYear() + 1);
+                              }
+                              
+                              form.setValue("fechaFinMembresia", end.toISOString().split('T')[0]);
+                            }
+                          }} 
+                          value={field.value}
+                          disabled={!selectedMembershipId}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona periodicidad" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {opcionesPrecios.map((opcion: any, index: number) => (
+                              <SelectItem key={index} value={opcion.periodicidad}>
+                                {opcion.periodicidad.charAt(0).toUpperCase() + opcion.periodicidad.slice(1)} - ${opcion.costo}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
 
                 {/* Forma de Pago */}
@@ -1397,7 +1448,27 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                     <FormItem>
                       <FormLabel>Fecha de Inicio</FormLabel>
                       <FormControl>
-                        <Input type="date" {...field} />
+                        <Input 
+                          type="date" 
+                          {...field}
+                          onChange={(e) => {
+                            field.onChange(e);
+                            // Update end date when start date changes
+                            const periodicidad = form.getValues("membershipPeriodicidad");
+                            if (e.target.value && periodicidad) {
+                              const start = new Date(e.target.value);
+                              const end = new Date(start);
+                              
+                              if (periodicidad === "mensual") {
+                                end.setMonth(end.getMonth() + 1);
+                              } else if (periodicidad === "anual") {
+                                end.setFullYear(end.getFullYear() + 1);
+                              }
+                              
+                              form.setValue("fechaFinMembresia", end.toISOString().split('T')[0]);
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
