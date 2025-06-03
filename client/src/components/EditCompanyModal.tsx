@@ -317,7 +317,9 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
 
   useEffect(() => {
     if (watchedFechaInicio && watchedPeriodicidad) {
+      console.log("Calculando fecha de fin:", { watchedFechaInicio, watchedPeriodicidad });
       const endDate = calculateEndDate(watchedFechaInicio, watchedPeriodicidad);
+      console.log("Fecha de fin calculada:", endDate);
       form.setValue("fechaFinMembresia", endDate);
     }
   }, [watchedFechaInicio, watchedPeriodicidad, form]);
@@ -379,7 +381,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         certificateIds: (company.certificateIds as number[]) || [],
         galeriaProductosUrls: (company.galeriaProductosUrls as string[]) || [],
         // Campos de membresía
-        membershipPeriodicidad: (company.membershipPeriodicidad as "mensual" | "anual") || "anual",
+        membershipPeriodicidad: company.membershipPeriodicidad ? company.membershipPeriodicidad.toLowerCase() : "anual",
         formaPago: (company.formaPago as "efectivo" | "transferencia" | "otro") || "efectivo",
         fechaInicioMembresia: company.fechaInicioMembresia || new Date().toISOString().split('T')[0],
         fechaFinMembresia: company.fechaFinMembresia || "",
