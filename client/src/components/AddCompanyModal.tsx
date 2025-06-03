@@ -1335,7 +1335,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                     <FormItem className="md:col-span-2">
                       <FormLabel className="flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
-                        Dirección Física Principal
+                        Dirección o Descripción
                       </FormLabel>
                       <FormControl>
                         <Textarea 

@@ -505,7 +505,7 @@ export default function CompanyDetails() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <MapPin className="h-5 w-5 mr-2" />
-                    Ubicación
+                    Dirección o Descripción
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -566,7 +566,7 @@ export default function CompanyDetails() {
                   </div>
                 ) : (
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-500">Dirección física no disponible</p>
+                    <p className="text-gray-500">Dirección o descripción no disponible</p>
                     {company.ciudad && company.estado && (
                       <p className="text-gray-600 text-sm mt-1">
                         {company.ciudad}, {company.estado}

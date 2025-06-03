@@ -1399,7 +1399,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                     <FormItem className="md:col-span-2">
                       <FormLabel className="flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
-                        Dirección Física
+                        Dirección o Descripción
                       </FormLabel>
                       <FormControl>
                         <Input placeholder="Calle, número, colonia, ciudad, estado" {...field} />
