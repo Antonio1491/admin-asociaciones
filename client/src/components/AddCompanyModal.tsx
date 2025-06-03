@@ -214,8 +214,10 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
   const watchedPeriodicidad = form.watch("membershipPeriodicidad");
 
   useEffect(() => {
+    console.log("Watch effect triggered:", { watchedFechaInicio, watchedPeriodicidad });
     if (watchedFechaInicio && watchedPeriodicidad) {
       const endDate = calculateEndDate(watchedFechaInicio, watchedPeriodicidad);
+      console.log("Calculated end date:", endDate);
       form.setValue("fechaFinMembresia", endDate);
     }
   }, [watchedFechaInicio, watchedPeriodicidad, form]);
