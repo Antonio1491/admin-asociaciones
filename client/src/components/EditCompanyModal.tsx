@@ -76,6 +76,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   const [representantes, setRepresentantes] = useState<string[]>([]);
   const [galeriaImagenes, setGaleriaImagenes] = useState<string[]>([]);
   const [videosUrls, setVideosUrls] = useState<string[]>([]);
+  const [logoPreview, setLogoPreview] = useState<string>("");
   const [isDragActive, setIsDragActive] = useState(false);
   const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<Record<string, string>>({});
   const [ubicacionesPorCiudad, setUbicacionesPorCiudad] = useState<Record<string, { lat: number; lng: number; address: string }>>({});
@@ -124,6 +125,8 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     setVideosUrls(newVideos);
     form.setValue("videosUrls", newVideos);
   };
+
+
 
   // Cargar categorías
   const { data: categories = [] } = useQuery<Category[]>({
@@ -600,17 +603,78 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
               </div>
             </div>
 
+            {/* Información de Contacto Adicional */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="telefono2"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Teléfono Secundario
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="+52 777 123 4568" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email2"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email Secundario
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="email2@empresa.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             {/* Descripción */}
             <FormField
               control={form.control}
               name="descripcionEmpresa"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripción de la Empresa</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Descripción de la Empresa
+                  </FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Descripción detallada de la empresa..."
-                      className="min-h-[120px]"
+                    <RichTextEditor
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                      placeholder="Describe tu empresa, servicios, productos y ventajas competitivas..."
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Dirección Física */}
+            <FormField
+              control={form.control}
+              name="direccionFisica"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Dirección Física
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Dirección completa de la empresa"
                       {...field}
                     />
                   </FormControl>
@@ -618,6 +682,157 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                 </FormItem>
               )}
             />
+
+            {/* Ubicación Geográfica */}
+            <div className="space-y-4">
+              <Label className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                Ubicación en el Mapa
+              </Label>
+              <MapLocationPicker
+                ciudad="Ciudad de México"
+                onLocationSelect={(location) => {
+                  form.setValue("ubicacionGeografica", location);
+                }}
+                initialLocation={form.getValues("ubicacionGeografica")}
+              />
+            </div>
+
+            {/* Galería de Productos */}
+            <div className="space-y-4">
+              <Label className="flex items-center gap-2">
+                <Camera className="h-4 w-4" />
+                Galería de Productos (máximo 10)
+              </Label>
+              
+              {/* Mostrar imágenes existentes */}
+              {company.galeriaProductosUrls && company.galeriaProductosUrls.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {(company.galeriaProductosUrls as string[]).map((imageUrl, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={imageUrl}
+                        alt={`Producto ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg border"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => {
+                          const currentUrls = company.galeriaProductosUrls as string[] || [];
+                          const newUrls = currentUrls.filter((_, i) => i !== index);
+                          form.setValue("galeriaProductosUrls", newUrls);
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Agregar nuevas imágenes */}
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer"
+                onClick={() => document.getElementById('galeria-input')?.click()}
+              >
+                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-600">
+                  Haz clic para seleccionar imágenes de productos
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Formatos: JPG, PNG (máx. 5MB c/u)
+                </p>
+                <input
+                  id="galeria-input"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleGaleriaChange}
+                />
+              </div>
+            </div>
+
+            {/* Logotipo */}
+            <div className="space-y-4">
+              <Label className="flex items-center gap-2">
+                <Building className="h-4 w-4" />
+                Logotipo de la Empresa
+              </Label>
+              
+              {logoPreview && (
+                <div className="relative inline-block">
+                  <img
+                    src={logoPreview}
+                    alt="Logotipo actual"
+                    className="h-20 w-auto object-contain border rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                    onClick={() => {
+                      setLogoPreview("");
+                      form.setValue("logotipoUrl", "");
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+
+              <div
+                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer"
+                onClick={() => document.getElementById('logo-input')?.click()}
+              >
+                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-600">
+                  Haz clic para seleccionar nuevo logotipo
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Formatos: JPG, PNG (máx. 5MB)
+                </p>
+                <input
+                  id="logo-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleLogoChange}
+                />
+              </div>
+            </div>
+
+            {/* Certificados */}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Certificados y Acreditaciones
+              </Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto border rounded-lg p-2">
+                {certificates.map((certificate) => (
+                  <label
+                    key={certificate.id}
+                    className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                  >
+                    <Checkbox
+                      checked={form.watch("certificateIds")?.includes(certificate.id) || false}
+                      onCheckedChange={(checked) => {
+                        const currentIds = form.getValues("certificateIds") || [];
+                        const newIds = checked
+                          ? [...currentIds, certificate.id]
+                          : currentIds.filter((id) => id !== certificate.id);
+                        form.setValue("certificateIds", newIds);
+                      }}
+                    />
+                    <span className="text-sm">{certificate.nombreCertificado}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
 
             {/* Estado */}
             <FormField
