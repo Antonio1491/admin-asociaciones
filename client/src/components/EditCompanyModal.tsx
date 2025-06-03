@@ -115,6 +115,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   const [catalogoFile, setCatalogoFile] = useState<File | null>(null);
   const [galeriaFiles, setGaleriaFiles] = useState<File[]>([]);
   const [videosUrls, setVideosUrls] = useState<string[]>([]);
+  const [isDragActive, setIsDragActive] = useState(false);
   const { toast } = useToast();
 
   // Funciones de validación de imágenes
@@ -155,6 +156,24 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
 
     const result = await response.json();
     return result.imageUrl;
+  };
+
+  // Función para subir documentos PDF al servidor
+  const uploadDocumentToServer = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('document', file);
+
+    const response = await fetch('/api/upload-document', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al subir documento');
+    }
+
+    const result = await response.json();
+    return result.documentUrl;
   };
 
   const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
@@ -714,7 +733,87 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                         Catálogo Digital (PDF)
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="https://ejemplo.com/catalogo.pdf" {...field} />
+                        <div className="space-y-2">
+                          <div
+                            className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors ${
+                              isDragActive ? 'border-blue-400 bg-blue-50' : ''
+                            }`}
+                            onDragOver={(e) => {
+                              e.preventDefault();
+                              setIsDragActive(true);
+                            }}
+                            onDragLeave={(e) => {
+                              e.preventDefault();
+                              setIsDragActive(false);
+                            }}
+                            onDrop={async (e) => {
+                              e.preventDefault();
+                              setIsDragActive(false);
+                              const files = Array.from(e.dataTransfer.files);
+                              const pdfFile = files.find(file => file.type === 'application/pdf');
+                              if (pdfFile) {
+                                try {
+                                  const catalogUrl = await uploadDocumentToServer(pdfFile);
+                                  field.onChange(catalogUrl);
+                                  toast({ title: "Catálogo subido exitosamente" });
+                                } catch (error) {
+                                  toast({ 
+                                    title: "Error al subir catálogo", 
+                                    description: "Por favor intenta de nuevo",
+                                    variant: "destructive" 
+                                  });
+                                }
+                              } else {
+                                toast({ 
+                                  title: "Archivo no válido", 
+                                  description: "Solo se permiten archivos PDF",
+                                  variant: "destructive" 
+                                });
+                              }
+                            }}
+                          >
+                            <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                            <p className="text-sm text-gray-600 mb-2">
+                              Arrastra y suelta tu catálogo PDF aquí
+                            </p>
+                            <p className="text-xs text-gray-500 mb-4">
+                              O ingresa la URL manualmente abajo
+                            </p>
+                            <input
+                              type="file"
+                              accept=".pdf"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file && file.type === 'application/pdf') {
+                                  try {
+                                    const catalogUrl = await uploadDocumentToServer(file);
+                                    field.onChange(catalogUrl);
+                                    toast({ title: "Catálogo subido exitosamente" });
+                                  } catch (error) {
+                                    toast({ 
+                                      title: "Error al subir catálogo", 
+                                      description: "Por favor intenta de nuevo",
+                                      variant: "destructive" 
+                                    });
+                                  }
+                                }
+                              }}
+                              className="hidden"
+                              id="catalog-upload"
+                            />
+                            <label
+                              htmlFor="catalog-upload"
+                              className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                            >
+                              Seleccionar archivo
+                            </label>
+                          </div>
+                          <Input 
+                            placeholder="https://ejemplo.com/catalogo.pdf" 
+                            {...field} 
+                            className="mt-2"
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -1356,11 +1455,23 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {membershipTypes.map((type) => (
-                            <SelectItem key={type.id} value={type.id.toString()}>
-                              {type.nombrePlan} - ${type.costo} ({type.periodicidad})
-                            </SelectItem>
-                          ))}
+                          {membershipTypes.map((type) => {
+                            // Parse the pricing options from JSON
+                            const opcionesPrecios = Array.isArray(type.opcionesPrecios) 
+                              ? type.opcionesPrecios 
+                              : JSON.parse(type.opcionesPrecios || '[]');
+                            
+                            // Create display text with all pricing options
+                            const preciosText = opcionesPrecios.map((opcion: any) => 
+                              `$${opcion.costo} ${opcion.periodicidad}`
+                            ).join(' / ');
+                            
+                            return (
+                              <SelectItem key={type.id} value={type.id.toString()}>
+                                {type.nombrePlan} - {preciosText}
+                              </SelectItem>
+                            );
+                          })}
                         </SelectContent>
                       </Select>
                       <FormMessage />

@@ -92,6 +92,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Ruta para subir documentos PDF
+  app.post("/api/upload-document", upload.single('document'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No se recibió ningún archivo" });
+      }
+      
+      // Verificar que sea un archivo PDF
+      if (req.file.mimetype !== 'application/pdf') {
+        return res.status(400).json({ error: "Solo se permiten archivos PDF" });
+      }
+      
+      const documentUrl = `/uploads/documents/${req.file.filename}`;
+      res.json({ 
+        success: true, 
+        documentUrl,
+        filename: req.file.filename
+      });
+    } catch (error) {
+      console.error("Error al subir documento:", error);
+      res.status(500).json({ error: "Error al procesar el documento" });
+    }
+  });
+
   // Ruta para eliminar imagen
   app.delete("/api/delete-image/:filename", async (req, res) => {
     try {
