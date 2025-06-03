@@ -54,7 +54,10 @@ const companySchema = z.object({
   descripcionEmpresa: z.string().optional(),
   categoriesIds: z.array(z.number()).min(1, "Selecciona al menos una categoría"),
   certificateIds: z.array(z.number()).optional(),
-  membershipTypeId: z.number().optional().nullable(),
+  membershipTypeId: z.number({
+    required_error: "El tipo de membresía es requerido",
+    invalid_type_error: "Debe seleccionar un tipo de membresía válido"
+  }),
   redesSociales: z.array(z.object({
     plataforma: z.string(),
     url: z.string().url()
@@ -66,10 +69,16 @@ const companySchema = z.object({
     address: z.string()
   }).optional().nullable(),
   // Campos de membresía
-  membershipPeriodicidad: z.enum(["mensual", "anual"]).optional(),
-  formaPago: z.enum(["efectivo", "transferencia", "otro"]).optional(),
-  fechaInicioMembresia: z.string().optional(),
-  fechaFinMembresia: z.string().optional(),
+  membershipPeriodicidad: z.enum(["mensual", "anual"], {
+    required_error: "La periodicidad es requerida",
+    invalid_type_error: "Debe seleccionar una periodicidad válida"
+  }),
+  formaPago: z.enum(["efectivo", "transferencia", "otro"], {
+    required_error: "La forma de pago es requerida",
+    invalid_type_error: "Debe seleccionar una forma de pago válida"
+  }),
+  fechaInicioMembresia: z.string().min(1, "La fecha de inicio es requerida"),
+  fechaFinMembresia: z.string().min(1, "La fecha de fin es requerida"),
   notasMembresia: z.string().optional(),
 });
 
@@ -364,12 +373,18 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         descripcionEmpresa: company.descripcionEmpresa || "",
         catalogoDigitalUrl: company.catalogoDigitalUrl || "",
         categoriesIds: (company.categoriesIds as number[]) || [],
-        membershipTypeId: company.membershipTypeId ?? undefined,
+        membershipTypeId: company.membershipTypeId || membershipTypes[0]?.id || 1,
         certificateIds: (company.certificateIds as number[]) || [],
         galeriaProductosUrls: (company.galeriaProductosUrls as string[]) || [],
+        // Campos de membresía
+        membershipPeriodicidad: (company.membershipPeriodicidad as "mensual" | "anual") || "anual",
+        formaPago: (company.formaPago as "efectivo" | "transferencia" | "otro") || "efectivo",
+        fechaInicioMembresia: company.fechaInicioMembresia || new Date().toISOString().split('T')[0],
+        fechaFinMembresia: company.fechaFinMembresia || "",
+        notasMembresia: company.notasMembresia || "",
       });
     }
-  }, [company, open, form]);
+  }, [company, open, form, membershipTypes]);
 
   // Efecto separado para cargar la ubicación existente cuando las ciudades están disponibles
   useEffect(() => {
