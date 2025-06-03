@@ -32,7 +32,7 @@ import {
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Category, MembershipType, CompanyWithDetails, Certificate } from "@shared/schema";
+import { Category, CompanyWithDetails, Certificate } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
 import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube, Award, Tags, Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag, Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music, Gamepad2, Book, Palette, Plane, Ship, Train, Zap } from "lucide-react";
 import MapLocationPicker from "./MapLocationPicker";
@@ -1594,202 +1594,77 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
               </div>
             </div>
 
-            {/* Sección: Información de Membresía */}
+            {/* Videos de la Empresa */}
             <div className="space-y-6">
               <div className="border-b pb-4">
-                <h3 className="text-lg font-semibold text-primary">Información de Membresía</h3>
-                <p className="text-sm text-gray-600">Configuración de la membresía y método de pago</p>
+                <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+                  <Video className="h-5 w-5" />
+                  Videos de la Empresa
+                </h3>
+                <p className="text-sm text-gray-600">URLs de videos promocionales o informativos</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Tipo de Membresía */}
-                <FormField
-                  control={form.control}
-                  name="membershipTypeId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tipo de Membresía</FormLabel>
-                      <Select onValueChange={(value) => {
-                        field.onChange(value ? parseInt(value) : undefined);
-                        // Reset periodicidad when membership type changes
-                        form.setValue("membershipPeriodicidad", "");
-                        form.setValue("fechaFinMembresia", "");
-                      }} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un tipo de membresía" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {membershipTypes.map((type) => (
-                            <SelectItem key={type.id} value={type.id.toString()}>
-                              {type.nombrePlan}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Periodicidad de Membresía */}
-                <FormField
-                  control={form.control}
-                  name="membershipPeriodicidad"
-                  render={({ field }) => {
-                    const selectedMembershipId = form.watch("membershipTypeId");
-                    const selectedMembership = membershipTypes.find(m => m.id === selectedMembershipId);
-                    let opcionesPrecios = [];
-                    if (selectedMembership && selectedMembership.opcionesPrecios) {
-                      try {
-                        if (typeof selectedMembership.opcionesPrecios === 'string') {
-                          opcionesPrecios = JSON.parse(selectedMembership.opcionesPrecios);
-                        } else if (Array.isArray(selectedMembership.opcionesPrecios)) {
-                          opcionesPrecios = selectedMembership.opcionesPrecios;
-                        }
-                      } catch (error) {
-                        console.error("Error parsing opcionesPrecios:", error);
-                        opcionesPrecios = [];
-                      }
-                    }
-
-                    // Auto-select if only one option available
-                    useEffect(() => {
-                      if (opcionesPrecios.length === 1 && !field.value) {
-                        const singleOption = opcionesPrecios[0];
-                        field.onChange(singleOption.periodicidad.toLowerCase());
-                        console.log("Auto-selecting single periodicidad option:", singleOption.periodicidad.toLowerCase());
-                      }
-                    }, [opcionesPrecios, field.value, field.onChange]);
-
-                    return (
-                      <FormItem>
-                        <FormLabel>Periodicidad</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          disabled={!selectedMembershipId}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selecciona periodicidad" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {opcionesPrecios.map((opcion: any, index: number) => (
-                              <SelectItem key={index} value={opcion.periodicidad.toLowerCase()}>
-                                {opcion.periodicidad.charAt(0).toUpperCase() + opcion.periodicidad.slice(1)} - ${opcion.costo}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
-
-                {/* Forma de Pago */}
-                <FormField
-                  control={form.control}
-                  name="formaPago"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Forma de Pago</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona forma de pago" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="efectivo">Efectivo</SelectItem>
-                          <SelectItem value="transferencia">Transferencia</SelectItem>
-                          <SelectItem value="otro">Otro</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Fecha de Inicio */}
-                <FormField
-                  control={form.control}
-                  name="fechaInicioMembresia"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fecha de Inicio</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="date" 
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Fecha de Finalización */}
-                <FormField
-                  control={form.control}
-                  name="fechaFinMembresia"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fecha de Finalización</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Notas de Membresía */}
-                <FormField
-                  control={form.control}
-                  name="notasMembresia"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Notas de Membresía</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Notas adicionales sobre la membresía, condiciones especiales, etc."
-                          rows={3}
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className="space-y-3">
+                {videosUrls.map((video, index) => (
+                  <div key={index} className="flex gap-3 items-start">
+                    <Input
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      value={video}
+                      onChange={(e) => updateVideo(index, e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeVideo(index)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                {videosUrls.length < 3 && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addVideo}
+                    className="flex items-center gap-2"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Agregar Video
+                  </Button>
+                )}
+                <p className="text-xs text-gray-500">
+                  Máximo 3 videos. Formatos soportados: YouTube, Vimeo, videos directos (MP4, etc.)
+                </p>
 
                 {/* Estado de la Empresa */}
-                <FormField
-                  control={form.control}
-                  name="estado"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Estado de la Empresa</FormLabel>
-                          <FormDescription>
-                            Controla si la empresa aparece activa en el directorio público
-                          </FormDescription>
+                <div className="border-t pt-6 mt-6">
+                  <FormField
+                    control={form.control}
+                    name="estado"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Estado de la Empresa</FormLabel>
+                            <FormDescription>
+                              Controla si la empresa aparece activa en el directorio público
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value === "activo"}
+                              onCheckedChange={(checked) => field.onChange(checked ? "activo" : "inactivo")}
+                            />
+                          </FormControl>
                         </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value === "activo"}
-                            onCheckedChange={(checked) => field.onChange(checked ? "activo" : "inactivo")}
-                          />
-                        </FormControl>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             </div>
 
