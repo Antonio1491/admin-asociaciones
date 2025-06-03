@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -455,6 +455,9 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
             <Building className="h-5 w-5" />
             Editar Empresa - {company.nombreEmpresa}
           </DialogTitle>
+          <DialogDescription>
+            Modifica la información de la empresa y guarda los cambios.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -590,7 +593,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                     />
                     <div className="flex items-center gap-2">
                       {renderCategoryIcon(category)}
-                      <span className="text-sm">{category.nombre}</span>
+                      <span className="text-sm">{category.nombreCategoria}</span>
                     </div>
                   </label>
                 ))}
