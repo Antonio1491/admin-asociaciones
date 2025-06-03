@@ -350,10 +350,33 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       // Resetear estados
       setSelectedEstados((company.estadosPresencia as string[]) || []);
       setSelectedCiudades((company.ciudadesPresencia as string[]) || []);
-      // Convertir objeto redesSociales a array para el formulario
-      const redesSocialesArray = company.redesSociales ? 
-        Object.entries(company.redesSociales as Record<string, string>).map(([plataforma, url]) => ({ plataforma, url })) : 
-        [];
+      // Convertir redesSociales a array para el formulario
+      let redesSocialesArray = [];
+      if (company.redesSociales) {
+        try {
+          // Si es un string JSON, parsearlo
+          if (typeof company.redesSociales === 'string') {
+            const parsed = JSON.parse(company.redesSociales);
+            if (Array.isArray(parsed)) {
+              redesSocialesArray = parsed;
+            } else {
+              // Si es un objeto, convertir a array
+              redesSocialesArray = Object.entries(parsed).map(([plataforma, url]) => ({ plataforma, url }));
+            }
+          } 
+          // Si ya es un array, usarlo directamente
+          else if (Array.isArray(company.redesSociales)) {
+            redesSocialesArray = company.redesSociales;
+          } 
+          // Si es un objeto, convertir a array
+          else if (typeof company.redesSociales === 'object') {
+            redesSocialesArray = Object.entries(company.redesSociales).map(([plataforma, url]) => ({ plataforma, url }));
+          }
+        } catch (error) {
+          console.error("Error parsing redesSociales:", error);
+          redesSocialesArray = [];
+        }
+      }
       setRedesSociales(redesSocialesArray);
       setEmailsAdicionales([]);
       setTelefonosAdicionales([]);
