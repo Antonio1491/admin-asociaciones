@@ -342,6 +342,8 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       setRepresentantes((company.representantesVentas as string[]) || []);
       setDireccionesPorCiudad({});
       setGaleriaImagenes((company.galeriaProductosUrls as string[]) || []);
+      
+      // La ubicación se cargará después cuando se actualicen las ciudades
 
       // Cargar datos en el formulario
       form.reset({
@@ -368,6 +370,16 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       });
     }
   }, [company, open, form]);
+
+  // Efecto separado para cargar la ubicación existente cuando las ciudades están disponibles
+  useEffect(() => {
+    if (company && selectedCiudades.length > 0 && company.ubicacionGeografica) {
+      const primeraUbicacion = selectedCiudades[0];
+      setUbicacionesPorCiudad({
+        [primeraUbicacion]: company.ubicacionGeografica as { lat: number; lng: number; address: string }
+      });
+    }
+  }, [company, selectedCiudades]);
 
   // Mutación para actualizar empresa
   const updateMutation = useMutation({
@@ -431,10 +443,22 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
           }
         });
 
+      // Determinar la ubicación principal
+      // Si hay ubicaciones por ciudad, usar la primera como ubicación principal
+      const ubicacionPrincipal = Object.keys(ubicacionesPorCiudad).length > 0 
+        ? Object.values(ubicacionesPorCiudad)[0] 
+        : data.ubicacionGeografica;
+
       const companyData = {
         ...data,
-        videosUrls: videosValidos
+        videosUrls: videosValidos,
+        ubicacionGeografica: ubicacionPrincipal
       };
+      
+      console.log("Datos con ubicación a enviar:", {
+        ubicacionGeografica: ubicacionPrincipal,
+        ciudadesSeleccionadas: Object.keys(ubicacionesPorCiudad)
+      });
       
       updateMutation.mutate(companyData);
     } catch (error) {
