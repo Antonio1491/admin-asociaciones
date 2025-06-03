@@ -59,6 +59,11 @@ export const companies = pgTable("companies", {
   membershipTypeId: integer("membership_type_id").references(() => membershipTypes.id),
   sitioWeb: text("sitio_web"),
   certificateIds: jsonb("certificate_ids"), // Array of certificate IDs
+  // Campos de información de membresía
+  formaPago: text("forma_pago"), // "efectivo", "transferencia", "otro"
+  fechaInicioMembresia: text("fecha_inicio_membresia"),
+  fechaFinMembresia: text("fecha_fin_membresia"),
+  notasMembresia: text("notas_membresia"),
   userId: integer("user_id").references(() => users.id), // Owner of the company
   estado: text("estado").notNull().default("activo"), // "activo", "inactivo", "pendiente"
   createdAt: timestamp("created_at").defaultNow().notNull(),

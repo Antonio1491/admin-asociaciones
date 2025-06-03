@@ -55,6 +55,12 @@ const companySchema = insertCompanySchema.extend({
     plataforma: z.string(),
     url: z.string().url("URL inválida"),
   })).optional(),
+  // Campos de membresía
+  membershipTypeId: z.number().optional().nullable(),
+  formaPago: z.enum(["efectivo", "transferencia", "otro"]).optional(),
+  fechaInicioMembresia: z.string().optional(),
+  fechaFinMembresia: z.string().optional(),
+  notasMembresia: z.string().optional(),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
@@ -133,6 +139,11 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       categoriesIds: [],
       certificateIds: [],
       redesSociales: [],
+      membershipTypeId: undefined,
+      formaPago: undefined,
+      fechaInicioMembresia: "",
+      fechaFinMembresia: "",
+      notasMembresia: "",
     },
   });
 
@@ -1305,6 +1316,127 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Sección: Información de Membresía */}
+            <div className="space-y-6">
+              <div className="border-b pb-4">
+                <h3 className="text-lg font-semibold text-primary">Información de Membresía</h3>
+                <p className="text-sm text-gray-600">Configuración de la membresía y método de pago</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Tipo de Membresía */}
+                <FormField
+                  control={form.control}
+                  name="membershipTypeId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo de Membresía</FormLabel>
+                      <Select onValueChange={(value) => field.onChange(value ? parseInt(value) : undefined)} value={field.value?.toString()}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona un tipo de membresía (opcional)" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {membershipTypes.map((type) => {
+                            // Parse the pricing options from JSON
+                            const opcionesPrecios = Array.isArray(type.opcionesPrecios) 
+                              ? type.opcionesPrecios 
+                              : JSON.parse(type.opcionesPrecios || '[]');
+                            
+                            // Create display text with all pricing options
+                            const preciosText = opcionesPrecios.map((opcion: any) => 
+                              `$${opcion.costo} ${opcion.periodicidad}`
+                            ).join(' / ');
+                            
+                            return (
+                              <SelectItem key={type.id} value={type.id.toString()}>
+                                {type.nombrePlan} - {preciosText}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Forma de Pago */}
+                <FormField
+                  control={form.control}
+                  name="formaPago"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Forma de Pago</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecciona forma de pago" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="efectivo">Efectivo</SelectItem>
+                          <SelectItem value="transferencia">Transferencia</SelectItem>
+                          <SelectItem value="otro">Otro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Fecha de Inicio */}
+                <FormField
+                  control={form.control}
+                  name="fechaInicioMembresia"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fecha de Inicio</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Fecha de Finalización */}
+                <FormField
+                  control={form.control}
+                  name="fechaFinMembresia"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fecha de Finalización</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Notas de Membresía */}
+                <FormField
+                  control={form.control}
+                  name="notasMembresia"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Notas de Membresía</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Notas adicionales sobre la membresía, condiciones especiales, etc."
+                          rows={3}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
 
