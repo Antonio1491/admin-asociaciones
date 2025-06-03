@@ -92,8 +92,25 @@ export default function CompanyDetails() {
       </div>
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-        <div className="max-w-5xl mx-auto px-4 py-16">
+      <div className="relative overflow-hidden text-white">
+        {/* Fondo con imagen de producto */}
+        <div className="absolute inset-0">
+          {company.galeriaProductosUrls && company.galeriaProductosUrls.length > 0 ? (
+            <img
+              src={company.galeriaProductosUrls[0]}
+              alt={`Producto de ${company.nombreEmpresa}`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-blue-600 to-indigo-700"></div>
+          )}
+        </div>
+        
+        {/* Overlay azul marino transparente */}
+        <div className="absolute inset-0 bg-slate-900/70"></div>
+        
+        {/* Contenido del header */}
+        <div className="relative max-w-5xl mx-auto px-4 py-16">
           <div className="text-center">
             {/* Logo de la empresa como primer elemento */}
             <div className="flex justify-center mb-8">
@@ -101,10 +118,10 @@ export default function CompanyDetails() {
                 <img
                   src={company.logotipoUrl}
                   alt={company.nombreEmpresa}
-                  className="w-32 h-32 object-contain bg-white/10 rounded-full p-4"
+                  className="w-32 h-32 object-contain bg-white/10 rounded-full p-4 backdrop-blur-sm"
                 />
               ) : (
-                <div className="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center">
+                <div className="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
                   <span className="text-5xl font-bold">
                     {company.nombreEmpresa.charAt(0)}
                   </span>
@@ -113,7 +130,7 @@ export default function CompanyDetails() {
             </div>
 
             {/* Nombre de la empresa */}
-            <h1 className="text-4xl font-bold mb-8">{company.nombreEmpresa}</h1>
+            <h1 className="text-4xl font-bold mb-8 drop-shadow-lg">{company.nombreEmpresa}</h1>
 
 
 
