@@ -13,6 +13,7 @@ import type { CompanyWithDetails } from "@/../../shared/schema";
 export default function CompanyDetails() {
   const { id } = useParams();
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [quotationModalOpen, setQuotationModalOpen] = useState(false);
   const [, setLocation] = useLocation();
 
   const { data: company, isLoading } = useQuery({
@@ -111,61 +112,45 @@ export default function CompanyDetails() {
             </div>
 
             {/* Nombre de la empresa */}
-            <h1 className="text-4xl font-bold mb-6">{company.nombreEmpresa}</h1>
-
-            {/* Descripción corta */}
-            <div 
-              className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: company.descripcionEmpresa || '' }}
-            />
+            <h1 className="text-4xl font-bold mb-8">{company.nombreEmpresa}</h1>
 
 
 
 
 
-            {/* Datos importantes de contacto */}
-            <div className="border-t border-white/20 pt-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto">
-                {emails[0] && (
-                  <div className="flex items-center justify-center group">
-                    <Mail className="h-5 w-5 mr-3 text-blue-200" />
-                    <a href={`mailto:${emails[0]}`} className="text-white hover:text-blue-200 transition-colors text-sm">
-                      {emails[0]}
-                    </a>
-                  </div>
-                )}
-                {telefonos[0] && (
-                  <div className="flex items-center justify-center group">
-                    <Phone className="h-5 w-5 mr-3 text-green-200" />
-                    <a href={`tel:${telefonos[0]}`} className="text-white hover:text-green-200 transition-colors text-sm">
-                      {telefonos[0]}
-                    </a>
-                  </div>
-                )}
-                {company.sitioWeb && (
-                  <div className="flex items-center justify-center group">
-                    <Globe className="h-5 w-5 mr-3 text-purple-200" />
-                    <a 
-                      href={company.sitioWeb} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="text-white hover:text-purple-200 transition-colors text-sm"
-                    >
-                      Sitio web
-                    </a>
-                  </div>
-                )}
-                {company.ciudadesPresencia && company.ciudadesPresencia.length > 0 && (
-                  <div className="flex items-center justify-center">
-                    <MapPin className="h-5 w-5 mr-3 text-orange-200" />
-                    <span className="text-white text-sm">
-                      {company.ciudadesPresencia[0]}
-                    </span>
-                  </div>
-                )}
-              </div>
 
 
+            {/* Iconos de contacto */}
+            <div className="flex items-center justify-center gap-6">
+              {emails[0] && (
+                <a 
+                  href={`mailto:${emails[0]}`} 
+                  className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-full hover:bg-white/20 transition-colors group"
+                  title={`Enviar email a ${emails[0]}`}
+                >
+                  <Mail className="h-6 w-6 text-blue-200 group-hover:text-white" />
+                </a>
+              )}
+              {telefonos[0] && (
+                <a 
+                  href={`tel:${telefonos[0]}`} 
+                  className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-full hover:bg-white/20 transition-colors group"
+                  title={`Llamar a ${telefonos[0]}`}
+                >
+                  <Phone className="h-6 w-6 text-green-200 group-hover:text-white" />
+                </a>
+              )}
+              {company.sitioWeb && (
+                <a 
+                  href={company.sitioWeb} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center justify-center w-12 h-12 bg-white/10 rounded-full hover:bg-white/20 transition-colors group"
+                  title="Visitar sitio web"
+                >
+                  <Globe className="h-6 w-6 text-purple-200 group-hover:text-white" />
+                </a>
+              )}
             </div>
           </div>
         </div>
