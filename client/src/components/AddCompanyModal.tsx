@@ -1401,7 +1401,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                         </h4>
                         
                         {/* Componente de mapa */}
-                        <MapLocationPicker
+                        <SimpleLocationPicker
                           ciudad={ciudad}
                           onLocationSelect={(location) => updateUbicacionCiudad(ciudad, location)}
                           initialLocation={ubicacionesPorCiudad[ciudad] || null}
