@@ -278,47 +278,35 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       descripcionEmpresa: "",
       categoriesIds: [],
       certificateIds: [],
-      membershipTypeId: undefined,
+      videosUrls: [],
     },
   });
 
-  // Function to calculate end date automatically
-  const calculateEndDate = (startDate: string, periodicidad: string) => {
-    if (!startDate || !periodicidad) return "";
-    
-    const start = new Date(startDate);
-    const end = new Date(start);
-    
-    if (periodicidad.toLowerCase() === "mensual") {
-      end.setMonth(end.getMonth() + 1);
-    } else if (periodicidad.toLowerCase() === "anual") {
-      end.setFullYear(end.getFullYear() + 1);
+
+
+  // Video management functions
+  const addVideo = () => {
+    if (videosUrls.length < 3) {
+      setVideosUrls([...videosUrls, ""]);
     }
-    
-    return end.toISOString().split('T')[0];
   };
 
-  // Watch for changes in membership fields to auto-calculate dates
-  const watchedFechaInicio = form.watch("fechaInicioMembresia");
-  const watchedPeriodicidad = form.watch("membershipPeriodicidad");
+  const updateVideo = (index: number, value: string) => {
+    const newVideos = [...videosUrls];
+    newVideos[index] = value;
+    setVideosUrls(newVideos);
+    form.setValue("videosUrls", newVideos);
+  };
 
-  useEffect(() => {
-    if (watchedFechaInicio && watchedPeriodicidad) {
-      console.log("Calculando fecha de fin:", { watchedFechaInicio, watchedPeriodicidad });
-      const endDate = calculateEndDate(watchedFechaInicio, watchedPeriodicidad);
-      console.log("Fecha de fin calculada:", endDate);
-      form.setValue("fechaFinMembresia", endDate);
-    }
-  }, [watchedFechaInicio, watchedPeriodicidad, form]);
+  const removeVideo = (index: number) => {
+    const newVideos = videosUrls.filter((_, i) => i !== index);
+    setVideosUrls(newVideos);
+    form.setValue("videosUrls", newVideos);
+  };
 
   // Cargar categorías
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
-  });
-
-  // Cargar tipos de membresía
-  const { data: membershipTypes = [] } = useQuery<MembershipType[]>({
-    queryKey: ["/api/membership-types"],
   });
 
   // Cargar certificados
@@ -385,7 +373,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         estado: (company.estado as "activo" | "inactivo") || "activo",
       });
     }
-  }, [company, open, form, membershipTypes]);
+  }, [company, open, form]);
 
   // Efecto separado para cargar la ubicación existente cuando las ciudades están disponibles
   useEffect(() => {
@@ -405,11 +393,10 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         
         const updateData = {
           ...data,
-          // Convertir membershipTypeId a null si es undefined o string vacío
-          membershipTypeId: data.membershipTypeId && data.membershipTypeId !== "" ? Number(data.membershipTypeId) : null,
           redesSociales,
           representantesVentas: representantes.filter(r => r.trim() !== ""),
           galeriaProductosUrls: galeriaImagenes.filter(img => img.trim() !== ""),
+          videosUrls: videosUrls.filter(v => v.trim() !== ""),
         };
 
         console.log("Datos a enviar:", updateData);
@@ -558,23 +545,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     setRepresentantes(newRepresentantes);
   };
 
-  // Funciones para manejar videos
-  const addVideo = () => {
-    if (videosUrls.length < 5) {
-      setVideosUrls([...videosUrls, ""]);
-    }
-  };
 
-  const removeVideo = (index: number) => {
-    const newVideos = videosUrls.filter((_, i) => i !== index);
-    setVideosUrls(newVideos);
-  };
-
-  const updateVideo = (index: number, value: string) => {
-    const newVideos = [...videosUrls];
-    newVideos[index] = value;
-    setVideosUrls(newVideos);
-  };
 
   // Función para direcciones por ciudad
   const updateDireccionCiudad = (ciudad: string, direccion: string) => {
