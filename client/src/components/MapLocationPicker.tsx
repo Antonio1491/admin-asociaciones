@@ -172,15 +172,17 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
   };
 
   const suggestedLocations = [
-    { name: "Ciudad de México", lat: 19.4326, lng: -99.1332 },
-    { name: "Guadalajara", lat: 20.6597, lng: -103.3496 },
-    { name: "Monterrey", lat: 25.6866, lng: -100.3161 },
-    { name: "Puebla", lat: 19.0414, lng: -98.2063 },
-    { name: "Tijuana", lat: 32.5149, lng: -117.0382 },
-    { name: "León", lat: 21.1619, lng: -101.6921 }
+    { name: "Ciudad de México, CDMX", lat: 19.4326, lng: -99.1332, state: "Ciudad de México" },
+    { name: "Guadalajara, Jalisco", lat: 20.6597, lng: -103.3496, state: "Jalisco" },
+    { name: "Monterrey, Nuevo León", lat: 25.6866, lng: -100.3161, state: "Nuevo León" },
+    { name: "Puebla, Puebla", lat: 19.0414, lng: -98.2063, state: "Puebla" },
+    { name: "Tijuana, Baja California", lat: 32.5149, lng: -117.0382, state: "Baja California" },
+    { name: "León, Guanajuato", lat: 21.1619, lng: -101.6921, state: "Guanajuato" },
+    { name: "Mérida, Yucatán", lat: 20.9674, lng: -89.5926, state: "Yucatán" },
+    { name: "Cancún, Quintana Roo", lat: 21.1619, lng: -86.8515, state: "Quintana Roo" }
   ];
 
-  const handleSuggestedLocation = (location: { name: string; lat: number; lng: number }) => {
+  const handleSuggestedLocation = (location: { name: string; lat: number; lng: number; state?: string }) => {
     const locationData = {
       lat: location.lat,
       lng: location.lng,

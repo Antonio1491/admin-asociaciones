@@ -1443,7 +1443,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                           </FormControl>
                           <SelectContent>
                             {opcionesPrecios.map((opcion: any, index: number) => (
-                              <SelectItem key={index} value={opcion.periodicidad}>
+                              <SelectItem key={index} value={opcion.periodicidad.toLowerCase()}>
                                 {opcion.periodicidad.charAt(0).toUpperCase() + opcion.periodicidad.slice(1)} - ${opcion.costo}
                               </SelectItem>
                             ))}
