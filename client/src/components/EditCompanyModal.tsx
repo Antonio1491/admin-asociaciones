@@ -1447,43 +1447,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   )}
                 </div>
 
-                {/* Tipo de membresía */}
-                <FormField
-                  control={form.control}
-                  name="membershipTypeId"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Tipo de Membresía *</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un tipo de membresía" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {membershipTypes.map((type) => {
-                            // Parse the pricing options from JSON
-                            const opcionesPrecios = Array.isArray(type.opcionesPrecios) 
-                              ? type.opcionesPrecios 
-                              : JSON.parse(type.opcionesPrecios || '[]');
-                            
-                            // Create display text with all pricing options
-                            const preciosText = opcionesPrecios.map((opcion: any) => 
-                              `$${opcion.costo} ${opcion.periodicidad}`
-                            ).join(' / ');
-                            
-                            return (
-                              <SelectItem key={type.id} value={type.id.toString()}>
-                                {type.nombrePlan} - {preciosText}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
 
                 {/* Representantes */}
                 <div className="md:col-span-2 space-y-3">

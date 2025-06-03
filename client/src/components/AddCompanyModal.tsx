@@ -1218,31 +1218,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                   )}
                 </div>
 
-                {/* Tipo de membresía */}
-                <FormField
-                  control={form.control}
-                  name="membershipTypeId"
-                  render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>Tipo de Membresía *</FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un tipo de membresía" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {membershipTypes.map((type) => (
-                            <SelectItem key={type.id} value={type.id.toString()}>
-                              {type.nombrePlan} - ${type.costo} ({type.periodicidad})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+
 
                 {/* Representantes */}
                 <div className="md:col-span-2 space-y-3">
