@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -148,6 +148,66 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
       notasMembresia: "",
     },
   });
+
+  // Reset form and set current date when modal opens
+  useEffect(() => {
+    if (open) {
+      const currentDate = new Date().toISOString().split('T')[0];
+      form.reset({
+        nombreEmpresa: "",
+        email1: "",
+        telefono1: "",
+        sitioWeb: "",
+        videoUrl1: "",
+        descripcionEmpresa: "",
+        direccionFisica: "",
+        paisesPresencia: [],
+        estadosPresencia: [],
+        ciudadesPresencia: [],
+        categoriesIds: [],
+        certificateIds: [],
+        redesSociales: [],
+        membershipTypeId: undefined,
+        membershipPeriodicidad: undefined,
+        formaPago: undefined,
+        fechaInicioMembresia: currentDate,
+        fechaFinMembresia: "",
+        notasMembresia: "",
+      });
+      
+      // Reset all state variables
+      setLogoFile(null);
+      setLogoPreview("");
+      setSelectedEstados([]);
+      setSelectedCiudades([]);
+      setCatalogoFile(null);
+      setRedesSociales([]);
+      setGaleriaFiles([]);
+      setGaleriaPreviews([]);
+      setEmailsAdicionales([]);
+      setTelefonosAdicionales([]);
+      setRepresentantes([]);
+      setDireccionesPorCiudad({});
+      setUbicacionesPorCiudad({});
+      setVideosUrls([]);
+    }
+  }, [open, form]);
+
+  // Function to calculate end date automatically
+  const calculateEndDate = (startDate: string, periodicidad: string) => {
+    if (!startDate || !periodicidad) return "";
+    
+    const start = new Date(startDate);
+    const end = new Date(start);
+    
+    if (periodicidad === "mensual") {
+      end.setMonth(end.getMonth() + 1);
+    } else if (periodicidad === "anual") {
+      end.setFullYear(end.getFullYear() + 1);
+    }
+    
+    return end.toISOString().split('T')[0];
+  };
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -1355,19 +1415,11 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                         <Select 
                           onValueChange={(value) => {
                             field.onChange(value);
-                            // Calculate end date automatically
+                            // Calculate end date automatically using helper function
                             const startDate = form.getValues("fechaInicioMembresia");
                             if (startDate && value) {
-                              const start = new Date(startDate);
-                              const end = new Date(start);
-                              
-                              if (value === "mensual") {
-                                end.setMonth(end.getMonth() + 1);
-                              } else if (value === "anual") {
-                                end.setFullYear(end.getFullYear() + 1);
-                              }
-                              
-                              form.setValue("fechaFinMembresia", end.toISOString().split('T')[0]);
+                              const endDate = calculateEndDate(startDate, value);
+                              form.setValue("fechaFinMembresia", endDate);
                             }
                           }} 
                           value={field.value}
@@ -1429,19 +1481,11 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                           {...field}
                           onChange={(e) => {
                             field.onChange(e);
-                            // Update end date when start date changes
+                            // Update end date when start date changes using helper function
                             const periodicidad = form.getValues("membershipPeriodicidad");
                             if (e.target.value && periodicidad) {
-                              const start = new Date(e.target.value);
-                              const end = new Date(start);
-                              
-                              if (periodicidad === "mensual") {
-                                end.setMonth(end.getMonth() + 1);
-                              } else if (periodicidad === "anual") {
-                                end.setFullYear(end.getFullYear() + 1);
-                              }
-                              
-                              form.setValue("fechaFinMembresia", end.toISOString().split('T')[0]);
+                              const endDate = calculateEndDate(e.target.value, periodicidad);
+                              form.setValue("fechaFinMembresia", endDate);
                             }
                           }}
                         />
