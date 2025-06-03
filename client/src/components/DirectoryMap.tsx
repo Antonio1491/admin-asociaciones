@@ -1,6 +1,16 @@
-import { useEffect, useRef, useState } from "react";
-import { Loader } from "@googlemaps/js-api-loader";
-import type { CompanyWithDetails } from "@/../../shared/schema";
+import { useEffect, useRef } from "react";
+import { MapPin } from "lucide-react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import type { CompanyWithDetails } from "@shared/schema";
+
+// Fix for default markers in Leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface DirectoryMapProps {
   companies: CompanyWithDetails[];
@@ -8,167 +18,137 @@ interface DirectoryMapProps {
 
 export default function DirectoryMap({ companies }: DirectoryMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+
+  // Filtrar empresas que tienen ubicación geográfica válida
+  const companiesWithLocation = companies.filter(company => 
+    company.ubicacionGeografica && 
+    typeof company.ubicacionGeografica === 'object' &&
+    'lat' in company.ubicacionGeografica &&
+    'lng' in company.ubicacionGeografica &&
+    company.ubicacionGeografica.lat &&
+    company.ubicacionGeografica.lng
+  );
 
   useEffect(() => {
-    const initMap = async () => {
-      try {
-        // Verificar que el elemento HTML esté disponible
-        if (!mapRef.current) {
-          console.warn("Map container not ready");
-          return;
-        }
+    if (!mapRef.current || companiesWithLocation.length === 0) {
+      return;
+    }
 
-        // Verificar que la API key esté configurada
-        if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
-          console.warn("Google Maps API key not configured");
-          setHasError(true);
-          setIsLoading(false);
-          return;
-        }
+    // Limpiar mapa anterior si existe
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
 
-        const loader = new Loader({
-          apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-          version: "weekly",
-          libraries: ["places"]
-        });
+    // Coordenadas de México como centro por defecto
+    const defaultCenter: [number, number] = [19.4326, -99.1332];
+    const defaultZoom = 6;
 
-        const { Map } = await loader.importLibrary("maps") as google.maps.MapsLibrary;
-        const { Marker } = await loader.importLibrary("marker") as google.maps.MarkerLibrary;
+    // Crear el mapa
+    const map = L.map(mapRef.current).setView(defaultCenter, defaultZoom);
 
-        // Verificar nuevamente que el elemento siga disponible
-        if (!mapRef.current) {
-          console.warn("Map container was unmounted during initialization");
-          return;
-        }
+    // Agregar capa de tiles de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-        // Centro del mapa en México
-        const defaultCenter = { lat: 19.4326, lng: -99.1332 };
-        
-        const mapInstance = new Map(mapRef.current, {
-          center: defaultCenter,
-          zoom: 6,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true,
-        });
+    // Crear grupo de marcadores para ajustar el zoom automáticamente
+    const markersGroup = L.featureGroup();
 
-        // Filtrar empresas que tienen ubicación geográfica
-        const companiesWithLocation = companies.filter(
-          company => company.ubicacionGeografica && 
-                    typeof company.ubicacionGeografica === 'object' &&
-                    'lat' in company.ubicacionGeografica && 
-                    'lng' in company.ubicacionGeografica
-        );
-
-        // Agregar marcadores para cada empresa
-        companiesWithLocation.forEach((company) => {
-          const ubicacion = company.ubicacionGeografica as { lat: number; lng: number };
-          if (ubicacion) {
-            const marker = new (window as any).google.maps.Marker({
-              position: {
-                lat: ubicacion.lat,
-                lng: ubicacion.lng
-              },
-              map: mapInstance,
-              title: company.nombreEmpresa,
-              icon: {
-                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                  <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="8" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
-                    <circle cx="12" cy="12" r="3" fill="#ffffff"/>
-                  </svg>
-                `),
-                scaledSize: new (window as any).google.maps.Size(24, 24),
-                anchor: new (window as any).google.maps.Point(12, 12)
-              }
-            });
-
-            // InfoWindow para mostrar información de la empresa
-            const infoWindow = new (window as any).google.maps.InfoWindow({
-              content: `
-                <div style="padding: 10px; max-width: 200px;">
-                  <h3 style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold;">${company.nombreEmpresa}</h3>
-                  ${company.direccionFisica ? `<p style="margin: 0 0 8px 0; font-size: 12px; color: #666;">${company.direccionFisica}</p>` : ''}
-                  ${company.telefono1 ? `<p style="margin: 0 0 4px 0; font-size: 12px;">📞 ${company.telefono1}</p>` : ''}
-                  ${company.email1 ? `<p style="margin: 0 0 8px 0; font-size: 12px;">✉️ ${company.email1}</p>` : ''}
-                  <a href="/companies/${company.id}" style="color: #2563eb; text-decoration: none; font-size: 12px;">Ver detalles →</a>
-                </div>
-              `
-            });
-
-            marker.addListener("click", () => {
-              infoWindow.open(mapInstance, marker);
-            });
+    // Agregar marcadores para cada empresa
+    companiesWithLocation.forEach(company => {
+      const ubicacion = company.ubicacionGeografica as { lat: number; lng: number; address?: string };
+      
+      // Crear el contenido del popup
+      const popupContent = `
+        <div style="text-align: center; min-width: 200px; max-width: 250px;">
+          <h3 style="margin: 0 0 8px 0; font-weight: bold; color: #1f2937; font-size: 16px;">${company.nombreEmpresa}</h3>
+          ${company.direccionFisica ? `<p style="margin: 0 0 4px 0; font-size: 14px; color: #6b7280;">${company.direccionFisica}</p>` : ''}
+          ${company.categories && company.categories.length > 0 ? 
+            `<p style="margin: 0 0 4px 0; font-size: 12px; color: #9ca3af;">
+              ${company.categories.map(cat => cat.nombre).join(', ')}
+            </p>` : ''
           }
+          ${company.telefono1 ? `<p style="margin: 0 0 4px 0; font-size: 12px; color: #059669;">📞 ${company.telefono1}</p>` : ''}
+          ${company.email1 ? `<p style="margin: 0 0 4px 0; font-size: 12px; color: #0284c7;">✉️ ${company.email1}</p>` : ''}
+          ${ubicacion.address ? `<p style="margin: 4px 0 0 0; font-size: 11px; color: #9ca3af;">${ubicacion.address}</p>` : ''}
+          <button 
+            onclick="window.open('/company/${company.id}', '_blank')" 
+            style="margin-top: 8px; padding: 4px 8px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;"
+          >
+            Ver detalles
+          </button>
+        </div>
+      `;
+
+      // Crear marcador
+      const marker = L.marker([ubicacion.lat, ubicacion.lng])
+        .bindPopup(popupContent);
+
+      // Agregar al grupo de marcadores
+      markersGroup.addLayer(marker);
+    });
+
+    // Agregar grupo de marcadores al mapa
+    markersGroup.addTo(map);
+
+    // Ajustar zoom para mostrar todos los marcadores
+    if (companiesWithLocation.length > 0) {
+      try {
+        map.fitBounds(markersGroup.getBounds(), {
+          padding: [20, 20],
+          maxZoom: 15
         });
-
-        // Ajustar el zoom para mostrar todas las empresas si hay ubicaciones
-        if (companiesWithLocation.length > 0) {
-          const bounds = new (window as any).google.maps.LatLngBounds();
-          companiesWithLocation.forEach((company) => {
-            const ubicacion = company.ubicacionGeografica as { lat: number; lng: number };
-            if (ubicacion) {
-              bounds.extend({
-                lat: ubicacion.lat,
-                lng: ubicacion.lng
-              });
-            }
-          });
-          mapInstance.fitBounds(bounds);
-          
-          // Asegurar un zoom mínimo
-          (window as any).google.maps.event.addListenerOnce(mapInstance, 'bounds_changed', () => {
-            if (mapInstance.getZoom() && mapInstance.getZoom() > 15) {
-              mapInstance.setZoom(15);
-            }
-          });
-        }
-
-        setIsLoading(false);
       } catch (error) {
-        console.error("Error initializing map:", error);
-        setHasError(true);
-        setIsLoading(false);
+        // Si hay error al calcular bounds, usar vista por defecto
+        map.setView(defaultCenter, defaultZoom);
       }
-    };
+    }
 
-    // Usar un timeout para asegurar que el DOM esté listo
-    const timeoutId = setTimeout(() => {
-      if (companies.length > 0) {
-        initMap();
-      } else {
-        setIsLoading(false);
-      }
-    }, 100);
+    mapInstanceRef.current = map;
 
     return () => {
-      clearTimeout(timeoutId);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
     };
-  }, [companies]);
+  }, [companiesWithLocation]);
 
-  if (isLoading) {
+  if (companiesWithLocation.length === 0) {
     return (
-      <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-gray-600">Cargando mapa...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (hasError) {
-    return (
-      <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
+      <div className="w-full h-96 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
         <div className="text-center text-gray-500">
-          <p>Error al cargar el mapa</p>
-          <p className="text-sm">Verifique la configuración de Google Maps</p>
+          <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-medium mb-2">Sin ubicaciones disponibles</h3>
+          <p className="text-sm">
+            No hay empresas con ubicación geográfica registrada para mostrar en el mapa.
+          </p>
         </div>
       </div>
     );
   }
 
-  return <div ref={mapRef} className="w-full h-96 rounded-lg border" />;
+  return (
+    <div className="w-full">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <MapPin className="h-5 w-5 text-blue-600" />
+          <span className="text-sm font-medium text-gray-700">
+            Mostrando {companiesWithLocation.length} empresa{companiesWithLocation.length !== 1 ? 's' : ''} en el mapa
+          </span>
+        </div>
+        <div className="text-xs text-gray-500">
+          Haz clic en los marcadores para ver más información
+        </div>
+      </div>
+      
+      <div 
+        ref={mapRef} 
+        className="w-full h-96 border rounded-lg shadow-sm"
+        style={{ minHeight: '384px' }}
+      />
+    </div>
+  );
 }

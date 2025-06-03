@@ -1549,7 +1549,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                         </h4>
                         
                         {/* Componente de mapa */}
-                        <SimpleLocationPicker
+                        <MapLocationPicker
                           ciudad={ciudad}
                           onLocationSelect={(location) => updateUbicacionCiudad(ciudad, location)}
                           initialLocation={ubicacionesPorCiudad[ciudad] || null}

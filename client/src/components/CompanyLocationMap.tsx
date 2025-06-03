@@ -1,6 +1,15 @@
-import { useEffect, useRef, useState } from "react";
-import { Loader } from "@googlemaps/js-api-loader";
-import { MapPin, ExternalLink, Map } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { MapPin } from "lucide-react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix for default markers in Leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface CompanyLocationMapProps {
   ubicacionGeografica?: { lat: number; lng: number; address?: string } | null;
@@ -14,174 +23,80 @@ export default function CompanyLocationMap({
   nombreEmpresa 
 }: CompanyLocationMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
-  const [mapError, setMapError] = useState(false);
-
-  const googleMapsUrl = ubicacionGeografica
-    ? `https://www.google.com/maps/search/?api=1&query=${ubicacionGeografica.lat},${ubicacionGeografica.lng}`
-    : direccionFisica
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionFisica)}`
-    : null;
+  const mapInstanceRef = useRef<L.Map | null>(null);
 
   useEffect(() => {
-    if (!ubicacionGeografica || !mapRef.current) return;
+    if (!ubicacionGeografica?.lat || !ubicacionGeografica?.lng) {
+      return;
+    }
 
-    const initMap = async () => {
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-      
-      if (!apiKey) {
-        console.warn("Google Maps API key not found");
-        setMapError(true);
-        return;
-      }
+    if (mapRef.current && !mapInstanceRef.current) {
+      // Crear el mapa
+      const map = L.map(mapRef.current).setView(
+        [ubicacionGeografica.lat, ubicacionGeografica.lng], 
+        15
+      );
 
-      try {
-        // Verificar si Google Maps ya está cargado
-        if (typeof window !== 'undefined' && (window as any).google && (window as any).google.maps) {
-          // Google Maps ya está disponible
-          const map = new (window as any).google.maps.Map(mapRef.current, {
-            zoom: 15,
-            center: ubicacionGeografica,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: true,
-            zoomControl: true,
-            styles: [
-              {
-                featureType: "poi",
-                elementType: "labels",
-                stylers: [{ visibility: "off" }]
-              }
-            ]
-          });
+      // Agregar capa de tiles de OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
 
-          new (window as any).google.maps.Marker({
-            map: map,
-            position: ubicacionGeografica,
-            title: nombreEmpresa
-          });
+      // Crear el contenido del popup
+      const popupContent = `
+        <div style="text-align: center; min-width: 200px;">
+          <h3 style="margin: 0 0 8px 0; font-weight: bold; color: #1f2937;">${nombreEmpresa}</h3>
+          ${direccionFisica ? `<p style="margin: 0 0 4px 0; font-size: 14px; color: #6b7280;">${direccionFisica}</p>` : ''}
+          ${ubicacionGeografica.address ? `<p style="margin: 0 0 4px 0; font-size: 12px; color: #9ca3af;">${ubicacionGeografica.address}</p>` : ''}
+          <p style="margin: 4px 0 0 0; font-size: 12px; color: #9ca3af;">
+            ${ubicacionGeografica.lat.toFixed(6)}, ${ubicacionGeografica.lng.toFixed(6)}
+          </p>
+        </div>
+      `;
 
-          setMapLoaded(true);
-          return;
-        }
+      // Agregar marcador con popup
+      L.marker([ubicacionGeografica.lat, ubicacionGeografica.lng])
+        .addTo(map)
+        .bindPopup(popupContent)
+        .openPopup();
 
-        // Cargar Google Maps si no está disponible
-        const loader = new Loader({
-          apiKey: apiKey,
-          version: "weekly",
-          libraries: ["maps"]
-        });
+      mapInstanceRef.current = map;
+    }
 
-        await loader.load();
-
-        if (mapRef.current) {
-          const map = new (window as any).google.maps.Map(mapRef.current, {
-            zoom: 15,
-            center: ubicacionGeografica,
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: true,
-            zoomControl: true,
-            styles: [
-              {
-                featureType: "poi",
-                elementType: "labels",
-                stylers: [{ visibility: "off" }]
-              }
-            ]
-          });
-
-          new (window as any).google.maps.Marker({
-            map: map,
-            position: ubicacionGeografica,
-            title: nombreEmpresa
-          });
-
-          setMapLoaded(true);
-        }
-      } catch (error) {
-        console.error("Error loading Google Maps:", error);
-        setMapError(true);
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
       }
     };
+  }, [ubicacionGeografica, direccionFisica, nombreEmpresa]);
 
-    initMap();
-  }, [ubicacionGeografica, nombreEmpresa]);
-
-  return (
-    <div className="w-full space-y-4">
-      {/* Información de ubicación */}
-      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <div className="flex items-start gap-3">
-          <MapPin className="h-5 w-5 text-blue-600 mt-1 flex-shrink-0" />
-          <div className="flex-1">
-            <h3 className="font-medium text-gray-900 mb-1">Ubicación</h3>
-            {direccionFisica && (
-              <p className="text-gray-700 mb-2">{direccionFisica}</p>
-            )}
-            {ubicacionGeografica && (
-              <p className="text-sm text-gray-500">
-                Coordenadas: {ubicacionGeografica.lat.toFixed(6)}, {ubicacionGeografica.lng.toFixed(6)}
-              </p>
-            )}
-            {googleMapsUrl && (
-              <a
-                href={googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-3 text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Ver en Google Maps
-              </a>
-            )}
-          </div>
+  if (!ubicacionGeografica?.lat || !ubicacionGeografica?.lng) {
+    return (
+      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+        <div className="text-center text-gray-500">
+          <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">Ubicación no disponible</p>
+          {direccionFisica && (
+            <p className="text-xs mt-1 text-gray-400">{direccionFisica}</p>
+          )}
         </div>
       </div>
+    );
+  }
 
-      {/* Mapa interactivo o fallback */}
-      {ubicacionGeografica ? (
-        <div className="relative rounded-lg overflow-hidden border border-gray-200">
-          <div 
-            ref={mapRef} 
-            className="w-full h-64"
-            style={{ display: mapLoaded ? 'block' : 'none' }}
-          />
-          
-          {/* Loading state */}
-          {!mapLoaded && !mapError && (
-            <div className="bg-gray-100 h-64 flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                <p className="text-gray-600 text-sm">Cargando mapa...</p>
-              </div>
-            </div>
-          )}
-          
-          {/* Error fallback */}
-          {mapError && (
-            <div className="bg-gradient-to-br from-blue-100 to-green-100 h-64 flex items-center justify-center">
-              <div className="text-center">
-                <Map className="h-12 w-12 text-blue-600 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-gray-900 mb-1">{nombreEmpresa}</h3>
-                <p className="text-gray-600 text-sm">Ubicación de la empresa</p>
-                <div className="mt-2 text-xs text-gray-500">
-                  Lat: {ubicacionGeografica.lat.toFixed(4)}, Lng: {ubicacionGeografica.lng.toFixed(4)}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Fallback cuando no hay coordenadas */
-        <div className="bg-gradient-to-br from-blue-100 to-green-100 rounded-lg h-64 flex items-center justify-center border border-gray-200">
-          <div className="text-center">
-            <MapPin className="h-12 w-12 text-blue-600 mx-auto mb-3" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">{nombreEmpresa}</h3>
-            <p className="text-gray-600 text-sm">Ubicación de la empresa</p>
-            <p className="text-gray-500 text-xs mt-2">Coordenadas no disponibles</p>
-          </div>
-        </div>
+  return (
+    <div className="w-full">
+      <div 
+        ref={mapRef} 
+        className="w-full h-64 border rounded-lg"
+        style={{ minHeight: '256px' }}
+      />
+      {direccionFisica && (
+        <p className="text-sm text-gray-600 mt-2">
+          <MapPin className="h-4 w-4 inline mr-1" />
+          {direccionFisica}
+        </p>
       )}
     </div>
   );

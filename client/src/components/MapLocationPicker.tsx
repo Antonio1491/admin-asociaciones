@@ -1,10 +1,19 @@
 import { useEffect, useState, useRef } from "react";
-import { MapPin, Search, AlertTriangle } from "lucide-react";
+import { MapPin, Search, Navigation, Globe } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader } from "@googlemaps/js-api-loader";
+import { Label } from "@/components/ui/label";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix for default markers in Leaflet
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 interface MapLocationPickerProps {
   ciudad: string;
@@ -23,281 +32,201 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
     address: initialLocation?.address || ""
   });
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markerRef = useRef<google.maps.Marker | null>(null);
-  const initializationAttempted = useRef(false);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+
+  // Coordenadas de referencia para ciudades mexicanas
+  const cityReferences = {
+    "Ciudad de México": { lat: 19.4326, lng: -99.1332 },
+    "México": { lat: 19.4326, lng: -99.1332 },
+    "Guadalajara": { lat: 20.6597, lng: -103.3496 },
+    "Monterrey": { lat: 25.6866, lng: -100.3161 },
+    "Puebla": { lat: 19.0414, lng: -98.2063 },
+    "Tijuana": { lat: 32.5149, lng: -117.0382 },
+    "León": { lat: 21.1619, lng: -101.6974 },
+    "Juárez": { lat: 31.6904, lng: -106.4245 },
+    "Torreón": { lat: 25.5428, lng: -103.4068 },
+    "Querétaro": { lat: 20.5888, lng: -100.3899 },
+    "Mérida": { lat: 20.9674, lng: -89.5926 },
+    "Cancún": { lat: 21.1619, lng: -86.8515 },
+    "Acapulco": { lat: 16.8531, lng: -99.8237 },
+    "Veracruz": { lat: 19.1738, lng: -96.1342 }
+  };
+
+  const getCityReference = () => {
+    const cityName = ciudad.split(',')[0];
+    return cityReferences[cityName as keyof typeof cityReferences] || cityReferences["México"];
+  };
 
   useEffect(() => {
-    if (!initializationAttempted.current) {
-      initializationAttempted.current = true;
-      // Dar tiempo para que el modal se renderice completamente
-      const timer = setTimeout(() => {
-        initializeMap();
-      }, 500);
-
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
-  const initializeMap = async () => {
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-    if (!apiKey) {
-      setError("La API key de Google Maps no está configurada. Verifica la configuración del proyecto.");
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      // Verificar que el contenedor existe y está visible
-      if (!mapRef.current) {
-        setError("El contenedor del mapa no está disponible.");
-        setIsLoading(false);
-        return;
-      }
-
-      // Verificar que el contenedor tiene dimensiones
-      const rect = mapRef.current.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) {
-        setError("El contenedor del mapa no tiene dimensiones válidas.");
-        setIsLoading(false);
-        return;
-      }
-
-      const loader = new Loader({
-        apiKey: apiKey,
-        version: "weekly",
-        libraries: ["places", "geometry"]
-      });
-
-      const google = await loader.load();
-      
-      // Centro por defecto para México
-      const defaultCenter = { lat: 19.4326, lng: -99.1332 };
+    if (mapRef.current && !mapInstanceRef.current) {
+      // Obtener coordenadas de referencia de la ciudad
+      const cityRef = getCityReference();
       const center = selectedLocation ? 
-        { lat: selectedLocation.lat, lng: selectedLocation.lng } : 
-        defaultCenter;
+        [selectedLocation.lat, selectedLocation.lng] as [number, number] : 
+        [cityRef.lat, cityRef.lng] as [number, number];
 
-      const map = new google.maps.Map(mapRef.current, {
-        center,
-        zoom: selectedLocation ? 15 : 10,
-        mapTypeControl: true,
-        streetViewControl: true,
-        fullscreenControl: true,
-      });
+      // Crear el mapa
+      const map = L.map(mapRef.current).setView(center, selectedLocation ? 15 : 10);
+
+      // Agregar capa de tiles de OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
 
       mapInstanceRef.current = map;
 
-      // Crear marcador si hay ubicación inicial
+      // Agregar marcador si hay ubicación inicial
       if (selectedLocation) {
-        const marker = new google.maps.Marker({
-          position: { lat: selectedLocation.lat, lng: selectedLocation.lng },
-          map,
-          draggable: true,
-          title: "Ubicación seleccionada"
-        });
+        const marker = L.marker([selectedLocation.lat, selectedLocation.lng])
+          .addTo(map)
+          .bindPopup(selectedLocation.address || `${selectedLocation.lat}, ${selectedLocation.lng}`);
+        markerRef.current = marker;
+      }
 
+      // Evento de clic en el mapa
+      map.on('click', (e) => {
+        const { lat, lng } = e.latlng;
+        
+        // Remover marcador anterior
+        if (markerRef.current) {
+          map.removeLayer(markerRef.current);
+        }
+
+        // Crear nuevo marcador
+        const marker = L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup(`Ubicación: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+        
         markerRef.current = marker;
 
-        // Listener para cuando se arrastra el marcador
-        marker.addListener("dragend", () => {
-          const position = marker.getPosition();
-          if (position) {
-            handleLocationSelect(position.lat(), position.lng());
-          }
+        // Actualizar estado
+        const location = {
+          lat: parseFloat(lat.toFixed(6)),
+          lng: parseFloat(lng.toFixed(6)),
+          address: `${lat.toFixed(6)}, ${lng.toFixed(6)} - ${ciudad}`
+        };
+
+        setSelectedLocation(location);
+        setManualCoords({
+          lat: location.lat.toString(),
+          lng: location.lng.toString(),
+          address: location.address
         });
-      }
 
-      // Listener para clics en el mapa
-      map.addListener("click", (event: google.maps.MapMouseEvent) => {
-        if (event.latLng) {
-          handleLocationSelect(event.latLng.lat(), event.latLng.lng());
-        }
+        // Notificar al componente padre
+        onLocationSelect(location);
       });
-
-      // Configurar búsqueda de lugares
-      const searchBox = new google.maps.places.SearchBox(
-        document.createElement("input")
-      );
 
       setMapLoaded(true);
-      setIsLoading(false);
-
-    } catch (error) {
-      console.error("Error loading Google Maps:", error);
-      setError("Error al cargar Google Maps. Verifica que la API key esté configurada correctamente.");
-      setIsLoading(false);
     }
-  };
 
-  const handleLocationSelect = async (lat: number, lng: number) => {
-    try {
-      // Crear o mover el marcador
+    return () => {
       if (mapInstanceRef.current) {
-        if (markerRef.current) {
-          markerRef.current.setPosition({ lat, lng });
-        } else {
-          const marker = new google.maps.Marker({
-            position: { lat, lng },
-            map: mapInstanceRef.current,
-            draggable: true,
-            title: "Ubicación seleccionada"
-          });
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+        markerRef.current = null;
+      }
+    };
+  }, []);
 
-          markerRef.current = marker;
-
-          marker.addListener("dragend", () => {
-            const position = marker.getPosition();
-            if (position) {
-              handleLocationSelect(position.lat(), position.lng());
-            }
-          });
-        }
-
-        mapInstanceRef.current.setCenter({ lat, lng });
+  // Actualizar marcador cuando cambie la ubicación inicial
+  useEffect(() => {
+    if (mapInstanceRef.current && initialLocation && mapLoaded) {
+      // Remover marcador anterior
+      if (markerRef.current) {
+        mapInstanceRef.current.removeLayer(markerRef.current);
       }
 
-      // Geocodificación reversa para obtener la dirección
-      let address = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+      // Crear nuevo marcador
+      const marker = L.marker([initialLocation.lat, initialLocation.lng])
+        .addTo(mapInstanceRef.current)
+        .bindPopup(initialLocation.address || `${initialLocation.lat}, ${initialLocation.lng}`);
       
-      if (window.google && window.google.maps) {
-        const geocoder = new google.maps.Geocoder();
-        try {
-          const response = await geocoder.geocode({ location: { lat, lng } });
-          if (response.results && response.results.length > 0) {
-            address = response.results[0].formatted_address;
-          }
-        } catch (geocodeError) {
-          console.warn("Geocoding failed:", geocodeError);
-        }
-      }
+      markerRef.current = marker;
+      mapInstanceRef.current.setView([initialLocation.lat, initialLocation.lng], 15);
 
-      const location = { lat, lng, address };
-      setSelectedLocation(location);
+      setSelectedLocation(initialLocation);
       setManualCoords({
-        lat: lat.toString(),
-        lng: lng.toString(),
-        address
+        lat: initialLocation.lat.toString(),
+        lng: initialLocation.lng.toString(),
+        address: initialLocation.address
       });
-
-      onLocationSelect(location);
-    } catch (error) {
-      console.error("Error selecting location:", error);
-      setError("Error al seleccionar la ubicación.");
     }
-  };
+  }, [initialLocation, mapLoaded]);
 
   const handleManualLocationSubmit = () => {
     const lat = parseFloat(manualCoords.lat);
     const lng = parseFloat(manualCoords.lng);
-
+    
     if (isNaN(lat) || isNaN(lng)) {
-      setError("Las coordenadas ingresadas no son válidas.");
+      alert("Por favor ingrese coordenadas válidas");
       return;
     }
 
-    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      setError("Las coordenadas están fuera del rango válido.");
+    if (lat < -90 || lat > 90) {
+      alert("La latitud debe estar entre -90 y 90");
       return;
     }
 
-    handleLocationSelect(lat, lng);
+    if (lng < -180 || lng > 180) {
+      alert("La longitud debe estar entre -180 y 180");
+      return;
+    }
+
+    const location = {
+      lat,
+      lng,
+      address: manualCoords.address || `${lat}, ${lng} - ${ciudad}`
+    };
+
+    // Actualizar mapa si está disponible
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setView([lat, lng], 15);
+      
+      // Remover marcador anterior
+      if (markerRef.current) {
+        mapInstanceRef.current.removeLayer(markerRef.current);
+      }
+
+      // Crear nuevo marcador
+      const marker = L.marker([lat, lng])
+        .addTo(mapInstanceRef.current)
+        .bindPopup(location.address);
+      
+      markerRef.current = marker;
+    }
+
+    setSelectedLocation(location);
+    onLocationSelect(location);
   };
 
-  const handleSearch = async () => {
-    if (!searchValue.trim() || !mapInstanceRef.current) return;
+  const useCityReference = () => {
+    const ref = getCityReference();
+    setManualCoords({
+      lat: ref.lat.toString(),
+      lng: ref.lng.toString(),
+      address: ciudad
+    });
 
-    try {
-      const service = new google.maps.places.PlacesService(mapInstanceRef.current);
-      const request = {
-        query: `${searchValue} ${ciudad}`,
-        fields: ['place_id', 'geometry', 'formatted_address']
-      };
+    // Actualizar mapa si está disponible
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setView([ref.lat, ref.lng], 12);
+      
+      // Remover marcador anterior
+      if (markerRef.current) {
+        mapInstanceRef.current.removeLayer(markerRef.current);
+      }
 
-      service.textSearch(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0]) {
-          const place = results[0];
-          if (place.geometry && place.geometry.location) {
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-            handleLocationSelect(lat, lng);
-            
-            if (mapInstanceRef.current) {
-              mapInstanceRef.current.setZoom(15);
-            }
-          }
-        } else {
-          setError("No se encontraron resultados para la búsqueda.");
-        }
-      });
-    } catch (error) {
-      console.error("Search error:", error);
-      setError("Error en la búsqueda.");
+      // Crear nuevo marcador
+      const marker = L.marker([ref.lat, ref.lng])
+        .addTo(mapInstanceRef.current)
+        .bindPopup(`Centro de ${ciudad}`);
+      
+      markerRef.current = marker;
     }
   };
-
-  if (error && !mapLoaded) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MapPin className="h-5 w-5" />
-            Seleccionar Ubicación - {ciudad}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Coordenadas Manuales (Respaldo)</label>
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <div>
-                  <Input
-                    placeholder="Latitud"
-                    value={manualCoords.lat}
-                    onChange={(e) => setManualCoords(prev => ({ ...prev, lat: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Input
-                    placeholder="Longitud"
-                    value={manualCoords.lng}
-                    onChange={(e) => setManualCoords(prev => ({ ...prev, lng: e.target.value }))}
-                  />
-                </div>
-              </div>
-              <Input
-                placeholder="Dirección"
-                value={manualCoords.address}
-                onChange={(e) => setManualCoords(prev => ({ ...prev, address: e.target.value }))}
-                className="mt-2"
-              />
-              <Button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleManualLocationSubmit();
-                }} 
-                className="mt-2 w-full"
-                type="button"
-              >
-                Usar Coordenadas Manuales
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card className="w-full">
@@ -308,95 +237,94 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {error && (
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="flex gap-2">
-          <Input
-            placeholder={`Buscar en ${ciudad}...`}
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                e.stopPropagation();
-                handleSearch();
-              }
-            }}
-          />
+        {/* Botón de referencia de ciudad */}
+        <div>
           <Button 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleSearch();
-            }} 
-            variant="outline" 
-            size="icon"
-            type="button"
-          >
-            <Search className="h-4 w-4" />
-          </Button>
-        </div>
-
-        <div className="relative">
-          <div
-            ref={mapRef}
-            className="w-full h-64 bg-gray-100 rounded-lg border"
-          />
-          {isLoading && (
-            <div className="absolute inset-0 bg-gray-100 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                <p className="text-sm text-gray-600">Cargando mapa...</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Coordenadas Manuales</label>
-          <div className="grid grid-cols-2 gap-2">
-            <Input
-              placeholder="Latitud"
-              value={manualCoords.lat}
-              onChange={(e) => setManualCoords(prev => ({ ...prev, lat: e.target.value }))}
-            />
-            <Input
-              placeholder="Longitud"
-              value={manualCoords.lng}
-              onChange={(e) => setManualCoords(prev => ({ ...prev, lng: e.target.value }))}
-            />
-          </div>
-          <Input
-            placeholder="Dirección"
-            value={manualCoords.address}
-            onChange={(e) => setManualCoords(prev => ({ ...prev, address: e.target.value }))}
-          />
-          <Button 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleManualLocationSubmit();
-            }} 
+            onClick={useCityReference}
             variant="outline" 
             className="w-full"
             type="button"
           >
-            Usar Coordenadas Manuales
+            <Globe className="h-4 w-4 mr-2" />
+            Centrar en {ciudad.split(',')[0]}
           </Button>
         </div>
 
+        {/* Mapa */}
+        <div className="space-y-2">
+          <Label>Mapa Interactivo</Label>
+          <div 
+            ref={mapRef} 
+            className="w-full h-64 border rounded-lg"
+            style={{ minHeight: '256px' }}
+          />
+          <p className="text-xs text-gray-500">
+            Haz clic en el mapa para seleccionar una ubicación
+          </p>
+        </div>
+
+        {/* Coordenadas manuales */}
+        <div className="space-y-4">
+          <Label>Coordenadas Manuales</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="latitude">Latitud</Label>
+              <Input
+                id="latitude"
+                type="number"
+                step="any"
+                placeholder="19.4326"
+                value={manualCoords.lat}
+                onChange={(e) => setManualCoords(prev => ({ ...prev, lat: e.target.value }))}
+              />
+              <p className="text-xs text-gray-500">Rango: -90 a 90</p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="longitude">Longitud</Label>
+              <Input
+                id="longitude"
+                type="number"
+                step="any"
+                placeholder="-99.1332"
+                value={manualCoords.lng}
+                onChange={(e) => setManualCoords(prev => ({ ...prev, lng: e.target.value }))}
+              />
+              <p className="text-xs text-gray-500">Rango: -180 a 180</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Dirección o Descripción</Label>
+            <Input
+              id="address"
+              placeholder="Descripción de la ubicación"
+              value={manualCoords.address}
+              onChange={(e) => setManualCoords(prev => ({ ...prev, address: e.target.value }))}
+            />
+          </div>
+
+          <Button 
+            onClick={handleManualLocationSubmit}
+            className="w-full"
+            type="button"
+            disabled={!manualCoords.lat || !manualCoords.lng}
+          >
+            <Navigation className="h-4 w-4 mr-2" />
+            Confirmar Ubicación
+          </Button>
+        </div>
+
+        {/* Información actual */}
         {selectedLocation && (
-          <div className="p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm font-medium">Ubicación Seleccionada:</p>
-            <p className="text-sm text-gray-600">
-              Lat: {selectedLocation.lat.toFixed(6)}, Lng: {selectedLocation.lng.toFixed(6)}
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Ubicación seleccionada:</strong><br />
+              Latitud: {selectedLocation.lat}<br />
+              Longitud: {selectedLocation.lng}<br />
+              {selectedLocation.address && (
+                <>Descripción: {selectedLocation.address}</>
+              )}
             </p>
-            <p className="text-sm text-gray-600">{selectedLocation.address}</p>
           </div>
         )}
       </CardContent>
