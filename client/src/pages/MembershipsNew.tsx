@@ -293,9 +293,17 @@ export default function MembershipsNew() {
                         name={`opcionesPrecios.${index}.periodicidad`}
                         render={({ field }) => (
                           <FormItem className="flex-1">
-                            <FormControl>
-                              <Input placeholder="Ej. Mensual, Anual..." {...field} />
-                            </FormControl>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecciona periodicidad" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="Mensual">Mensual</SelectItem>
+                                <SelectItem value="Anual">Anual</SelectItem>
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -527,9 +535,17 @@ export default function MembershipsNew() {
                       name={`opcionesPrecios.${index}.periodicidad`}
                       render={({ field }) => (
                         <FormItem className="flex-1">
-                          <FormControl>
-                            <Input placeholder="Ej. Mensual, Anual..." {...field} />
-                          </FormControl>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecciona periodicidad" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Mensual">Mensual</SelectItem>
+                              <SelectItem value="Anual">Anual</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
