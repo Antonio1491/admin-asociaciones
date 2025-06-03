@@ -1599,11 +1599,19 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   render={({ field }) => {
                     const selectedMembershipId = form.watch("membershipTypeId");
                     const selectedMembership = membershipTypes.find(m => m.id === selectedMembershipId);
-                    const opcionesPrecios = selectedMembership 
-                      ? (Array.isArray(selectedMembership.opcionesPrecios) 
-                          ? selectedMembership.opcionesPrecios 
-                          : JSON.parse(selectedMembership.opcionesPrecios || '[]'))
-                      : [];
+                    let opcionesPrecios = [];
+                    if (selectedMembership && selectedMembership.opcionesPrecios) {
+                      try {
+                        if (typeof selectedMembership.opcionesPrecios === 'string') {
+                          opcionesPrecios = JSON.parse(selectedMembership.opcionesPrecios);
+                        } else if (Array.isArray(selectedMembership.opcionesPrecios)) {
+                          opcionesPrecios = selectedMembership.opcionesPrecios;
+                        }
+                      } catch (error) {
+                        console.error("Error parsing opcionesPrecios:", error);
+                        opcionesPrecios = [];
+                      }
+                    }
 
                     return (
                       <FormItem>
