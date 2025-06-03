@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import CompanyLocationMap from "@/components/CompanyLocationMap";
 import ReviewModal from "@/components/ReviewModal";
+import QuotationModal from "@/components/QuotationModal";
 import type { CompanyWithDetails } from "@/../../shared/schema";
 
 export default function CompanyDetails() {
@@ -346,6 +347,7 @@ export default function CompanyDetails() {
                   <Button 
                     size="lg" 
                     className="bg-white text-blue-600 hover:bg-gray-100 font-semibold"
+                    onClick={() => setQuotationModalOpen(true)}
                   >
                     <Calculator className="h-5 w-5 mr-2" />
                     Solicitar Cotización
@@ -353,11 +355,13 @@ export default function CompanyDetails() {
                   {company.telefono1 && (
                     <Button 
                       size="lg" 
-                      variant="outline" 
-                      className="border-white text-white hover:bg-white hover:text-blue-600 font-semibold"
+                      asChild
+                      className="bg-green-600 hover:bg-green-700 text-white font-semibold border-0"
                     >
-                      <Phone className="h-5 w-5 mr-2" />
-                      Llamar Ahora
+                      <a href={`tel:${company.telefono1}`}>
+                        <Phone className="h-5 w-5 mr-2" />
+                        Llamar Ahora
+                      </a>
                     </Button>
                   )}
                 </div>
@@ -676,6 +680,13 @@ export default function CompanyDetails() {
         open={reviewModalOpen}
         onOpenChange={setReviewModalOpen}
         companyId={parseInt(id || "0")}
+        companyName={company?.nombreEmpresa || ""}
+      />
+
+      <QuotationModal
+        open={quotationModalOpen}
+        onOpenChange={setQuotationModalOpen}
+        companyEmail={company?.email1 || ""}
         companyName={company?.nombreEmpresa || ""}
       />
     </div>
