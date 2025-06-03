@@ -92,9 +92,3 @@ export const ciudadesPorEstado: Record<string, string[]> = {
   "Yucatán": ["Mérida", "Kanasín", "Umán", "Progreso"],
   "Zacatecas": ["Zacatecas", "Fresnillo", "Guadalupe"]
 };
-
-// Estructura de datos de México con estados y ciudades
-export const mexicoData = estadosMexico.map(estado => ({
-  nombre: estado,
-  ciudades: ciudadesPorEstado[estado] || []
-}));
