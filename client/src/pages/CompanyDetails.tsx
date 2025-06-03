@@ -118,11 +118,11 @@ export default function CompanyDetails() {
                 <img
                   src={company.logotipoUrl}
                   alt={company.nombreEmpresa}
-                  className="w-32 h-32 object-contain bg-white/10 rounded-full p-4 backdrop-blur-sm"
+                  className="w-44 h-44 object-contain bg-white/10 rounded-full p-5 backdrop-blur-sm"
                 />
               ) : (
-                <div className="w-32 h-32 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-                  <span className="text-5xl font-bold">
+                <div className="w-44 h-44 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
+                  <span className="text-7xl font-bold">
                     {company.nombreEmpresa.charAt(0)}
                   </span>
                 </div>
