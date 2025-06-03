@@ -291,9 +291,9 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     const start = new Date(startDate);
     const end = new Date(start);
     
-    if (periodicidad === "mensual") {
+    if (periodicidad.toLowerCase() === "mensual") {
       end.setMonth(end.getMonth() + 1);
-    } else if (periodicidad === "anual") {
+    } else if (periodicidad.toLowerCase() === "anual") {
       end.setFullYear(end.getFullYear() + 1);
     }
     
