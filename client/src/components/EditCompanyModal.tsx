@@ -49,14 +49,10 @@ const companySchema = insertCompanySchema.omit({
 type CompanyFormData = z.infer<typeof companySchema>;
 
 const renderCategoryIcon = (category: Category) => {
-  if (category.icono) {
-    if (category.icono.startsWith('<svg')) {
-      return <div dangerouslySetInnerHTML={{ __html: category.icono }} className="w-4 h-4" />;
-    } else {
-      return <span className="text-lg">{category.icono}</span>;
-    }
+  if (category.iconoUrl) {
+    return <img src={category.iconoUrl} alt={category.nombreCategoria} className="w-5 h-5" />;
   }
-  return <Building className="w-4 h-4" />;
+  return <Building className="w-5 h-5" />;
 };
 
 interface EditCompanyModalProps {
@@ -68,18 +64,13 @@ interface EditCompanyModalProps {
 export default function EditCompanyModal({ open, onOpenChange, company }: EditCompanyModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-
-  // Estados locales
-  const [selectedEstados, setSelectedEstados] = useState<string[]>([]);
-  const [selectedCiudades, setSelectedCiudades] = useState<string[]>([]);
-  const [redesSociales, setRedesSociales] = useState<{ plataforma: string; url: string }[]>([]);
   const [representantes, setRepresentantes] = useState<string[]>([]);
+  const [redesSociales, setRedesSociales] = useState<{ plataforma: string; url: string }[]>([]);
   const [galeriaImagenes, setGaleriaImagenes] = useState<string[]>([]);
   const [videosUrls, setVideosUrls] = useState<string[]>([]);
   const [logoPreview, setLogoPreview] = useState<string>("");
-  const [isDragActive, setIsDragActive] = useState(false);
-  const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<Record<string, string>>({});
-  const [ubicacionesPorCiudad, setUbicacionesPorCiudad] = useState<Record<string, { lat: number; lng: number; address: string }>>({});
+  const [direccionesPorCiudad, setDireccionesPorCiudad] = useState<{ [key: string]: string }>({});
+  const [ubicacionesPorCiudad, setUbicacionesPorCiudad] = useState<{ [key: string]: { lat: number; lng: number; address: string } }>({});
 
   const form = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
@@ -89,27 +80,70 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       telefono2: "",
       email1: "",
       email2: "",
-      logotipoUrl: "",
       sitioWeb: "",
-      videosUrls: [],
+      descripcionEmpresa: "",
+      direccionFisica: "",
+      logotipoUrl: "",
+      catalogoDigitalUrl: "",
       paisesPresencia: [],
       estadosPresencia: [],
       ciudadesPresencia: [],
-      direccionFisica: "",
-      descripcionEmpresa: "",
-      catalogoDigitalUrl: "",
       categoriesIds: [],
       certificateIds: [],
+      redesSociales: [],
+      representantesVentas: [],
       galeriaProductosUrls: [],
-      estado: "activo" as const,
+      videosUrls: [],
       ubicacionGeografica: null,
+      estado: "activo",
     },
   });
 
-  // Video management functions
+  const mutation = useMutation({
+    mutationFn: async (data: CompanyFormData) => {
+      const response = await apiRequest("PUT", `/api/companies/${company?.id}`, data);
+      if (!response.ok) {
+        throw new Error("Error al actualizar empresa");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Empresa actualizada",
+        description: "La empresa se ha actualizado correctamente.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/companies"] });
+      onOpenChange(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Error al actualizar la empresa",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const onSubmit = async (data: CompanyFormData) => {
+    const finalData = {
+      ...data,
+      redesSociales: redesSociales.filter(red => red.plataforma && red.url),
+      representantesVentas: representantes.filter(rep => rep.trim() !== ""),
+      galeriaProductosUrls: galeriaImagenes,
+      videosUrls: videosUrls.filter(url => url.trim() !== ""),
+      ubicacionGeografica: data.ubicacionGeografica || null,
+    };
+
+    mutation.mutate(finalData);
+  };
+
+  // Agregar/remover videos
   const addVideo = () => {
     if (videosUrls.length < 3) {
-      setVideosUrls([...videosUrls, ""]);
+      const newVideos = [...videosUrls, ""];
+      setVideosUrls(newVideos);
+      form.setValue("videosUrls", newVideos);
     }
   };
 
@@ -126,8 +160,6 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     form.setValue("videosUrls", newVideos);
   };
 
-
-
   // Cargar categorías
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -138,34 +170,9 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     queryKey: ["/api/certificates"],
   });
 
-  // Cargar datos de la empresa en el formulario
+  // Cargar datos cuando se abre el modal
   useEffect(() => {
     if (company && open) {
-      // Resetear estados
-      setSelectedEstados((company.estadosPresencia as string[]) || []);
-      setSelectedCiudades((company.ciudadesPresencia as string[]) || []);
-      
-      // Convertir redes sociales a array para el formulario
-      let redesSocialesArray = [];
-      if (company.redesSociales) {
-        if (typeof company.redesSociales === 'string') {
-          try {
-            const parsed = JSON.parse(company.redesSociales);
-            if (Array.isArray(parsed)) {
-              redesSocialesArray = parsed;
-            } else if (typeof parsed === 'object') {
-              redesSocialesArray = Object.entries(parsed).map(([plataforma, url]) => ({ plataforma, url }));
-            }
-          } catch (error) {
-            console.error("Error parsing redesSociales:", error);
-            redesSocialesArray = [];
-          }
-        } else if (Array.isArray(company.redesSociales)) {
-          redesSocialesArray = company.redesSociales;
-        }
-      }
-      setRedesSociales(redesSocialesArray);
-
       // Convertir representantes a array
       let representantesArray = [];
       if (company.representantesVentas) {
@@ -181,6 +188,22 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         }
       }
       setRepresentantes(representantesArray);
+
+      // Convertir redes sociales a array
+      let redesArray = [];
+      if (company.redesSociales) {
+        if (typeof company.redesSociales === 'string') {
+          try {
+            const parsed = JSON.parse(company.redesSociales);
+            redesArray = Array.isArray(parsed) ? parsed : [];
+          } catch (error) {
+            redesArray = [];
+          }
+        } else if (Array.isArray(company.redesSociales)) {
+          redesArray = company.redesSociales;
+        }
+      }
+      setRedesSociales(redesArray);
 
       // Convertir galería a array
       let galeriaArray = [];
@@ -222,97 +245,39 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
         email1: company.email1,
         email2: company.email2 || "",
         sitioWeb: company.sitioWeb || "",
-        videosUrls: (company.videosUrls as string[]) || [],
-        paisesPresencia: (company.paisesPresencia as string[]) || [],
-        estadosPresencia: (company.estadosPresencia as string[]) || [],
-        ciudadesPresencia: (company.ciudadesPresencia as string[]) || [],
-        direccionFisica: company.direccionFisica || "",
         descripcionEmpresa: company.descripcionEmpresa || "",
+        direccionFisica: company.direccionFisica || "",
+        logotipoUrl: company.logotipoUrl || "",
         catalogoDigitalUrl: company.catalogoDigitalUrl || "",
-        categoriesIds: (company.categoriesIds as number[]) || [],
-        certificateIds: (company.certificateIds as number[]) || [],
-        galeriaProductosUrls: (company.galeriaProductosUrls as string[]) || [],
-        estado: (company.estado as "activo" | "inactivo") || "activo",
+        paisesPresencia: Array.isArray(company.paisesPresencia) ? company.paisesPresencia : 
+          (typeof company.paisesPresencia === 'string' ? JSON.parse(company.paisesPresencia || '[]') : []),
+        estadosPresencia: Array.isArray(company.estadosPresencia) ? company.estadosPresencia : 
+          (typeof company.estadosPresencia === 'string' ? JSON.parse(company.estadosPresencia || '[]') : []),
+        ciudadesPresencia: Array.isArray(company.ciudadesPresencia) ? company.ciudadesPresencia : 
+          (typeof company.ciudadesPresencia === 'string' ? JSON.parse(company.ciudadesPresencia || '[]') : []),
+        categoriesIds: company.categories?.map(c => c.id) || [],
+        certificateIds: company.certificates?.map(c => c.id) || [],
+        redesSociales: redesArray,
+        representantesVentas: representantesArray,
+        galeriaProductosUrls: galeriaArray,
+        videosUrls: videosArray,
+        ubicacionGeografica: company.ubicacionGeografica || null,
+        estado: company.estado || "activo",
       });
+
+      setLogoPreview(company.logotipoUrl || "");
     }
   }, [company, open, form]);
 
-  // Efecto separado para cargar la ubicación existente cuando las ciudades están disponibles
-  useEffect(() => {
-    if (company && selectedCiudades.length > 0 && company.ubicacionGeografica) {
-      const primeraUbicacion = selectedCiudades[0];
-      setUbicacionesPorCiudad({
-        [primeraUbicacion]: company.ubicacionGeografica as { lat: number; lng: number; address: string }
-      });
-    }
-  }, [company, selectedCiudades]);
-
-  // Mutación para actualizar empresa
-  const updateMutation = useMutation({
-    mutationFn: async (data: CompanyFormData) => {
-      try {
-        if (!company) throw new Error("No company selected");
-        
-        const updateData = {
-          ...data,
-          redesSociales,
-          representantesVentas: representantes.filter(r => r.trim() !== ""),
-          galeriaProductosUrls: galeriaImagenes.filter(img => img.trim() !== ""),
-          videosUrls: videosUrls.filter(v => v.trim() !== ""),
-        };
-
-        console.log("Datos a enviar:", updateData);
-
-        const response = await apiRequest("PUT", `/api/companies/${company.id}`, updateData);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Error al actualizar la empresa");
-        }
-
-        return response.json();
-      } catch (error) {
-        console.error("Error en mutationFn:", error);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/companies"] });
-      toast({
-        title: "Empresa actualizada",
-        description: "Los datos se han guardado correctamente.",
-      });
-      onOpenChange(false);
-    },
-    onError: (error: any) => {
-      console.error("Error al actualizar empresa:", error);
-      toast({
-        title: "Error",
-        description: error.message || "No se pudo actualizar la empresa.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const onSubmit = async (data: CompanyFormData) => {
-    try {
-      console.log("Datos del formulario:", data);
-      updateMutation.mutate(data);
-    } catch (error) {
-      console.error("Error en onSubmit:", error);
-    }
-  };
-
-  // Funciones para manejar archivos
+  // Funciones de validación y subida
   const validateImage = (file: File): boolean => {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     const maxSize = 5 * 1024 * 1024; // 5MB
     
     if (!validTypes.includes(file.type)) {
       toast({
         title: "Tipo de archivo no válido",
-        description: "Solo se permiten archivos JPG, PNG y WebP.",
+        description: "Solo se permiten archivos JPG, PNG y GIF.",
         variant: "destructive",
       });
       return false;
@@ -370,7 +335,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       } catch (error) {
         toast({
           title: "Error",
-          description: "No se pudo subir el logo.",
+          description: "Error al subir el logo.",
           variant: "destructive",
         });
       }
@@ -378,7 +343,9 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
   };
 
   const handleGaleriaChange = async (files: FileList) => {
-    const validFiles = Array.from(files).filter(validateImage);
+    const filesArray = Array.from(files);
+    const validFiles = filesArray.filter(validateImage);
+    
     if (validFiles.length === 0) return;
 
     try {
@@ -387,20 +354,37 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
       const newGaleria = [...galeriaImagenes, ...urls];
       setGaleriaImagenes(newGaleria);
       form.setValue("galeriaProductosUrls", newGaleria);
+      
       toast({
         title: "Imágenes subidas",
-        description: `Se subieron ${urls.length} imágenes correctamente.`,
+        description: `Se han subido ${validFiles.length} imagen(es) correctamente.`,
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudieron subir algunas imágenes.",
+        description: "Error al subir las imágenes.",
         variant: "destructive",
       });
     }
   };
 
-  // Funciones para manejar redes sociales
+  // Funciones para representantes
+  const addRepresentante = () => {
+    setRepresentantes([...representantes, ""]);
+  };
+
+  const updateRepresentante = (index: number, value: string) => {
+    const newRepresentantes = [...representantes];
+    newRepresentantes[index] = value;
+    setRepresentantes(newRepresentantes);
+  };
+
+  const removeRepresentante = (index: number) => {
+    const newRepresentantes = representantes.filter((_, i) => i !== index);
+    setRepresentantes(newRepresentantes);
+  };
+
+  // Funciones para redes sociales
   const addRedSocial = () => {
     setRedesSociales([...redesSociales, { plataforma: "", url: "" }]);
   };
@@ -416,20 +400,11 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     setRedesSociales(newRedes);
   };
 
-  // Funciones para manejar representantes
-  const addRepresentante = () => {
-    setRepresentantes([...representantes, ""]);
-  };
-
-  const removeRepresentante = (index: number) => {
-    const newRepresentantes = representantes.filter((_, i) => i !== index);
-    setRepresentantes(newRepresentantes);
-  };
-
-  const updateRepresentante = (index: number, value: string) => {
-    const newRepresentantes = [...representantes];
-    newRepresentantes[index] = value;
-    setRepresentantes(newRepresentantes);
+  // Funciones para galería
+  const removeImagenGaleria = (index: number) => {
+    const newGaleria = galeriaImagenes.filter((_, i) => i !== index);
+    setGaleriaImagenes(newGaleria);
+    form.setValue("galeriaProductosUrls", newGaleria);
   };
 
   // Función para direcciones por ciudad
@@ -486,21 +461,24 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
 
               <FormField
                 control={form.control}
-                name="email1"
+                name="sitioWeb"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2">
-                      <Mail className="h-4 w-4" />
-                      Email Principal *
+                      <Globe className="h-4 w-4" />
+                      Sitio Web
                     </FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="email@empresa.com" {...field} />
+                      <Input placeholder="https://ejemplo.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+            </div>
 
+            {/* Contacto */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="telefono1"
@@ -511,100 +489,13 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                       Teléfono Principal
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="+52 777 123 4567" {...field} />
+                      <Input placeholder="+52 555 123 4567" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="sitioWeb"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" />
-                      Sitio Web
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://www.empresa.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Videos Promocionales */}
-            <div className="space-y-4">
-              <Label className="flex items-center gap-2">
-                <Video className="h-4 w-4" />
-                Videos Promocionales (máximo 3)
-              </Label>
-              {videosUrls.map((video, index) => (
-                <div key={index} className="flex gap-2">
-                  <Input
-                    placeholder={`URL del video ${index + 1}`}
-                    value={video}
-                    onChange={(e) => updateVideo(index, e.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeVideo(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              {videosUrls.length < 3 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addVideo}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Agregar Video
-                </Button>
-              )}
-            </div>
-
-            {/* Categorías */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                Categorías *
-              </Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border rounded-lg p-2">
-                {categories.map((category) => (
-                  <label
-                    key={category.id}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                  >
-                    <Checkbox
-                      checked={form.watch("categoriesIds")?.includes(category.id) || false}
-                      onCheckedChange={(checked) => {
-                        const currentIds = form.getValues("categoriesIds") || [];
-                        const newIds = checked
-                          ? [...currentIds, category.id]
-                          : currentIds.filter((id) => id !== category.id);
-                        form.setValue("categoriesIds", newIds);
-                      }}
-                    />
-                    <div className="flex items-center gap-2">
-                      {renderCategoryIcon(category)}
-                      <span className="text-sm">{category.nombreCategoria}</span>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Información de Contacto Adicional */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="telefono2"
@@ -615,7 +506,24 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                       Teléfono Secundario
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="+52 777 123 4568" {...field} />
+                      <Input placeholder="+52 555 123 4567" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email1"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <Mail className="h-4 w-4" />
+                      Email Principal *
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="contacto@empresa.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -632,7 +540,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                       Email Secundario
                     </FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="email2@empresa.com" {...field} />
+                      <Input type="email" placeholder="ventas@empresa.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -673,8 +581,8 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                     Dirección Física
                   </FormLabel>
                   <FormControl>
-                    <Textarea 
-                      placeholder="Dirección completa de la empresa"
+                    <Textarea
+                      placeholder="Calle, número, colonia, ciudad, estado, CP"
                       {...field}
                     />
                   </FormControl>
@@ -683,18 +591,169 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
               )}
             />
 
-            {/* Ubicación Geográfica */}
+            {/* Ubicación en Mapa */}
             <div className="space-y-4">
               <Label className="flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
                 Ubicación en el Mapa
               </Label>
-              <MapLocationPicker
-                ciudad="Ciudad de México"
-                onLocationSelect={(location) => {
-                  form.setValue("ubicacionGeografica", location);
-                }}
-                initialLocation={form.getValues("ubicacionGeografica")}
+              {form.watch("ciudadesPresencia")?.map((ciudad: string, index: number) => (
+                <div key={index} className="border p-4 rounded-lg">
+                  <h4 className="font-medium mb-2">{ciudad}</h4>
+                  <MapLocationPicker
+                    ciudad={ciudad}
+                    onLocationSelect={(location) => {
+                      if (index === 0) {
+                        form.setValue("ubicacionGeografica", location);
+                      }
+                      updateUbicacionCiudad(ciudad, location);
+                    }}
+                    initialLocation={
+                      index === 0 ? form.watch("ubicacionGeografica") : ubicacionesPorCiudad[ciudad]
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Presencia Geográfica */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="paisesPresencia"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Países de Presencia</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        const currentValues = field.value || [];
+                        if (!currentValues.includes(value)) {
+                          field.onChange([...currentValues, value]);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar país" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="México">México</SelectItem>
+                        <SelectItem value="Estados Unidos">Estados Unidos</SelectItem>
+                        <SelectItem value="Canadá">Canadá</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {field.value?.map((pais: string, index: number) => (
+                        <span
+                          key={index}
+                          className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm cursor-pointer"
+                          onClick={() => {
+                            const newValues = field.value?.filter((_, i) => i !== index);
+                            field.onChange(newValues);
+                          }}
+                        >
+                          {pais} ×
+                        </span>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="estadosPresencia"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Estados de Presencia</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        const currentValues = field.value || [];
+                        if (!currentValues.includes(value)) {
+                          field.onChange([...currentValues, value]);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar estado" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {mexicoData.map((estado) => (
+                          <SelectItem key={estado.nombre} value={estado.nombre}>
+                            {estado.nombre}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {field.value?.map((estado: string, index: number) => (
+                        <span
+                          key={index}
+                          className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm cursor-pointer"
+                          onClick={() => {
+                            const newValues = field.value?.filter((_, i) => i !== index);
+                            field.onChange(newValues);
+                          }}
+                        >
+                          {estado} ×
+                        </span>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="ciudadesPresencia"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Ciudades de Presencia</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        const currentValues = field.value || [];
+                        if (!currentValues.includes(value)) {
+                          field.onChange([...currentValues, value]);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar ciudad" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {mexicoData.flatMap(estado => 
+                          estado.ciudades.map(ciudad => (
+                            <SelectItem key={`${estado.nombre}-${ciudad}`} value={ciudad}>
+                              {ciudad}, {estado.nombre}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {field.value?.map((ciudad: string, index: number) => (
+                        <span
+                          key={index}
+                          className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-sm cursor-pointer"
+                          onClick={() => {
+                            const newValues = field.value?.filter((_, i) => i !== index);
+                            field.onChange(newValues);
+                          }}
+                        >
+                          {ciudad} ×
+                        </span>
+                      ))}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
 
@@ -702,137 +761,268 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
             <div className="space-y-4">
               <Label className="flex items-center gap-2">
                 <Camera className="h-4 w-4" />
-                Galería de Productos (máximo 10)
+                Galería de Productos
               </Label>
-              
-              {/* Mostrar imágenes existentes */}
-              {company.galeriaProductosUrls && company.galeriaProductosUrls.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {(company.galeriaProductosUrls as string[]).map((imageUrl, index) => (
-                    <div key={index} className="relative group">
-                      <img
-                        src={imageUrl}
-                        alt={`Producto ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => {
-                          const currentUrls = company.galeriaProductosUrls as string[] || [];
-                          const newUrls = currentUrls.filter((_, i) => i !== index);
-                          form.setValue("galeriaProductosUrls", newUrls);
-                        }}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Agregar nuevas imágenes */}
-              <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer"
-                onClick={() => document.getElementById('galeria-input')?.click()}
-              >
-                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">
-                  Haz clic para seleccionar imágenes de productos
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Formatos: JPG, PNG (máx. 5MB c/u)
-                </p>
-                <input
-                  id="galeria-input"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="hidden"
-                  onChange={handleGaleriaChange}
-                />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {galeriaImagenes.map((imagen, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={imagen}
+                      alt={`Producto ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => removeImagenGaleria(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                  <Upload className="h-8 w-8 text-gray-400" />
+                  <span className="text-sm text-gray-500">Subir imágenes</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => e.target.files && handleGaleriaChange(e.target.files)}
+                  />
+                </label>
               </div>
             </div>
 
-            {/* Logotipo */}
+            {/* Logo */}
             <div className="space-y-4">
               <Label className="flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                Logotipo de la Empresa
+                <Upload className="h-4 w-4" />
+                Logo de la Empresa
               </Label>
-              
-              {logoPreview && (
-                <div className="relative inline-block">
-                  <img
-                    src={logoPreview}
-                    alt="Logotipo actual"
-                    className="h-20 w-auto object-contain border rounded-lg"
+              <div className="flex items-center gap-4">
+                {logoPreview && (
+                  <img src={logoPreview} alt="Logo" className="w-16 h-16 object-contain rounded" />
+                )}
+                <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                  <Upload className="h-4 w-4" />
+                  Cambiar Logo
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => e.target.files?.[0] && handleLogoChange(e.target.files[0])}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Videos */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-2">
+                  <Video className="h-4 w-4" />
+                  Videos de la Empresa (máximo 3)
+                </Label>
+                {videosUrls.length < 3 && (
+                  <Button type="button" size="sm" onClick={addVideo}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Video
+                  </Button>
+                )}
+              </div>
+              {videosUrls.map((videoUrl, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    placeholder="URL del video (YouTube, Vimeo, etc.)"
+                    value={videoUrl}
+                    onChange={(e) => updateVideo(index, e.target.value)}
+                    className="flex-1"
                   />
                   <Button
                     type="button"
-                    variant="destructive"
                     size="sm"
-                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                    onClick={() => {
-                      setLogoPreview("");
-                      form.setValue("logotipoUrl", "");
-                    }}
+                    variant="outline"
+                    onClick={() => removeVideo(index)}
                   >
-                    <X className="h-3 w-3" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              )}
-
-              <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer"
-                onClick={() => document.getElementById('logo-input')?.click()}
-              >
-                <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">
-                  Haz clic para seleccionar nuevo logotipo
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Formatos: JPG, PNG (máx. 5MB)
-                </p>
-                <input
-                  id="logo-input"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleLogoChange}
-                />
-              </div>
+              ))}
             </div>
+
+            {/* Representantes de Ventas */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Representantes de Ventas
+                </Label>
+                <Button type="button" size="sm" onClick={addRepresentante}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Agregar Representante
+                </Button>
+              </div>
+              {representantes.map((rep, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    placeholder="Nombre del representante"
+                    value={rep}
+                    onChange={(e) => updateRepresentante(index, e.target.value)}
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => removeRepresentante(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Redes Sociales */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label className="flex items-center gap-2">
+                  <Globe className="h-4 w-4" />
+                  Redes Sociales
+                </Label>
+                <Button type="button" size="sm" onClick={addRedSocial}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Agregar Red Social
+                </Button>
+              </div>
+              {redesSociales.map((red, index) => (
+                <div key={index} className="grid grid-cols-3 gap-2">
+                  <Select
+                    value={red.plataforma}
+                    onValueChange={(value) => updateRedSocial(index, 'plataforma', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Plataforma" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="facebook">Facebook</SelectItem>
+                      <SelectItem value="instagram">Instagram</SelectItem>
+                      <SelectItem value="twitter">Twitter</SelectItem>
+                      <SelectItem value="linkedin">LinkedIn</SelectItem>
+                      <SelectItem value="youtube">YouTube</SelectItem>
+                      <SelectItem value="tiktok">TikTok</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    placeholder="URL de la red social"
+                    value={red.url}
+                    onChange={(e) => updateRedSocial(index, 'url', e.target.value)}
+                    className="col-span-1"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => removeRedSocial(index)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Categorías */}
+            <FormField
+              control={form.control}
+              name="categoriesIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categorías *</FormLabel>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {categories.map((category) => (
+                      <div key={category.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`category-${category.id}`}
+                          checked={field.value?.includes(category.id)}
+                          onCheckedChange={(checked) => {
+                            const currentValue = field.value || [];
+                            if (checked) {
+                              field.onChange([...currentValue, category.id]);
+                            } else {
+                              field.onChange(currentValue.filter((id: number) => id !== category.id));
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={`category-${category.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center gap-2"
+                        >
+                          {renderCategoryIcon(category)}
+                          {category.nombreCategoria}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Certificados */}
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Certificados y Acreditaciones
-              </Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto border rounded-lg p-2">
-                {certificates.map((certificate) => (
-                  <label
-                    key={certificate.id}
-                    className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                  >
-                    <Checkbox
-                      checked={form.watch("certificateIds")?.includes(certificate.id) || false}
-                      onCheckedChange={(checked) => {
-                        const currentIds = form.getValues("certificateIds") || [];
-                        const newIds = checked
-                          ? [...currentIds, certificate.id]
-                          : currentIds.filter((id) => id !== certificate.id);
-                        form.setValue("certificateIds", newIds);
-                      }}
-                    />
-                    <span className="text-sm">{certificate.nombreCertificado}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            <FormField
+              control={form.control}
+              name="certificateIds"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Certificados</FormLabel>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {certificates.map((certificate) => (
+                      <div key={certificate.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`certificate-${certificate.id}`}
+                          checked={field.value?.includes(certificate.id)}
+                          onCheckedChange={(checked) => {
+                            const currentValue = field.value || [];
+                            if (checked) {
+                              field.onChange([...currentValue, certificate.id]);
+                            } else {
+                              field.onChange(currentValue.filter((id: number) => id !== certificate.id));
+                            }
+                          }}
+                        />
+                        <Label
+                          htmlFor={`certificate-${certificate.id}`}
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          {certificate.nombreCertificado}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Catálogo Digital */}
+            <FormField
+              control={form.control}
+              name="catalogoDigitalUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Catálogo Digital (URL)
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://ejemplo.com/catalogo.pdf" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Estado */}
             <FormField
@@ -840,16 +1030,17 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
               name="estado"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Estado</FormLabel>
+                  <FormLabel>Estado de la Empresa</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona el estado" />
+                        <SelectValue placeholder="Seleccionar estado" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="activo">Activo</SelectItem>
                       <SelectItem value="inactivo">Inactivo</SelectItem>
+                      <SelectItem value="pendiente">Pendiente</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -858,20 +1049,16 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
             />
 
             {/* Botones */}
-            <div className="flex justify-end space-x-2 pt-4">
+            <div className="flex justify-end gap-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={updateMutation.isPending}
               >
                 Cancelar
               </Button>
-              <Button
-                type="submit"
-                disabled={updateMutation.isPending}
-              >
-                {updateMutation.isPending ? "Guardando..." : "Guardar Cambios"}
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Guardando..." : "Guardar Cambios"}
               </Button>
             </div>
           </form>
