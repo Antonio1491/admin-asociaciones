@@ -280,7 +280,15 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
                 onChange={(e) => setManualCoords(prev => ({ ...prev, address: e.target.value }))}
                 className="mt-2"
               />
-              <Button onClick={handleManualLocationSubmit} className="mt-2 w-full">
+              <Button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleManualLocationSubmit();
+                }} 
+                className="mt-2 w-full"
+                type="button"
+              >
                 Usar Coordenadas Manuales
               </Button>
             </div>
@@ -311,9 +319,24 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
             placeholder={`Buscar en ${ciudad}...`}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSearch();
+              }
+            }}
           />
-          <Button onClick={handleSearch} variant="outline" size="icon">
+          <Button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleSearch();
+            }} 
+            variant="outline" 
+            size="icon"
+            type="button"
+          >
             <Search className="h-4 w-4" />
           </Button>
         </div>
@@ -352,7 +375,16 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
             value={manualCoords.address}
             onChange={(e) => setManualCoords(prev => ({ ...prev, address: e.target.value }))}
           />
-          <Button onClick={handleManualLocationSubmit} variant="outline" className="w-full">
+          <Button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleManualLocationSubmit();
+            }} 
+            variant="outline" 
+            className="w-full"
+            type="button"
+          >
             Usar Coordenadas Manuales
           </Button>
         </div>
