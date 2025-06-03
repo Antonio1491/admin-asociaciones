@@ -67,10 +67,9 @@ export default function Certificates() {
 
   const createMutation = useMutation({
     mutationFn: async (data: CertificateFormData) => {
-      return apiRequest("/api/certificates", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      console.log("Enviando datos del certificado:", data);
+      const response = await apiRequest("POST", "/api/certificates", data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/certificates"] });
@@ -80,17 +79,21 @@ export default function Certificates() {
       setSelectedImage(null);
       setImagePreview("");
     },
-    onError: () => {
-      toast({ title: "Error al crear certificado", variant: "destructive" });
+    onError: (error: any) => {
+      console.error("Error al crear certificado:", error);
+      const errorMessage = error?.message || "Error al crear certificado";
+      toast({ 
+        title: "Error al crear certificado", 
+        description: errorMessage,
+        variant: "destructive" 
+      });
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async (data: CertificateFormData) => {
-      return apiRequest(`/api/certificates/${editingCertificate?.id}`, {
-        method: "PUT",
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest("PUT", `/api/certificates/${editingCertificate?.id}`, data);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/certificates"] });
@@ -106,7 +109,8 @@ export default function Certificates() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/certificates/${id}`, { method: "DELETE" });
+      const response = await apiRequest("DELETE", `/api/certificates/${id}`);
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/certificates"] });

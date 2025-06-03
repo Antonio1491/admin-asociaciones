@@ -445,14 +445,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/certificates", async (req, res) => {
     try {
+      console.log("Datos recibidos para certificado:", req.body);
       const certificateData = insertCertificateSchema.parse(req.body);
+      console.log("Datos validados:", certificateData);
       const certificate = await storage.createCertificate(certificateData);
       res.status(201).json(certificate);
     } catch (error) {
+      console.error("Error al crear certificado:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ error: "Validation error", details: error.errors });
+        console.error("Errores de validación:", error.errors);
+        return res.status(400).json({ 
+          error: "Validation error", 
+          details: error.errors,
+          message: error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
+        });
       }
-      res.status(500).json({ error: "Failed to create certificate" });
+      res.status(500).json({ 
+        error: "Failed to create certificate",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 
