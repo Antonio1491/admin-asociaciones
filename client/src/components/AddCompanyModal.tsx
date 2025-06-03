@@ -1424,15 +1424,7 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                       <FormItem>
                         <FormLabel>Periodicidad</FormLabel>
                         <Select 
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            // Calculate end date automatically using helper function
-                            const startDate = form.getValues("fechaInicioMembresia");
-                            if (startDate && value) {
-                              const endDate = calculateEndDate(startDate, value);
-                              form.setValue("fechaFinMembresia", endDate);
-                            }
-                          }} 
+                          onValueChange={field.onChange}
                           value={field.value}
                           disabled={!selectedMembershipId}
                         >
@@ -1490,15 +1482,6 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
                         <Input 
                           type="date" 
                           {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            // Update end date when start date changes using helper function
-                            const periodicidad = form.getValues("membershipPeriodicidad");
-                            if (e.target.value && periodicidad) {
-                              const endDate = calculateEndDate(e.target.value, periodicidad);
-                              form.setValue("fechaFinMembresia", endDate);
-                            }
-                          }}
                         />
                       </FormControl>
                       <FormMessage />
