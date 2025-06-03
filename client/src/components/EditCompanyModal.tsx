@@ -1040,35 +1040,6 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                   )}
                 />
 
-                {/* Tipo de Membresía */}
-                <FormField
-                  control={form.control}
-                  name="membershipTypeId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Award className="h-4 w-4" />
-                        Tipo de Membresía *
-                      </FormLabel>
-                      <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona el tipo de membresía" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {membershipTypes.map((membership) => (
-                            <SelectItem key={membership.id} value={membership.id.toString()}>
-                              {membership.nombrePlan}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* Categorías */}
                 <FormField
                   control={form.control}
