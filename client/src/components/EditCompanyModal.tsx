@@ -33,7 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Category, MembershipType, CompanyWithDetails, Certificate } from "@shared/schema";
 import { paisesAmericaLatina, estadosMexico, ciudadesPorEstado } from "@/lib/locationData";
 import { Building, MapPin, Globe, Phone, Mail, Users, FileText, Video, Image, Plus, Trash2, Facebook, Linkedin, Twitter, Instagram, Youtube, Award, Tags, Building2, Car, Truck, Hammer, Factory, Cpu, Wrench, ShoppingBag, Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music, Gamepad2, Book, Palette, Plane, Ship, Train, Zap } from "lucide-react";
-import MapLocationPicker from "./MapLocationPicker";
+import SimpleLocationPicker from "./SimpleLocationPicker";
 import RichTextEditor from "./RichTextEditor";
 
 const companySchema = z.object({
@@ -1549,7 +1549,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                         </h4>
                         
                         {/* Componente de mapa */}
-                        <MapLocationPicker
+                        <SimpleLocationPicker
                           ciudad={ciudad}
                           onLocationSelect={(location) => updateUbicacionCiudad(ciudad, location)}
                           initialLocation={ubicacionesPorCiudad[ciudad] || null}

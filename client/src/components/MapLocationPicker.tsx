@@ -43,7 +43,8 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
   }, []);
 
   const initializeMap = async () => {
-    if (!import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    if (!apiKey) {
       setError("La API key de Google Maps no está configurada. Verifica la configuración del proyecto.");
       setIsLoading(false);
       return;
@@ -69,7 +70,7 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
       }
 
       const loader = new Loader({
-        apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+        apiKey: apiKey,
         version: "weekly",
         libraries: ["places", "geometry"]
       });
