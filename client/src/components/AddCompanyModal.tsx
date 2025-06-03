@@ -38,7 +38,7 @@ import {
   Briefcase, Heart, GraduationCap, Home, Coffee, Camera, Music,
   Gamepad2, Book, Palette, Plane, Ship, Train, Zap
 } from "lucide-react";
-import SimpleLocationPicker from "./SimpleLocationPicker";
+import MapLocationPicker from "./MapLocationPicker";
 import RichTextEditor from "./RichTextEditor";
 
 const companySchema = insertCompanySchema.extend({
