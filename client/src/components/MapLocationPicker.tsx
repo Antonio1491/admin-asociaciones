@@ -39,30 +39,36 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
 
     try {
       setIsLoading(true);
+      
+      // Wait for container to be ready
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      if (!mapRef.current) {
+        console.warn("Map container not available");
+        setIsLoading(false);
+        return;
+      }
+
       const loader = new Loader({
         apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
         version: "weekly",
         libraries: ["maps", "places"]
       });
 
-      const { Map } = await loader.importLibrary("maps") as google.maps.MapsLibrary;
-
-      if (!mapRef.current) {
-        console.warn("Map container not available");
-        return;
-      }
-
+      await loader.load();
+      
       // Coordenadas por defecto para México
       const defaultCenter = { lat: 19.4326, lng: -99.1332 };
       const center = initialLocation || defaultCenter;
 
-      const map = new Map(mapRef.current, {
+      const map = new (window as any).google.maps.Map(mapRef.current, {
         zoom: 12,
         center: center,
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false,
         zoomControl: true,
+        gestureHandling: 'cooperative'
       });
 
       mapInstanceRef.current = map;
@@ -97,6 +103,7 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
       setMapLoaded(true);
     } catch (error) {
       console.error("Error loading Google Maps:", error);
+      setMapLoaded(false);
     } finally {
       setIsLoading(false);
     }
@@ -298,7 +305,17 @@ export default function MapLocationPicker({ ciudad, onLocationSelect, initialLoc
             <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-green-100 rounded-lg flex items-center justify-center">
               <div className="text-center">
                 <MapPin className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-gray-600 text-sm">Haz clic en "Establecer Ubicación" para cargar el mapa</p>
+                <p className="text-gray-600 text-sm">
+                  {selectedLocation 
+                    ? `Ubicación seleccionada: ${selectedLocation.address}`
+                    : "Selecciona una ubicación usando las opciones superiores"
+                  }
+                </p>
+                {selectedLocation && (
+                  <div className="mt-2 text-xs text-gray-500">
+                    Lat: {selectedLocation.lat.toFixed(6)}, Lng: {selectedLocation.lng.toFixed(6)}
+                  </div>
+                )}
               </div>
             </div>
           )}
