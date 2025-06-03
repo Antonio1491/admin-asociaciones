@@ -438,6 +438,7 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/companies"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/companies"] });
       queryClient.invalidateQueries({ queryKey: ["/api/statistics"] });
       toast({
         title: "Éxito",
