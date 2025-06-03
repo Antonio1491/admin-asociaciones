@@ -284,6 +284,33 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
     },
   });
 
+  // Function to calculate end date automatically
+  const calculateEndDate = (startDate: string, periodicidad: string) => {
+    if (!startDate || !periodicidad) return "";
+    
+    const start = new Date(startDate);
+    const end = new Date(start);
+    
+    if (periodicidad === "mensual") {
+      end.setMonth(end.getMonth() + 1);
+    } else if (periodicidad === "anual") {
+      end.setFullYear(end.getFullYear() + 1);
+    }
+    
+    return end.toISOString().split('T')[0];
+  };
+
+  // Watch for changes in membership fields to auto-calculate dates
+  const watchedFechaInicio = form.watch("fechaInicioMembresia");
+  const watchedPeriodicidad = form.watch("membershipPeriodicidad");
+
+  useEffect(() => {
+    if (watchedFechaInicio && watchedPeriodicidad) {
+      const endDate = calculateEndDate(watchedFechaInicio, watchedPeriodicidad);
+      form.setValue("fechaFinMembresia", endDate);
+    }
+  }, [watchedFechaInicio, watchedPeriodicidad, form]);
+
   // Cargar categorías
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
@@ -1584,19 +1611,11 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                         <Select 
                           onValueChange={(value) => {
                             field.onChange(value);
-                            // Calculate end date automatically
+                            // Calculate end date automatically using helper function
                             const startDate = form.getValues("fechaInicioMembresia");
                             if (startDate && value) {
-                              const start = new Date(startDate);
-                              const end = new Date(start);
-                              
-                              if (value === "mensual") {
-                                end.setMonth(end.getMonth() + 1);
-                              } else if (value === "anual") {
-                                end.setFullYear(end.getFullYear() + 1);
-                              }
-                              
-                              form.setValue("fechaFinMembresia", end.toISOString().split('T')[0]);
+                              const endDate = calculateEndDate(startDate, value);
+                              form.setValue("fechaFinMembresia", endDate);
                             }
                           }} 
                           value={field.value}
@@ -1658,19 +1677,11 @@ export default function EditCompanyModal({ open, onOpenChange, company }: EditCo
                           {...field}
                           onChange={(e) => {
                             field.onChange(e);
-                            // Update end date when start date changes
+                            // Update end date when start date changes using helper function
                             const periodicidad = form.getValues("membershipPeriodicidad");
                             if (e.target.value && periodicidad) {
-                              const start = new Date(e.target.value);
-                              const end = new Date(start);
-                              
-                              if (periodicidad === "mensual") {
-                                end.setMonth(end.getMonth() + 1);
-                              } else if (periodicidad === "anual") {
-                                end.setFullYear(end.getFullYear() + 1);
-                              }
-                              
-                              form.setValue("fechaFinMembresia", end.toISOString().split('T')[0]);
+                              const endDate = calculateEndDate(e.target.value, periodicidad);
+                              form.setValue("fechaFinMembresia", endDate);
                             }
                           }}
                         />

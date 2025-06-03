@@ -209,6 +209,17 @@ export default function AddCompanyModal({ open, onOpenChange }: AddCompanyModalP
     return end.toISOString().split('T')[0];
   };
 
+  // Watch for changes in membership fields to auto-calculate dates
+  const watchedFechaInicio = form.watch("fechaInicioMembresia");
+  const watchedPeriodicidad = form.watch("membershipPeriodicidad");
+
+  useEffect(() => {
+    if (watchedFechaInicio && watchedPeriodicidad) {
+      const endDate = calculateEndDate(watchedFechaInicio, watchedPeriodicidad);
+      form.setValue("fechaFinMembresia", endDate);
+    }
+  }, [watchedFechaInicio, watchedPeriodicidad, form]);
+
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
   });
