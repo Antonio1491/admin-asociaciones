@@ -3,8 +3,10 @@ import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, Star, Crown, Zap } from "lucide-react";
+import { Check, Star, Crown, Zap, ShoppingCart } from "lucide-react";
 import type { MembershipType } from "@/../../shared/schema";
+import headerDirectorioImage from "@assets/header_directorio.png";
+import fondoHeaderDirectorioImage from "@assets/fondo_header_directorio.png";
 
 export default function PublicMemberships() {
   const [, setLocation] = useLocation();
@@ -49,17 +51,46 @@ export default function PublicMemberships() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div style={{ background: 'linear-gradient(135deg, #0f2161 0%, #1a2f7a 100%)' }} className="text-white">
-        <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            El Directorio de la Industria
-          </h1>
-          <h2 className="text-2xl md:text-3xl font-semibold mb-4" style={{ color: '#bcce16' }}>
-            del Equipamiento Urbano en América Latina
-          </h2>
-          <p className="text-xl max-w-4xl mx-auto leading-relaxed" style={{ color: '#e5e7eb' }}>
-            El espacio donde proveedores y líderes del espacio público se encuentran
-          </p>
+      <div 
+        className="relative min-h-[500px] bg-cover bg-center bg-no-repeat flex items-center"
+        style={{
+          backgroundImage: `url(${fondoHeaderDirectorioImage})`,
+          backgroundPosition: 'center center',
+          backgroundSize: 'cover'
+        }}
+      >
+        {/* Overlay para mejor legibilidad del texto */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-800/50"></div>
+        
+        {/* Contenido del Hero */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-20">
+          <div className="max-w-2xl">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+              Directorio de
+              <br />
+              <span className="text-yellow-400">Equipamiento Urbano</span>
+              <br />
+              LATAM
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-white/90 mb-8 leading-relaxed">
+              El espacio donde proveedores y líderes de la industria del espacio público se encuentran
+            </p>
+            
+            <Button 
+              size="lg"
+              className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-8 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              onClick={() => {
+                const plansSection = document.getElementById('membership-plans');
+                if (plansSection) {
+                  plansSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              ÚNETE AHORA
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -172,7 +203,7 @@ export default function PublicMemberships() {
       </div>
 
       {/* Planes de Membresía */}
-      <div className="bg-white py-16">
+      <div id="membership-plans" className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-700 mb-4">
             Planes de Membresía
