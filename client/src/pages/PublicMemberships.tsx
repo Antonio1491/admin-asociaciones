@@ -135,51 +135,90 @@ export default function PublicMemberships() {
         </div>
       </div>
 
+      {/* Línea divisoria */}
+      <div className="border-t border-gray-300"></div>
 
-
-      {/* ¿Quién puede formar parte? */}
-      <div className="bg-gray-50 py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center">
-            ¿Quién puede formar parte?
-          </h2>
-          <div className="mb-8 text-center">
-            <p className="text-lg text-gray-600 max-w-4xl mx-auto leading-relaxed">
-              El Directorio está abierto a empresas de toda América Latina que ofrecen productos, 
-              servicios o soluciones especializadas para parques, espacios públicos y entornos urbanos. 
-              Está diseñado para visibilizar a actores clave de la industria del equipamiento urbano, incluyendo:
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: "🎪", title: "Juegos infantiles" },
-              { icon: "🪑", title: "Mobiliario urbano" },
-              { icon: "🏀", title: "Superficies deportivas" },
-              { icon: "🚏", title: "Señalética y accesibilidad" },
-              { icon: "💧", title: "Tecnología de riego y landscaping" },
-              { icon: "💡", title: "Iluminación y energía limpia" },
-              { icon: "🌿", title: "Mantenimiento de áreas verdes y manejo de residuos" },
-              { icon: "🔒", title: "Seguridad, movilidad eléctrica y accesos automatizados" },
-              { icon: "🏗️", title: "Diseño, construcción y servicios para parques" },
-              { icon: "👕", title: "Uniformes, productos promocionales" },
-              { icon: "➕", title: "y más..." }
-            ].map((item, index) => (
-              <div key={index} className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-3xl mb-3 text-center">{item.icon}</div>
-                <h3 className="text-center font-medium text-gray-600">{item.title}</h3>
+      {/* ¿Quién puede formar parte? - Nueva sección */}
+      <div className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Grid de categorías */}
+            <div className="order-1 lg:order-1">
+              <img 
+                src="/attached_assets/categorias.png"
+                alt="Categorías del directorio"
+                className="w-full h-auto"
+              />
+            </div>
+            
+            {/* Contenido del texto */}
+            <div className="order-2 lg:order-2">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                ¿Quién puede formar parte?
+              </h2>
+              
+              <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                El Directorio está abierto a empresas de América Latina que ofrecen soluciones especializadas con sus productos o servicios para parques, espacios públicos y entornos urbanos.
+              </p>
+              
+              <div className="space-y-3 text-gray-700">
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Juegos infantiles</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Mobiliario urbano</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Superficies deportivas</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Señalética y accesibilidad</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Tecnología de riego y landscaping</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Iluminación y energía limpia</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Mantenimiento de áreas verdes y manejo de residuos</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Seguridad, movilidad eléctrica y accesos automatizados</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Diseño, construcción y servicios para parques</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>Uniformes, productos promocionales</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-3"></span>
+                  <span>y más...</span>
+                </div>
               </div>
-            ))}
-          </div>
-          
-          <div className="mt-12 text-center">
-            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-              Si tu empresa contribuye a mejorar la calidad, funcionalidad o sostenibilidad 
-              de los espacios públicos, <strong>este directorio es para ti</strong>.
-            </p>
+              
+              <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+                <p className="text-gray-700 italic font-medium">
+                  Si tu empresa contribuye a mejorar la calidad, funcionalidad o sostenibilidad de los espacios públicos, este directorio es para ti.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
+
 
       {/* ¿Por qué unirte al Directorio? */}
       <div style={{ backgroundColor: '#0f2161' }} className="text-white py-16">
