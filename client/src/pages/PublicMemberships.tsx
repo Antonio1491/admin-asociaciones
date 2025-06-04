@@ -7,6 +7,7 @@ import { Check, Star, Crown, Zap, ShoppingCart } from "lucide-react";
 import type { MembershipType } from "@/../../shared/schema";
 import headerDirectorioImage from "@assets/header_directorio.png";
 import fondoHeaderDirectorioImage from "@assets/fondo_header_directorio.png";
+import Footer from "@/components/Footer";
 
 export default function PublicMemberships() {
   const [, setLocation] = useLocation();
@@ -634,6 +635,9 @@ export default function PublicMemberships() {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
