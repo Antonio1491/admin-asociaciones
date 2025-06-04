@@ -567,57 +567,59 @@ export default function PublicMemberships() {
           </div>
         </div>
 
-        {/* Call to Action Final */}
-        <div className="mt-16 text-center">
-          <div style={{ background: 'linear-gradient(135deg, #0f2161 0%, #1a2f7a 100%)' }} className="rounded-2xl shadow-lg p-12 max-w-5xl mx-auto text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              ¡Súmate hoy al directorio más grande de América Latina!
-            </h2>
-            <p className="text-xl mb-8 max-w-3xl mx-auto leading-relaxed" style={{ color: '#e5e7eb' }}>
-              No dejes pasar la oportunidad de gozar de una herramienta que impulsa la calidad, 
-              la innovación y las alianzas en el sector del espacio público. 
-              Conecta, crece y transforma junto a la ANPR México.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button size="lg" className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 text-lg">
-                Registrarse Ahora
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white text-white font-semibold px-8 py-4 text-lg transition-colors"
-                style={{ borderColor: '#ffffff' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#ffffff';
-                  e.currentTarget.style.color = '#0f2161';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.color = '#ffffff';
-                }}
-              >
-                Solicitar Información
-              </Button>
-            </div>
-            
-            <div className="border-t pt-8 mt-8" style={{ borderColor: '#ffffff40' }}>
-              <div className="flex flex-col md:flex-row items-center justify-center gap-6" style={{ color: '#e5e7eb' }}>
-                <div className="flex items-center gap-2">
-                  <span>📩</span>
-                  <a href="mailto:conexion@anpr.org.mx" className="hover:text-white transition-colors">
-                    conexion@anpr.org.mx
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>🔗</span>
-                  <a href="https://anpr.org.mx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-                    anpr.org.mx
-                  </a>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span>📱</span>
-                  <span>@anprmexico</span>
+        {/* Call to Action Final - Full Width */}
+        <div className="mt-16">
+          <div style={{ background: 'linear-gradient(135deg, #0f2161 0%, #1a2f7a 100%)' }} className="w-full py-16 text-white">
+            <div className="max-w-6xl mx-auto px-4 text-center">
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">
+                ¡Súmate hoy al directorio más grande de América Latina!
+              </h2>
+              <p className="text-xl mb-8 max-w-3xl mx-auto leading-relaxed" style={{ color: '#e5e7eb' }}>
+                No dejes pasar la oportunidad de gozar de una herramienta que impulsa la calidad, 
+                la innovación y las alianzas en el sector del espacio público. 
+                Conecta, crece y transforma junto a la ANPR México.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                <Button size="lg" className="bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 text-lg">
+                  Registrarse Ahora
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-white text-white font-semibold px-8 py-4 text-lg transition-colors"
+                  style={{ borderColor: '#ffffff' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#ffffff';
+                    e.currentTarget.style.color = '#0f2161';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                >
+                  Solicitar Información
+                </Button>
+              </div>
+              
+              <div className="border-t pt-8 mt-8" style={{ borderColor: '#ffffff40' }}>
+                <div className="flex flex-col md:flex-row items-center justify-center gap-6" style={{ color: '#e5e7eb' }}>
+                  <div className="flex items-center gap-2">
+                    <span>📩</span>
+                    <a href="mailto:conexion@anpr.org.mx" className="hover:text-white transition-colors">
+                      conexion@anpr.org.mx
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>🔗</span>
+                    <a href="https://anpr.org.mx" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                      anpr.org.mx
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span>📱</span>
+                    <span>@anprmexico</span>
+                  </div>
                 </div>
               </div>
             </div>
