@@ -126,7 +126,7 @@ export default function PublicMemberships() {
             {/* Imagen ilustrativa */}
             <div className="order-1 lg:order-2 flex justify-center">
               <img 
-                src="/attached_assets/1bc75b909ae9f3cb913401049aa904d7a5456cf0.png"
+                src="/attached_assets/que_es_el_directorio.png"
                 alt="Ilustración del Directorio de Equipamiento Urbano"
                 className="w-full max-w-md lg:max-w-lg h-auto"
               />
