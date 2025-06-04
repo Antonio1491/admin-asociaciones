@@ -136,7 +136,9 @@ export default function PublicMemberships() {
       </div>
 
       {/* Línea divisoria */}
-      <div className="border-t border-gray-300"></div>
+      <div className="flex justify-center py-8">
+        <div className="border-t border-gray-300 w-3/5"></div>
+      </div>
 
       {/* ¿Quién puede formar parte? - Nueva sección */}
       <div className="bg-white py-16">
@@ -218,33 +220,119 @@ export default function PublicMemberships() {
         </div>
       </div>
 
+      {/* Línea divisoria */}
+      <div className="flex justify-center py-8">
+        <div className="border-t border-gray-300 w-3/5"></div>
+      </div>
 
-
-      {/* ¿Por qué unirte al Directorio? */}
-      <div style={{ backgroundColor: '#0f2161' }} className="text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-12">
+      {/* ¿Por qué unirte al Directorio? - Nueva sección */}
+      <div className="bg-white py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">
             ¿Por qué unirte al Directorio?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div style={{ backgroundColor: '#1a2f7a' }} className="rounded-lg p-6">
-              <div className="text-4xl mb-4">🎯</div>
-              <h3 className="text-xl font-semibold mb-3">Tu marca donde importa</h3>
-              <p style={{ color: '#e5e7eb' }}>Llega a quienes toman decisiones reales</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            {/* Primera columna */}
+            <div className="space-y-8">
+              {/* Tu marca donde importa */}
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <img 
+                    src="/attached_assets/Rectangle 10.png"
+                    alt="Tu marca donde importa"
+                    className="w-12 h-12"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Tu marca donde importa:</h3>
+                  <p className="text-gray-600">Llega a quienes toman decisiones reales.</p>
+                </div>
+              </div>
+
+              {/* Presencia que convierte */}
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <img 
+                    src="/attached_assets/Rectangle 11.png"
+                    alt="Presencia que convierte"
+                    className="w-12 h-12"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Presencia que convierte:</h3>
+                  <p className="text-gray-600">Transforma tu visibilidad digital en oportunidades de negocio.</p>
+                </div>
+              </div>
+
+              {/* Visibilidad regional */}
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <img 
+                    src="/attached_assets/Rectangle 12.png"
+                    alt="Visibilidad regional"
+                    className="w-12 h-12"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Visibilidad regional:</h3>
+                  <p className="text-gray-600">Desde México hasta Argentina, haz que te vean.</p>
+                </div>
+              </div>
             </div>
-            <div style={{ backgroundColor: '#1a2f7a' }} className="rounded-lg p-6">
-              <div className="text-4xl mb-4">💼</div>
-              <h3 className="text-xl font-semibold mb-3">Contratos reales</h3>
-              <p style={{ color: '#e5e7eb' }}>Convierte tu presencia digital en contratos reales</p>
-            </div>
-            <div style={{ backgroundColor: '#1a2f7a' }} className="rounded-lg p-6">
-              <div className="text-4xl mb-4">🌎</div>
-              <h3 className="text-xl font-semibold mb-3">Alcance continental</h3>
-              <p style={{ color: '#e5e7eb' }}>Desde México hasta Argentina: haz que te vean</p>
+
+            {/* Segunda columna */}
+            <div className="space-y-8">
+              {/* Aparición en buscadores */}
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <img 
+                    src="/attached_assets/Rectangle 13.png"
+                    alt="Aparición en buscadores"
+                    className="w-12 h-12"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Aparición en buscadores:</h3>
+                  <p className="text-gray-600">Aprovecha el SEO de tu micrositio especializado.</p>
+                </div>
+              </div>
+
+              {/* Promoción cruzada */}
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <img 
+                    src="/attached_assets/Rectangle 14.png"
+                    alt="Promoción cruzada"
+                    className="w-12 h-12"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Promoción cruzada:</h3>
+                  <p className="text-gray-600">Posible presencia en eventos, webinars y medios aliados.</p>
+                </div>
+              </div>
+
+              {/* Atención personalizada */}
+              <div className="flex items-start space-x-4">
+                <div className="flex-shrink-0">
+                  <img 
+                    src="/attached_assets/Rectangle 15.png"
+                    alt="Atención personalizada"
+                    className="w-12 h-12"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-2">Atención personalizada:</h3>
+                  <p className="text-gray-600">Asesoría cercana para maximizar tu impacto.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+
 
       {/* Planes de Membresía */}
       <div id="membership-plans" className="bg-white py-16">
