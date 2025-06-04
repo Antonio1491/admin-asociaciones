@@ -79,7 +79,13 @@ export default function PublicMemberships() {
             
             <Button 
               size="lg"
-              className="bg-green-500 hover:bg-green-600 text-white font-bold px-8 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="text-black font-bold px-8 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              style={{ 
+                backgroundColor: '#bcce16',
+                ':hover': { backgroundColor: '#a8b814' }
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#a8b814'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bcce16'}
               onClick={() => {
                 const plansSection = document.getElementById('membership-plans');
                 if (plansSection) {
