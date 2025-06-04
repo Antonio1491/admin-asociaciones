@@ -68,7 +68,7 @@ export default function PublicMemberships() {
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               Directorio de
               <br />
-              <span className="text-yellow-400">Equipamiento Urbano</span>
+              Equipamiento Urbano
               <br />
               LATAM
             </h1>
@@ -79,7 +79,7 @@ export default function PublicMemberships() {
             
             <Button 
               size="lg"
-              className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-8 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="bg-green-500 hover:bg-green-600 text-white font-bold px-8 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               onClick={() => {
                 const plansSection = document.getElementById('membership-plans');
                 if (plansSection) {
