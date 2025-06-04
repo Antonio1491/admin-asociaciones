@@ -402,12 +402,17 @@ export default function PublicMemberships() {
                       </p>
                     )}
                     
-                    {membership.beneficios && Array.isArray(membership.beneficios) && (
+                    {membership.beneficios && (
                       <div className="space-y-3 mb-8">
-                        {(membership.beneficios as string[]).map((beneficio: string, idx: number) => (
-                          <div key={idx} className="flex items-center">
-                            <Check className={`h-5 w-5 ${colorScheme.accent} mr-3 flex-shrink-0`} />
-                            <span className="text-gray-700">{beneficio}</span>
+                        {(typeof membership.beneficios === 'string' 
+                          ? membership.beneficios.split('\n').filter(b => b.trim())
+                          : Array.isArray(membership.beneficios) 
+                            ? membership.beneficios 
+                            : []
+                        ).map((beneficio: string, idx: number) => (
+                          <div key={idx} className="flex items-start">
+                            <Check className={`h-5 w-5 ${colorScheme.accent} mr-3 flex-shrink-0 mt-0.5`} />
+                            <span className="text-gray-700 text-sm leading-relaxed">{beneficio.trim()}</span>
                           </div>
                         ))}
                       </div>
