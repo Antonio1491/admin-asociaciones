@@ -350,12 +350,13 @@ export default function PublicMemberships() {
       {/* Memberships Section */}
       <div className="max-w-7xl mx-auto px-4 pb-16">
         {memberships && memberships.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {memberships.map((membership: any, index: number) => {
-              const Icon = getIcon(index);
-              const colorScheme = getColorScheme(index);
-              
-              return (
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
+              {memberships.map((membership: any, index: number) => {
+                const Icon = getIcon(index);
+                const colorScheme = getColorScheme(index);
+                
+                return (
                 <Card key={membership.id} className={`relative hover:shadow-xl transition-all duration-300 border-2 ${colorScheme.border} group hover:-translate-y-2`}>
                   {/* Popular Badge for middle plan */}
                   {index === 1 && (
@@ -427,7 +428,8 @@ export default function PublicMemberships() {
                   </CardContent>
                 </Card>
               );
-            })}
+              })}
+            </div>
           </div>
         ) : (
           <div className="text-center py-16">
@@ -443,7 +445,9 @@ export default function PublicMemberships() {
             </div>
           </div>
         )}
+      </div>
 
+      <div className="max-w-7xl mx-auto px-4">
         {/* Bonos y promociones exclusivas */}
         <div className="mt-16 mb-16">
           <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-lg p-8 max-w-6xl mx-auto text-white">
