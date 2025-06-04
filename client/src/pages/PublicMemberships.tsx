@@ -405,7 +405,7 @@ export default function PublicMemberships() {
                     {membership.beneficios && (
                       <div className="space-y-3 mb-8">
                         {(typeof membership.beneficios === 'string' 
-                          ? membership.beneficios.split('\n').filter(b => b.trim())
+                          ? membership.beneficios.split('\n').filter((b: string) => b.trim())
                           : Array.isArray(membership.beneficios) 
                             ? membership.beneficios 
                             : []
@@ -475,53 +475,93 @@ export default function PublicMemberships() {
           </div>
         </div>
 
-        {/* Beneficios adicionales */}
+        {/* ¿Cómo funciona? */}
         <div className="mt-16 mb-16">
-          <div className="bg-gray-50 rounded-2xl p-8 max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center">
-              Beneficios adicionales
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-4xl mb-4">🔍</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-600">SEO Optimizado</h3>
-                <p className="text-gray-500">Aparecer en buscadores gracias al SEO del micrositio</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl mb-4">📢</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-600">Promoción cruzada</h3>
-                <p className="text-gray-500">En eventos, webinars y medios aliados</p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl mb-4">🤝</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-600">Atención personalizada</h3>
-                <p className="text-gray-500">Acompañamiento y atención personalizada</p>
+          <div className="bg-white py-16">
+            <div className="max-w-6xl mx-auto px-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">
+                ¿Cómo funciona?
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+                {/* Paso 1 */}
+                <div className="text-center">
+                  <div className="flex justify-center mb-6">
+                    <img 
+                      src="/attached_assets/paso 1.png"
+                      alt="Elige tu plan y registra tu pago en línea"
+                      className="w-32 h-32 object-contain"
+                    />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">
+                    1. Elige tu plan y registra tu pago en línea
+                  </h3>
+                </div>
+
+                {/* Paso 2 */}
+                <div className="text-center">
+                  <div className="flex justify-center mb-6">
+                    <img 
+                      src="/attached_assets/paso 2.png"
+                      alt="Envía tu información y materiales"
+                      className="w-32 h-32 object-contain"
+                    />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">
+                    2. Envía tu información y materiales
+                  </h3>
+                </div>
+
+                {/* Paso 3 */}
+                <div className="text-center">
+                  <div className="flex justify-center mb-6">
+                    <img 
+                      src="/attached_assets/paso 3.png"
+                      alt="Tu micrositio estará activo dentro de 5 días hábiles"
+                      className="w-32 h-32 object-contain"
+                    />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-3">
+                    3. Tu micrositio estará activo dentro de 5 días hábiles.
+                  </h3>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Cómo funciona */}
+        {/* Contacto y Soporte */}
         <div className="mt-16 mb-16">
-          <div className="bg-blue-50 rounded-2xl p-8 max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center">
-              ¿Cómo funciona?
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">1</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-600">Elige y paga</h3>
-                <p className="text-gray-500">Elige tu plan y registra tu pago en línea</p>
-              </div>
-              <div className="text-center">
-                <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">2</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-600">Envía información</h3>
-                <p className="text-gray-500">Envía tu información y materiales</p>
-              </div>
-              <div className="text-center">
-                <div style={{ backgroundColor: '#0f2161' }} className="text-white rounded-full w-12 h-12 flex items-center justify-center text-xl font-bold mx-auto mb-4">3</div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-600">¡Activo en 5 días!</h3>
-                <p className="text-gray-500">Tu micrositio estará activo dentro de 5 días hábiles</p>
+          <div className="bg-gray-50 py-16">
+            <div className="max-w-6xl mx-auto px-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                {/* Contenido del texto */}
+                <div className="order-2 lg:order-1">
+                  <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+                    Conecta, crece y transforma junto a la ANPR México.
+                  </p>
+                  
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">
+                      Para más informes contáctanos:
+                    </h3>
+                    <a 
+                      href="mailto:conexion@anpr.org.mx"
+                      className="text-lg text-blue-600 hover:text-blue-800 font-medium"
+                    >
+                      conexion@anpr.org.mx
+                    </a>
+                  </div>
+                </div>
+                
+                {/* Imagen ilustrativa */}
+                <div className="order-1 lg:order-2 flex justify-center">
+                  <img 
+                    src="/attached_assets/61092b608a830dd58b1097c7ddba843b1a35cf3a.png"
+                    alt="Soporte y atención personalizada"
+                    className="w-full max-w-md h-auto"
+                  />
+                </div>
               </div>
             </div>
           </div>
