@@ -338,7 +338,7 @@ export default function PublicMemberships() {
       <div id="membership-plans" className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-700 mb-4">
-            Planes de Membresía
+            Elige tu plan
           </h2>
           <p className="text-lg text-gray-500 max-w-3xl mx-auto">
             Elige el plan que mejor se adapte a las necesidades de tu empresa. 
@@ -374,12 +374,24 @@ export default function PublicMemberships() {
                       {membership.nombrePlan}
                     </CardTitle>
                     <div className="mt-4">
-                      <span className={`text-4xl font-bold ${colorScheme.accent}`}>
-                        ${membership.costo}
-                      </span>
-                      <span className="text-gray-600 ml-2">
-                        /{membership.periodicidad === 'monthly' ? 'mes' : 'año'}
-                      </span>
+                      {membership.opcionesPrecios && Array.isArray(membership.opcionesPrecios) && membership.opcionesPrecios.length > 0 ? (
+                        <div className="space-y-2">
+                          {(membership.opcionesPrecios as any[]).map((opcion: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-center">
+                              <span className={`text-3xl font-bold ${colorScheme.accent}`}>
+                                ${opcion.costo}
+                              </span>
+                              <span className="text-gray-600 ml-2">
+                                /{opcion.periodicidad === 'mensual' ? 'mes' : 'año'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-gray-600">
+                          Contactar para precio
+                        </div>
+                      )}
                     </div>
                   </CardHeader>
                   
