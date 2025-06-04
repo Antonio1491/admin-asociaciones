@@ -81,8 +81,7 @@ export default function PublicMemberships() {
               size="lg"
               className="text-black font-bold px-8 py-4 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               style={{ 
-                backgroundColor: '#bcce16',
-                ':hover': { backgroundColor: '#a8b814' }
+                backgroundColor: '#bcce16'
               }}
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#a8b814'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#bcce16'}
@@ -100,43 +99,43 @@ export default function PublicMemberships() {
         </div>
       </div>
 
-      {/* ¿Qué es el Directorio? */}
+      {/* ¿Qué es el Directorio? - Nueva sección */}
       <div className="bg-white py-16">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-700 mb-8 text-center">
-            ¿Qué es el Directorio?
-          </h2>
-          <div className="prose prose-lg mx-auto text-gray-600 leading-relaxed">
-            <p className="mb-6">
-              El Directorio Digital de la Industria del Equipamiento Urbano es una iniciativa de la 
-              <strong> Asociación Nacional de Parques y Recreación de México (ANPR México)</strong>, 
-              una organización sin fines de lucro que promueve la profesionalización del sector de 
-              parques y espacios públicos en América Latina.
-            </p>
-            <p className="mb-8">
-              Esta plataforma especializada conecta a empresas proveedoras con los principales tomadores 
-              de decisiones en el diseño, desarrollo y operación de espacios públicos. Más que un catálogo, 
-              es el punto de encuentro donde la innovación y las oportunidades de negocio se materializan.
-            </p>
-            <div className="text-center">
-              <a 
-                href="https://anpr.org.mx/nosotros/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-6 py-3 text-white font-semibold rounded-lg transition-colors"
-                style={{ backgroundColor: '#0f2161' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1a2f7a'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0f2161'}
-              >
-                Conoce más sobre la ANPR México
-                <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Contenido del texto */}
+            <div className="order-2 lg:order-1">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+                ¿Qué es el Directorio?
+              </h2>
+              
+              <div className="space-y-4 text-gray-600 leading-relaxed">
+                <p className="text-lg">
+                  El Directorio de Equipamiento Urbano LATAM es una plataforma digital creada por la{" "}
+                  <span className="font-semibold text-green-600">ANPR México</span> que conecta a empresas 
+                  proveedoras con líderes en diseño y gestión de espacios públicos en América Latina.
+                </p>
+                
+                <p className="text-lg">
+                  Más que un catálogo, es una herramienta estratégica para impulsar la visibilidad comercial, 
+                  fomentar alianzas y generar nuevas oportunidades de negocio en la región.
+                </p>
+              </div>
+            </div>
+            
+            {/* Imagen ilustrativa */}
+            <div className="order-1 lg:order-2 flex justify-center">
+              <img 
+                src="/attached_assets/1bc75b909ae9f3cb913401049aa904d7a5456cf0.png"
+                alt="Ilustración del Directorio de Equipamiento Urbano"
+                className="w-full max-w-md lg:max-w-lg h-auto"
+              />
             </div>
           </div>
         </div>
       </div>
+
+
 
       {/* ¿Quién puede formar parte? */}
       <div className="bg-gray-50 py-16">
