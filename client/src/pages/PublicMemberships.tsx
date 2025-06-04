@@ -357,7 +357,7 @@ export default function PublicMemberships() {
                 const colorScheme = getColorScheme(index);
                 
                 return (
-                <Card key={membership.id} className={`relative hover:shadow-xl transition-all duration-300 border-2 ${colorScheme.border} group hover:-translate-y-2`}>
+                <Card key={membership.id} className={`relative hover:shadow-xl transition-all duration-300 border-2 ${colorScheme.border} group hover:-translate-y-2 flex flex-col h-full`}>
                   {/* Popular Badge for middle plan */}
                   {index === 1 && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -378,12 +378,12 @@ export default function PublicMemberships() {
                       {membership.opcionesPrecios && Array.isArray(membership.opcionesPrecios) && membership.opcionesPrecios.length > 0 ? (
                         <div className="space-y-2">
                           {(membership.opcionesPrecios as any[]).map((opcion: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-center">
+                            <div key={idx} className="flex items-baseline justify-center gap-1">
                               <span className={`text-3xl font-bold ${colorScheme.accent}`}>
                                 ${opcion.costo}
                               </span>
-                              <span className="text-gray-600 ml-2">
-                                /{opcion.periodicidad === 'mensual' ? 'mes' : 'año'}
+                              <span className="text-gray-600 text-sm">
+                                {opcion.periodicidad.toLowerCase()}
                               </span>
                             </div>
                           ))}
@@ -396,35 +396,39 @@ export default function PublicMemberships() {
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="pt-0">
+                  <CardContent className="pt-0 flex-1 flex flex-col">
                     {membership.descripcionPlan && (
                       <p className="text-gray-600 text-center mb-6">
                         {membership.descripcionPlan}
                       </p>
                     )}
                     
-                    {membership.beneficios && (
-                      <div className="space-y-3 mb-8">
-                        {(typeof membership.beneficios === 'string' 
-                          ? membership.beneficios.split('\n').filter((b: string) => b.trim())
-                          : Array.isArray(membership.beneficios) 
-                            ? membership.beneficios 
-                            : []
-                        ).map((beneficio: string, idx: number) => (
-                          <div key={idx} className="flex items-start">
-                            <Check className={`h-5 w-5 ${colorScheme.accent} mr-3 flex-shrink-0 mt-0.5`} />
-                            <span className="text-gray-700 text-sm leading-relaxed">{beneficio.trim()}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <div className="flex-1">
+                      {membership.beneficios && (
+                        <div className="space-y-3 mb-8">
+                          {(typeof membership.beneficios === 'string' 
+                            ? membership.beneficios.split('\n').filter((b: string) => b.trim())
+                            : Array.isArray(membership.beneficios) 
+                              ? membership.beneficios 
+                              : []
+                          ).map((beneficio: string, idx: number) => (
+                            <div key={idx} className="flex items-start">
+                              <Check className={`h-5 w-5 ${colorScheme.accent} mr-3 flex-shrink-0 mt-0.5`} />
+                              <span className="text-gray-700 text-sm leading-relaxed">{beneficio.trim()}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                     
-                    <Button 
-                      className={`w-full ${colorScheme.bg} hover:opacity-90 text-white font-semibold py-3`}
-                      onClick={() => setLocation(`/checkout-plan/${membership.id}`)}
-                    >
-                      Elegir Plan
-                    </Button>
+                    <div className="mt-auto">
+                      <Button 
+                        className={`w-full ${colorScheme.bg} hover:opacity-90 text-white font-semibold py-3`}
+                        onClick={() => setLocation(`/checkout-plan/${membership.id}`)}
+                      >
+                        Elegir Plan
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               );
