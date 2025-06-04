@@ -50,6 +50,9 @@ const upload = multer({
 export async function registerRoutes(app: Express): Promise<Server> {
   // Servir archivos estáticos desde la carpeta uploads
   app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  
+  // Servir archivos estáticos desde la carpeta attached_assets
+  app.use('/attached_assets', express.static(path.join(process.cwd(), 'attached_assets')));
 
   // Ruta para subir una sola imagen
   app.post("/api/upload-image", upload.single('image'), async (req, res) => {
